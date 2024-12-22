@@ -1,0 +1,33 @@
+{% extends "DeathWishBase.html" %}
+
+{% block title %}
+    {% if encounter.name != "blank" %}
+        {{ encounter.name }}
+    {% else %}
+        New Encounter
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<header>
+    {% if encounter.name != "blank" %}
+        <h1>{{ encounter.name }}</h1>
+    {% else %}
+        <h1>New Encounter</h1>
+    {% endif %}
+</header>
+
+<body>
+    <h3>Map Editor</h3>
+    <form method="POST"></form>
+    <div id="map_dimensions_form">
+        <label for="rows">Rows:</label>
+        <input type="number" id="rows" name="rows" min="1" value=14 required><br>
+        <label for="cols">Columns:</label>
+        <input type="number" id="cols" name="cols" min="1" value=14 required><br>
+        <button type="button" onclick="createMap()">Reset Map</button>
+    </div>
+    
+    
+
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends "DeathWishBase.html" %}
+
+{% block title %}DeathWish{% endblock %}
+
+{% block content %}
+<header>
+    <h1>Welcome, Game Master</h1>
+</header>
+
+<body>
+    <div id="campaigns">
+        <h2>Campaigns</h2>
+        {% for i in range(0, campaigns|length) %}
+            <h3>{{ campaigns[i].name }}</h3>
+            <p>
+                <a href="{{ url_for('RunCampaign', index=i) }}">Run</a>
+                <a href="{{ url_for('EditCampaign', index=i, isNew=0) }}">Edit</a>
+            </p>
+        {% endfor %}
+        <br>
+        <p><a href="{{ url_for('EditCampaign', index=0, isNew=1) }}">New Campaign</a></p>
+    </div>
+    
+    <h2>Game Assets</h2>
+    <a href="{{ url_for('AssetsTop') }}">Edit Assets</a>
+</body>
+{% endblock %}

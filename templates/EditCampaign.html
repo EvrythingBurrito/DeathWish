@@ -1,0 +1,109 @@
+{% extends "DeathWishBase.html" %}
+
+{% block title %}
+    {% if campaign.name != "blank" %}
+        {{ campaign.name }}
+    {% else %}
+        New Campaign
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<header>
+    {% if campaign.name != "blank" %}
+        <h1>{{ campaign.name }}</h1>
+    {% else %}
+        <h1>New Campaign</h1>
+    {% endif %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/maps.css') }}">
+</header>
+
+<body>
+    <div id="map_container">
+        <h3>Campaign Map</h3>
+        <div id="map_dimensions">
+            {% if campaign.name != "blank" %}
+                <label for="rows">Rows:</label>
+                <input type="number" id="rows" name="rows" min="1" value={{ campaign.regionMapIndexes|length }} required><br>
+                <label for="cols">Columns:</label>
+                <input type="number" id="cols" name="cols" min="1" value={{ campaign.regionMapIndexes[0]|length }} required><br>
+            {% else %}
+            <label for="rows">Rows:</label>
+            <input type="number" id="rows" name="rows" min="1" value=14 required><br>
+            <label for="cols">Columns:</label>
+            <input type="number" id="cols" name="cols" min="1" value=14 required><br>
+            {% endif %}
+            <button type="button" onclick="createMap()">Reset Map</button>
+        </div>
+        <div id="map_form">
+            <form method="POST" id="save_campaign_form">
+                <input type="hidden" name="action" value="save_campaign_form">
+                <label for="regionSelect">Select Region:</label>
+                <select id="regionSelect">
+                    {% for i in range(0, regionNames|length) %}
+                        <option value="{{ i }}">{{ regionNames[i] }}</option>
+                    {% endfor %}
+                </select>
+                <button type="button" onclick="updateSelectedRegionIndex()">Set Region</button>
+                <br><br>
+                <div id="map"></div>
+                <input type="hidden" name="map_data" id="map_data">
+                <br><br>
+                <h3>Campaign Name</h3>
+                <input type="text" name="campaignName" placeholder="campaign name">
+            </form>
+            <button type="submit" form="save_campaign_form">Save Campaign</button>
+        </div>
+    </div>
+    <form method="POST" id="delete_campaign_form">
+        <input type="hidden" name="action" value="delete_campaign_form">
+    </form>
+    <button type="submit" form="delete_campaign_form">Delete Campaign</button>
+
+    <!-- <script src="{{ url_for('static', filename='js/EditCampaign.js') }}"></script> -->
+     <script>
+        let selectedRegionIndex = 0; // Default region
+        const JSRegionURLS = {{regionURLs|tojson}}; // ignore these errors, not sure what the issue is
+
+        function updateSelectedRegionIndex() {
+            selectedRegionIndex = document.getElementById('regionSelect').value;
+        }
+
+        function createMap() {
+            const rows = parseInt(document.getElementById('rows').value);
+            const cols = parseInt(document.getElementById('cols').value);
+            const mapContainer = document.getElementById('map');
+            mapContainer.innerHTML = '';
+
+            // save form into browser JSON
+            mapData = Array(rows).fill(null).map(() => Array(cols).fill(selectedRegionIndex)); // Initialize map data
+
+            for (let i = 0; i < rows; i++) {
+                const row = document.createElement('div');
+                row.classList.add('map-row');
+
+                for (let j = 0; j < cols; j++) {
+                    const cell = document.createElement('button');
+                    cell.type = 'button' // Important: Prevent form submission
+                    cell.classList.add('map-cell');
+                    // cell.textContent = mapData[i][j];
+                    cell.style.backgroundImage = `url(${JSRegionURLS[mapData[i][j]]})`;
+
+                    cell.addEventListener('click', () => {
+                        // cell.textContent = selectedRegionIndex;
+                        cell.style.backgroundImage = `url(${JSRegionURLS[selectedRegionIndex]})`
+                        mapData[i][j] = selectedRegionIndex;
+                        document.getElementById("map_data").value = JSON.stringify(mapData);
+                    });
+                    row.appendChild(cell);
+                }
+
+                mapContainer.appendChild(row);
+            }
+        }
+
+        createMap();
+     </script>
+    
+</body>
+{% endblock %}

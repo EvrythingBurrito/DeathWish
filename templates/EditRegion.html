@@ -1,0 +1,39 @@
+{% extends "DeathWishBase.html" %}
+
+{% block title %}
+    {% if region.name != "blank" %}
+        {{ region.name }}
+    {% else %}
+        New Region
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<body>
+    <form method="POST" id="save_region_form">
+        <h3>Region Name</h3>
+        <input type="hidden" name="action" value="save_region_form">
+        <!-- autopopulate if region already exists -->
+        {% if region.name == "blank" %}
+            <label for="regionName">Region Name:</label>
+            <input type="text" name="regionName" placeholder="region name">
+            <br>
+            <label for="mapIconImgFile">Path to map icon image:</label>
+            <input type="text" name="mapIconImgFile" placeholder="mapIcon.jpg">
+        {% else %}
+            <label for="regionName">Region Name:</label>
+            <input type="text" name="regionName" value="{{ region.name }}" placeholder="region name">
+            <br>
+            <label for="mapIconImgFile">Path to map icon image:</label>
+            <input type="text" name="mapIconImgFile" value="{{ region.worldMapIconFile }}" placeholder="mapIcon.jpg">
+        {% endif %}
+    </form>
+    <button type="submit" form="save_region_form">Save Region</button>
+    <br>
+    <br>
+    <form method="POST" id="delete_region_form">
+        <input type="hidden" name="action" value="delete_region_form">
+        <button type="submit" name="delete_region">Delete Region</button>
+    </form>
+</body>
+{% endblock %}
