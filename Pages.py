@@ -6,6 +6,7 @@ import Game
 from Campaign import Campaign
 from Region import Region
 from NPC import NPC
+from Encounter import Encounter
 from Monster import Monster
 from Sentient import Sentient
 
@@ -107,6 +108,29 @@ def EditNPC(index, isNew):
                 Game.assets.delete_NPC(index)
         return redirect(url_for('AssetsTop'))
     return render_template('EditNPC.html', npc=npc)
+
+### display chosen objects attributes in editable forms
+@app.route('/GameMaster/Assets/Encounter_<int:index><int:isNew>', methods=['GET', 'POST'])
+def EditEncounter(index, isNew):
+    object_types = ['red_block', 'blue_circle', 'green_triangle']
+    if isNew < 1:
+        encounter = Game.assets.encounterList[index]
+    else:
+        encounter = Encounter("blank", "path_to_image")
+    if request.method == 'POST':
+        if request.form.get("action") == "save_encounter_form":
+            encounterName = request.form.get('encounterName')
+            encounter = Encounter(encounterName, 0)
+            if isNew == 1:
+                Game.assets.add_encounter(encounter)
+            else:
+                Game.assets.encounterList[index] = encounter
+                Game.assets.update_encounter_save(encounter)
+        elif request.form.get("action") == "delete_encounter_form":
+            if isNew == 0:
+                Game.assets.delete_encounter(index)
+        return redirect(url_for('AssetsTop'))
+    return render_template('EditEncounter.html', encounter=encounter, object_types=object_types)
 
 ### display chosen campaign world map, premise, recent party events, etc.
 @app.route('/GameMaster/RunCampaign/Campaign_<int:index>')

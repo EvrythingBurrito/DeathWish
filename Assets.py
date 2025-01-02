@@ -1,6 +1,7 @@
 import json
 import os
 from Region import Region
+from Encounter import Encounter
 from Campaign import Campaign
 from NPC import NPC
 import glob
@@ -9,6 +10,7 @@ class Assets:
     def __init__(self):
         self.campaignDir = "Assets/Campaigns"
         self.regionDir = "Assets/Regions"
+        self.encounterDir = "Assets/Encounters"
         self.NPCDir = "Assets/NPCs"
         ### initialize lists
         self.campaignList = []
@@ -16,7 +18,7 @@ class Assets:
         self.regionList = []
         self.update_region_list()
         self.tangibleList = []
-        self.EncounterList = []
+        self.encounterList = []
         self.NPCList = []
         self.update_NPC_list()
 
@@ -34,6 +36,13 @@ class Assets:
     def delete_region(self, index):
         self.delete_region_save(self.regionList[index])
         del self.regionList[index]
+
+    def add_encounter(self, encounter):
+        self.encounterList.append(encounter)
+        self.update_encounter_save(encounter)
+    def delete_encounter(self, index):
+        self.delete_encounter_save(self.encounterList[index])
+        del self.encounterList[index]
 
     def add_NPC(self, NPC):
         self.NPCList.append(NPC)
@@ -92,6 +101,30 @@ class Assets:
                 data = json.load(f)
                 aRegion = Region.from_json(data)
                 self.regionList.append(aRegion)
+
+########################################################### ENCOUNTERS
+
+    ### create or update save file for desired encounter
+    def update_encounter_save(self, encounter):
+        filename = self.encounterDir + "/" + encounter.name.replace(" ", "_") + ".json"
+        if encounter not in self.encounterList:
+            self.add_encounter(encounter)
+        if os.path.exists(filename):
+            print("overwriting encounter save!")
+        with open(filename, 'w') as f:
+            json.dump(encounter.to_json(), f)
+
+    def delete_encounter_save(self, encounter):
+        filename = self.encounterDir + "/" + encounter.name.replace(" ", "_") + ".json"
+        os.remove(filename)
+
+    def update_encounter_list(self):
+        self.encounterList = []
+        for filename in glob.glob(self.encounterDir + "/*.json"):
+            with open(filename, 'r') as f:
+                data = json.load(f)
+                aEncounter = Encounter.from_json(data)
+                self.encounterList.append(aEncounter)
 
 ########################################################### NPCS
 
