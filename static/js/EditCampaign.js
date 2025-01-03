@@ -1,5 +1,4 @@
 let selectedRegionIndex = 0; // Default region
-const JSRegionURLS = {{regionURLs|tojson}}; // ignore these errors, not sure what the issue is
 
 function updateSelectedRegionIndex() {
     selectedRegionIndex = document.getElementById('regionSelect').value;
@@ -12,7 +11,7 @@ function createMap() {
     mapContainer.innerHTML = '';
 
     // save form into browser JSON
-    mapData = Array(rows).fill(null).map(() => Array(cols).fill(selectedRegionIndex)); // Initialize map data
+    mapData = mapDataOriginal
 
     for (let i = 0; i < rows; i++) {
         const row = document.createElement('div');
@@ -37,5 +36,3 @@ function createMap() {
         mapContainer.appendChild(row);
     }
 }
-
-createMap();

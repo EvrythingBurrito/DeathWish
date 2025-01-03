@@ -93,7 +93,7 @@ def EditNPC(index, isNew):
             npcType = request.form.get('npcType')
             npcHealth = request.form.get('npcHealth')
             ### only expect the user to type in the filename, not the relative path
-            mapIconImgFile = "Assets/NPCs/Images/" + request.form.get('mapIconImgFile')
+            mapIconImgFile = request.form.get('mapIconImgFile')
             if (npcType == "Monster"):
                 npc = Monster(npcName, 0, npcHealth, mapIconImgFile)
             else:
@@ -112,11 +112,15 @@ def EditNPC(index, isNew):
 ### display chosen objects attributes in editable forms
 @app.route('/GameMaster/Assets/Encounter_<int:index><int:isNew>', methods=['GET', 'POST'])
 def EditEncounter(index, isNew):
-    object_types = ['red_block', 'blue_circle', 'green_triangle']
     if isNew < 1:
         encounter = Game.assets.encounterList[index]
     else:
-        encounter = Encounter("blank", "path_to_image")
+        encounter = Encounter("blank", [])
+    # create serialized lists of all pictures to be dynamically used
+    objectPics = []
+    for npc in Game.assets.NPCList:
+        objectPics.append(npc.mapIconImgFile)
+    objectPicURLs = [url_for('static', filename=path) for path in objectPics]
     if request.method == 'POST':
         if request.form.get("action") == "save_encounter_form":
             encounterName = request.form.get('encounterName')
@@ -130,7 +134,7 @@ def EditEncounter(index, isNew):
             if isNew == 0:
                 Game.assets.delete_encounter(index)
         return redirect(url_for('AssetsTop'))
-    return render_template('EditEncounter.html', encounter=encounter, object_types=object_types)
+    return render_template('EditEncounter.html', encounter=encounter, npcList=Game.assets.NPCList, objectPicURLs=objectPicURLs)
 
 ### display chosen campaign world map, premise, recent party events, etc.
 @app.route('/GameMaster/RunCampaign/Campaign_<int:index>')

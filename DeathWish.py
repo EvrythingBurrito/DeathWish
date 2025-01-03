@@ -10,7 +10,8 @@ import Game
 from Region import Region
 
 # flask page definition
-host_name = "127.0.0.1"
+# host_name = "127.0.0.1"
+host_name = "0.0.0.0" # listen on all public IPs
 port = "5000"
 # flask main
 def run_flask_app():

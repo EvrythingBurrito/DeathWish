@@ -5,7 +5,7 @@ class Encounter:
     def __init__(self, name, mapGrid):
         ### required
         self.name = name
-        # 2D array of MapCells
+        # 2D array of lists of mapObjects, the rules of which should be enforced in the browser side
         self.mapGrid = mapGrid
         ### optional
         self.description = ""

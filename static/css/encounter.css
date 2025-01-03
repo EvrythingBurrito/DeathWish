@@ -1,21 +1,27 @@
+body {
+    display: grid;
+    place-items: center; /* Centers both horizontally and vertically */
+    min-height: 100vh;
+    margin: 0;
+}
+
 #grid-container {
     display: grid;
     grid-template-columns: repeat(10, 50px);
     grid-template-rows: repeat(10, 50px);
-    border: 1px solid black;
     position: relative; /* Needed for absolute positioning of objects */
 }
 
 .grid-cell {
-    border: 1px solid lightgray;
+    border: 1px solid rgb(0, 0, 0);
     width: 50px;
     height: 50px;
     box-sizing: border-box;
 }
 
-.draggable-object {
-    position: absolute;
+#draggable-object {
     cursor: move;
+    position: absolute; /* Important for positioning during drag */
 }
 
 .palette-object {
@@ -31,23 +37,30 @@
     display: flex;
 }
 
-#draggable-object.red_block {
-    width: 100px;
-    height: 100px;
+.draggable-object.red_block {
+    width: 50px;
+    height: 50px;
     background-color: red;
 }
 
-#draggable-object.blue_circle {
-    width: 100px;
-    height: 100px;
+.draggable-object.blue_circle {
+    width: 48px;
+    height: 48px;
     background-color: blue;
     border-radius: 50%;
 }
 
-#draggable-object.green_triangle {
+.draggable-object.npc {
+    width: 48px;
+    height: 48px;
+    background-color: black;
+    border-radius: 50%;
+}
+
+.draggable-object.green_triangle {
     width: 0;
     height: 0;
-    border-left: 50px solid transparent;
-    border-right: 50px solid transparent;
-    border-bottom: 100px solid green;
+    border-left: 25px solid transparent;
+    border-right: 25px solid transparent;
+    border-bottom: 50px solid green;
 }
