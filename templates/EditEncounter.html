@@ -25,7 +25,7 @@
         {% else %}
             <input type="text" name="encounterName" value="{{ encounter.name }}" placeholder="encounter name">
         {% endif %}
-        <input type="hidden" id="grid_data" name="grid_data">
+        <input type="hidden" id="mapObjects" name="mapObjects">
     </form>
 
     <br>
@@ -37,6 +37,7 @@
     </div>
     <script>
         const objectPicURLs = {{ objectPicURLs|tojson }};
+        const gridDataOriginString = {{ encounter.mapGrid|tojson }};
     </script>
     <div id="grid-container">
         {% for row in range(10) %}
@@ -48,7 +49,12 @@
         {% endfor %}
     </div>
     <script src="{{ url_for('static', filename='js/EditEncounter.js') }}"></script>
-    
+    {% if encounter.name != "blank" %}
+        <script>
+            const gridDataOrigin = JSON.parse(gridDataOriginString);
+            updateGridFromData();
+        </script>
+    {% endif %}
     <button type="submit" form="save_encounter_form">Save Encounter</button>
 
     <br>

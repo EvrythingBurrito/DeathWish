@@ -1,6 +1,6 @@
 const gridContainer = document.getElementById('grid-container');
 const objectPalette = document.getElementById('object-palette');
-const gridDataInput = document.getElementById('grid_data');
+const gridDataInput = document.getElementById('mapObjects');
 const cellSize = 50;
 let objectsOnGrid = [];
 let nextObjectId = 0;
@@ -84,43 +84,47 @@ function createDraggableObject(objectType, objectIndex, x, y) {
     row = Math.max(0, Math.min(9, row));
 
     const obj = document.createElement('div');
-    obj.id = `draggable-object-${nextObjectId++}`;
+    obj.id = `${objectType}-${objectIndex}-${nextObjectId++}`; // each object is the type, type asset index, then an arbitrary id value to differentiate
     obj.classList.add('draggable-object', objectType);
-    console.log(objectPicURLs[objectIndex])
-    console.log(objectIndex)
-    console.log(objectType)
     obj.style.backgroundImage = `url(${objectPicURLs[objectIndex]})`
     obj.style.backgroundRepeat = 'no-repeat'; // Ensure image doesn't repeat
     obj.style.backgroundSize = 'cover'; // Resize image to fit object size
     obj.draggable = true;
     obj.style.position = 'absolute'; // Ensure absolute positioning
-    obj.style.left = (col * cellSize) + 'px';
-    obj.style.top = (row * cellSize) + 'px';
+    const objRect = obj.getBoundingClientRect();
     gridContainer.appendChild(obj);
+    const snappedX = col * cellSize;
+    const snappedY = row * cellSize;
+    // need to use translate3d rather than the style.left/top attributes so that it can be moved again with no jumps
+    obj.style.transform = `translate3d(${snappedX}px, ${snappedY}px, 0)`;
     objectsOnGrid.push(obj);
-    makeDraggable(obj);
+    makeDraggable(obj, x, y);
 }
 
 function makeDraggable(obj) {
     let isDragging = false;
     let dragOffsetX = 0;
     let dragOffsetY = 0;
-    obj.addEventListener('mousedown', dragStart);
-    obj.addEventListener('touchstart', dragStart, { passive: false });
+    let initialX = 0;
+    let initialY = 0;
 
     function dragStart(e) {
         e.preventDefault();
         isDragging = true;
         currentObject = obj;
+
         const gridRect = gridContainer.getBoundingClientRect();
         let touch = e.touches ? e.touches[0] : e;
-        let x = touch.clientX - gridRect.left;
-        let y = touch.clientY - gridRect.top;
-    
+        initialX = touch.clientX - gridRect.left;
+        initialY = touch.clientY - gridRect.top;
+
         const objRect = obj.getBoundingClientRect();
-        dragOffsetX = x - objRect.left; //Simplified offset calculation
-        dragOffsetY = y - objRect.top;
-    
+        dragOffsetX = initialX - objRect.left;
+        dragOffsetY = initialY - objRect.top;
+
+        // Set initial transform based on the object's initial position
+        obj.style.transform = `translate3d(${objRect.left - gridRect.left}px, ${objRect.top - gridRect.top}px, 0)`;
+
         if (e.type === 'mousedown') {
             window.addEventListener('mousemove', drag);
             window.addEventListener('mouseup', dragEnd);
@@ -129,7 +133,7 @@ function makeDraggable(obj) {
             window.addEventListener('touchend', dragEnd);
         }
     }
-    
+
     function drag(e) {
         if (isDragging && currentObject) {
             e.preventDefault();
@@ -137,13 +141,12 @@ function makeDraggable(obj) {
             let touch = e.touches ? e.touches[0] : e;
             let x = touch.clientX - (2*gridRect.left) - dragOffsetX;
             let y = touch.clientY - (2*gridRect.top) - dragOffsetY;
-    
             x = Math.max(0, Math.min(gridRect.width - currentObject.offsetWidth, x));
             y = Math.max(0, Math.min(gridRect.height - currentObject.offsetHeight, y));
             currentObject.style.transform = `translate3d(${x}px, ${y}px, 0)`;
         }
     }
-    
+
     function dragEnd(e) {
         if (isDragging && currentObject) {
             isDragging = false;
@@ -151,34 +154,36 @@ function makeDraggable(obj) {
             window.removeEventListener('mouseup', dragEnd);
             window.removeEventListener('touchmove', drag);
             window.removeEventListener('touchend', dragEnd);
-    
+
             const gridRect = gridContainer.getBoundingClientRect();
-            let touch = e.changedTouches && e.changedTouches.length > 0 ? e.changedTouches[0] : e; // Corrected touch handling
+            let touch = e.changedTouches && e.changedTouches.length > 0 ? e.changedTouches[0] : e;
             let x = touch.clientX - gridRect.left;
             let y = touch.clientY - gridRect.top;
-    
+
             x = Math.max(0, Math.min(gridRect.width - currentObject.offsetWidth, x));
             y = Math.max(0, Math.min(gridRect.height - currentObject.offsetHeight, y));
-    
+
             let col = Math.round(x / cellSize);
             let row = Math.round(y / cellSize);
-    
+
             const snappedX = col * cellSize;
             const snappedY = row * cellSize;
-    
+
             currentObject.style.transform = `translate3d(${snappedX}px, ${snappedY}px, 0)`;
-            currentObject.style.left = '';
+            currentObject.style.left = ''; // Crucial: Reset left and top
             currentObject.style.top = '';
             currentObject = null;
             updateGridData();
         }
     }
-    
+
+    obj.addEventListener('mousedown', dragStart);
+    obj.addEventListener('touchstart', dragStart, { passive: false });
 }
 
 function updateGridData() {
     // (This function remains the same)
-        const grid = [];
+    const grid = [];
     for (let row = 0; row < 10; row++) {
         grid.push([]);
         for (let col = 0; col < 10; col++) {
@@ -193,7 +198,7 @@ function updateGridData() {
         const objTop = objRect.top - gridRect.top;
         const objRight = objLeft + objRect.width;
         const objBottom = objTop + objRect.height;
-        const objName = obj.classList[1];
+        const objName = obj.id;
 
         for (let row = 0; row < 10; row++) {
             for (let col = 0; col < 10; col++) {
@@ -202,12 +207,41 @@ function updateGridData() {
                 const cellRight = cellLeft + cellSize;
                 const cellBottom = cellTop + cellSize;
 
-                if (!(objRight < cellLeft || objLeft > cellRight || objBottom < cellTop || objTop > cellBottom)) {
+                if ((objRight <= cellRight) && (objLeft >= cellLeft) && (objBottom <= cellBottom) && (objTop >= cellTop)) {
                     grid[row][col].objects.push(objName);
                 }
             }
         }
     });
-
+    // console.log(objectsOnGrid.length);
     gridDataInput.value = JSON.stringify(grid);
+}
+
+function updateGridFromData() {
+    // Clear existing objects on the grid
+    const gridRect = gridContainer.getBoundingClientRect();
+    objectsOnGrid.forEach(obj => gridContainer.removeChild(obj));
+    objectsOnGrid = [];
+    nextObjectId = 0;
+
+    // console.log(gridDataOrigin);
+    for (let row = 0; row < gridDataOrigin.length; row++) {
+        for (let col = 0; col < gridDataOrigin[row].length; col++) {
+            const cellData = gridDataOrigin[row][col];
+            // console.log(cellData);
+            if (cellData.objects && cellData.objects.length > 0) {
+                cellData.objects.forEach(obj => {
+                    // Find the index of the object type. The data transferred and the data contained within the grid expects an index, not the name of the object.
+                    const objectNameArray = obj.split("-");
+                    const objectType = objectNameArray[0];
+                    const objectIndex = objectNameArray[1];
+                    const x = col * cellSize + gridRect.left;
+                    const y = row * cellSize + gridRect.top;
+                    // console.log(objectNameArray);
+                    createDraggableObject(objectType, objectIndex, x, y);
+                });
+            }
+        }
+    }
+    updateGridData();
 }

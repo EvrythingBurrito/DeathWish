@@ -2,13 +2,13 @@ import json
 
 class Encounter:
 
-    def __init__(self, name, mapGrid):
+    def __init__(self, name, mapGrid, description):
         ### required
         self.name = name
         # 2D array of lists of mapObjects, the rules of which should be enforced in the browser side
         self.mapGrid = mapGrid
         ### optional
-        self.description = ""
+        self.description = description
 
     def to_json(self):
         return self.__dict__

@@ -115,7 +115,7 @@ def EditEncounter(index, isNew):
     if isNew < 1:
         encounter = Game.assets.encounterList[index]
     else:
-        encounter = Encounter("blank", [])
+        encounter = Encounter("blank", [], "")
     # create serialized lists of all pictures to be dynamically used
     objectPics = []
     for npc in Game.assets.NPCList:
@@ -124,7 +124,10 @@ def EditEncounter(index, isNew):
     if request.method == 'POST':
         if request.form.get("action") == "save_encounter_form":
             encounterName = request.form.get('encounterName')
-            encounter = Encounter(encounterName, 0)
+            encounterMap = request.form.get('mapObjects')
+            print(encounterName)
+            print(encounterMap)
+            encounter = Encounter(encounterName, encounterMap, "")
             if isNew == 1:
                 Game.assets.add_encounter(encounter)
             else:

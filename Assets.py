@@ -19,6 +19,7 @@ class Assets:
         self.update_region_list()
         self.tangibleList = []
         self.encounterList = []
+        self.update_encounter_list()
         self.NPCList = []
         self.update_NPC_list()
 
