@@ -37,19 +37,6 @@ body {
     display: flex;
 }
 
-.draggable-object.red_block {
-    width: 50px;
-    height: 50px;
-    background-color: red;
-}
-
-.draggable-object.blue_circle {
-    width: 48px;
-    height: 48px;
-    background-color: blue;
-    border-radius: 50%;
-}
-
 .draggable-object.npc {
     width: 48px;
     height: 48px;
@@ -57,10 +44,9 @@ body {
     border-radius: 50%;
 }
 
-.draggable-object.green_triangle {
-    width: 0;
-    height: 0;
-    border-left: 25px solid transparent;
-    border-right: 25px solid transparent;
-    border-bottom: 50px solid green;
+.draggable-object.stationary {
+    width: 48px;
+    height: 48px;
+    background-color: black;
+    border-radius: 50%;
 }

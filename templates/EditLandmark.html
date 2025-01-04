@@ -1,0 +1,39 @@
+{% extends "DeathWishBase.html" %}
+
+{% block title %}
+    {% if landmark.name != "blank" %}
+        {{ landmark.name }}
+    {% else %}
+        New Landmark
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<body>
+    <form method="POST" id="save_landmark_form">
+        <h3>Landmark Name</h3>
+        <input type="hidden" name="action" value="save_landmark_form">
+        <!-- autopopulate if landmark already exists -->
+        {% if landmark.name == "blank" %}
+            <label for="landmarkName">Landmark Name:</label>
+            <input type="text" name="landmarkName" placeholder="landmark name">
+            <br>
+            <label for="mapIconImgFile">Path to map icon image:</label>
+            <input type="text" name="mapIconImgFile" placeholder="mapIcon.jpg">
+        {% else %}
+            <label for="landmarkName">Landmark Name:</label>
+            <input type="text" name="landmarkName" value="{{ landmark.name }}" placeholder="landmark name">
+            <br>
+            <label for="mapIconImgFile">Path to map icon image:</label>
+            <input type="text" name="mapIconImgFile" value="{{ landmark.worldMapIconFile }}" placeholder="mapIcon.jpg">
+        {% endif %}
+    </form>
+    <button type="submit" form="save_landmark_form">Save Landmark</button>
+    <br>
+    <br>
+    <form method="POST" id="delete_landmark_form">
+        <input type="hidden" name="action" value="delete_landmark_form">
+        <button type="submit" name="delete_landmark">Delete Landmark</button>
+    </form>
+</body>
+{% endblock %}

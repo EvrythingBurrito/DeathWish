@@ -1,0 +1,30 @@
+<header>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/draggableMap.css') }}">
+</header>
+<h2>Landmarks</h2>
+<br>
+<br>
+<div id="object-palette">
+    {% for i in range(0, landmarkList|length) %}
+        <div class="palette-object" data-index="{{ i }}" data-type="stationary" draggable="true">{{ landmarkList[i].name }}</div>
+    {% endfor %}
+</div>
+<script>
+    const landmarkPicURLs = {{ landmarkPicURLs|tojson }};
+</script>
+<div id="grid-container">
+    {% for row in range(10) %}
+    <div class="grid-row">
+        {% for col in range(10) %}
+        <div class="grid-cell" data-row="{{ row }}" data-col="{{ col }}"></div>
+        {% endfor %}
+    </div>
+    {% endfor %}
+</div>
+<script src="{{ url_for('static', filename='js/EditCampaignLandmarks.js') }}"></script>
+{% if campaign.name != "blank" %}
+    <script>
+        // const gridDataOrigin = JSON.parse(gridDataOriginString);
+        // updateGridFromData();
+    </script>
+{% endif %}

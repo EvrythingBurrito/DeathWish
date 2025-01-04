@@ -1,6 +1,7 @@
 import json
 import os
 from Region import Region
+from Landmark import Landmark
 from Encounter import Encounter
 from Campaign import Campaign
 from NPC import NPC
@@ -10,6 +11,7 @@ class Assets:
     def __init__(self):
         self.campaignDir = "Assets/Campaigns"
         self.regionDir = "Assets/Regions"
+        self.landmarkDir = "Assets/Landmarks"
         self.encounterDir = "Assets/Encounters"
         self.NPCDir = "Assets/NPCs"
         ### initialize lists
@@ -17,6 +19,8 @@ class Assets:
         self.update_campaign_list()
         self.regionList = []
         self.update_region_list()
+        self.landmarkList = []
+        self.update_landmark_list()
         self.tangibleList = []
         self.encounterList = []
         self.update_encounter_list()
@@ -37,6 +41,13 @@ class Assets:
     def delete_region(self, index):
         self.delete_region_save(self.regionList[index])
         del self.regionList[index]
+
+    def add_landmark(self, landmark):
+        self.landmarkList.append(landmark)
+        self.update_landmark_save(landmark)
+    def delete_landmark(self, index):
+        self.delete_landmark_save(self.landmarkList[index])
+        del self.landmarkList[index]
 
     def add_encounter(self, encounter):
         self.encounterList.append(encounter)
@@ -102,6 +113,30 @@ class Assets:
                 data = json.load(f)
                 aRegion = Region.from_json(data)
                 self.regionList.append(aRegion)
+
+########################################################### LANDMARKS
+
+    ### create or update save file for desired landmark
+    def update_landmark_save(self, landmark):
+        filename = self.landmarkDir + "/" + landmark.name.replace(" ", "_") + ".json"
+        if landmark not in self.landmarkList:
+            self.add_landmark(landmark)
+        if os.path.exists(filename):
+            print("overwriting landmark save!")
+        with open(filename, 'w') as f:
+            json.dump(landmark.to_json(), f)
+
+    def delete_landmark_save(self, landmark):
+        filename = self.landmarkDir + "/" + landmark.name.replace(" ", "_") + ".json"
+        os.remove(filename)
+
+    def update_landmark_list(self):
+        self.landmarkList = []
+        for filename in glob.glob(self.landmarkDir + "/*.json"):
+            with open(filename, 'r') as f:
+                data = json.load(f)
+                aLandmark = Landmark.from_json(data)
+                self.landmarkList.append(aLandmark)
 
 ########################################################### ENCOUNTERS
 

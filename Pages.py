@@ -5,6 +5,7 @@ from flask import *
 import Game
 from Campaign import Campaign
 from Region import Region
+from Landmark import Landmark
 from NPC import NPC
 from Encounter import Encounter
 from Monster import Monster
@@ -67,7 +68,7 @@ def EditRegion(index, isNew):
         if request.form.get("action") == "save_region_form":
             regionName = request.form.get('regionName')
             ### only expect the user to type in the filename, not the relative path
-            mapIconImgFile = "Assets/Regions/Images/" + request.form.get('mapIconImgFile')
+            mapIconImgFile = request.form.get('mapIconImgFile')
             region = Region(regionName, mapIconImgFile)
             if isNew == 1:
                 Game.assets.add_region(region)
@@ -79,6 +80,30 @@ def EditRegion(index, isNew):
                 Game.assets.delete_region(index)
         return redirect(url_for('AssetsTop'))
     return render_template('EditRegion.html', region=region)
+
+### display chosen objects attributes in editable forms
+@app.route('/GameMaster/Assets/Landmark_<int:index><int:isNew>', methods=['GET', 'POST'])
+def EditLandmark(index, isNew):
+    if isNew < 1:
+        landmark = Game.assets.landmarkList[index]
+    else:
+        landmark = Landmark("blank", "path_to_image")
+    if request.method == 'POST':
+        if request.form.get("action") == "save_landmark_form":
+            landmarkName = request.form.get('landmarkName')
+            ### only expect the user to type in the filename, not the relative path
+            mapIconImgFile = request.form.get('mapIconImgFile')
+            landmark = Landmark(landmarkName, mapIconImgFile)
+            if isNew == 1:
+                Game.assets.add_landmark(landmark)
+            else:
+                Game.assets.landmarkList[index] = landmark
+                Game.assets.update_landmark_save(landmark)
+        elif request.form.get("action") == "delete_landmark_form":
+            if isNew == 0:
+                Game.assets.delete_landmark(index)
+        return redirect(url_for('AssetsTop'))
+    return render_template('EditLandmark.html', landmark=landmark)
 
 ### display chosen objects attributes in editable forms
 @app.route('/GameMaster/Assets/NPC_<int:index><int:isNew>', methods=['GET', 'POST'])
@@ -143,4 +168,9 @@ def EditEncounter(index, isNew):
 @app.route('/GameMaster/RunCampaign/Campaign_<int:index>')
 def RunCampaign(index):
     campaign = Game.assets.campaignList[index]
-    return render_template('RunCampaign.html', campaign=campaign)
+    # create serialized lists of all pictures to be dynamically used
+    landmarkPics = []
+    for landmark in Game.assets.landmarkList:
+        landmarkPics.append(landmark.mapIconImgFile)
+    landmarkPicURLs = [url_for('static', filename=path) for path in landmarkPics]
+    return render_template('RunCampaign.html', campaign=campaign, landmarkList=Game.assets.landmarkList, landmarkPicURLs=landmarkPicURLs)

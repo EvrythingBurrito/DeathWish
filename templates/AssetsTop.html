@@ -38,6 +38,13 @@
             {% endfor %}
         </div>
         <div class="column">
+            <h3>Landmarks</h3>
+            <a href="{{ url_for('EditLandmark', index=0, isNew=1) }}">New Landmark</a>
+            {% for i in range(0, assets.landmarkList|length) %}
+                <p><a href="{{ url_for('EditLandmark', index=i, isNew=0) }}">{{ assets.landmarkList[i].name }}</a></p>
+            {% endfor %}
+        </div>
+        <div class="column">
             <h3>NPCs</h3>
             <a href="{{ url_for('EditNPC', index=0, isNew=1) }}">New NPC</a>
             {% for i in range(0, assets.NPCList|length) %}
