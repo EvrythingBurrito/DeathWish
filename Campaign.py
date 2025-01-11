@@ -9,7 +9,6 @@ class Campaign:
         # self.landmarkCoordinateDict = {}
 
     def to_json(self):
-        print(self.__dict__)
         return self.__dict__
 
     @staticmethod

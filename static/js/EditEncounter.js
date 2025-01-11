@@ -1,6 +1,6 @@
 const gridContainer = document.getElementById('grid-container');
 const objectPalette = document.getElementById('object-palette');
-const gridDataInput = document.getElementById('mapObjects');
+const gridDataInput = document.getElementById('mapData');
 const cellSize = 50;
 let objectsOnGrid = [];
 let nextObjectId = 0;
@@ -213,9 +213,11 @@ function updateGridData() {
             }
         }
     });
-    // console.log(objectsOnGrid.length);
+    console.log(objectsOnGrid.length);
     gridDataInput.value = JSON.stringify(grid);
 }
+
+// note: grid cells will also have a dict key called "conditions", which points to a list of active conditions on that cell
 
 function updateGridFromData() {
     // Clear existing objects on the grid
