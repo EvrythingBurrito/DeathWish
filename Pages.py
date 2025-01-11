@@ -28,13 +28,7 @@ def EditCampaign(index, isNew):
         campaign = Game.assets.campaignList[index]
     else:
         campaign = Campaign("blank", 0)
-    # create list of serialized regions for browser to use for processing
-    regionNames = []
-    regionPaths = []
-    for region in Game.assets.regionList:
-        regionNames.append(region.name)
-        regionPaths.append(region.worldMapIconFile)
-    regionURLs = [url_for('static', filename=path) for path in regionPaths]
+    regionJSONs = [rg.to_json() for rg in Game.assets.regionList]
     if request.method == 'POST':
         action = request.form.get('action')
         if action == 'save_campaign_form':
@@ -50,7 +44,7 @@ def EditCampaign(index, isNew):
         elif action == 'delete_campaign_form':
             Game.assets.delete_campaign(index)
         return redirect(url_for('GameMaster'))
-    return render_template('EditCampaign.html', campaign=campaign, regionNames=regionNames, regionURLs=regionURLs)
+    return render_template('EditCampaign.html', campaign=campaign.to_json(), regions=regionJSONs)
 
 ### display all global objects as URLs in a big list (tangibles (equipment, weapons, items), encounters, regions, and NPCs (monsters, humanoids))
 @app.route('/GameMaster/Assets', methods=['GET', 'POST'])
@@ -79,7 +73,7 @@ def EditRegion(index, isNew):
             if isNew == 0:
                 Game.assets.delete_region(index)
         return redirect(url_for('AssetsTop'))
-    return render_template('EditRegion.html', region=region)
+    return render_template('EditRegion.html', region=region.to_json())
 
 ### display chosen objects attributes in editable forms
 @app.route('/GameMaster/Assets/Landmark_<int:index><int:isNew>', methods=['GET', 'POST'])
@@ -103,7 +97,7 @@ def EditLandmark(index, isNew):
             if isNew == 0:
                 Game.assets.delete_landmark(index)
         return redirect(url_for('AssetsTop'))
-    return render_template('EditLandmark.html', landmark=landmark)
+    return render_template('EditLandmark.html', landmark=landmark.to_json())
 
 ### display chosen objects attributes in editable forms
 @app.route('/GameMaster/Assets/NPC_<int:index><int:isNew>', methods=['GET', 'POST'])
@@ -132,7 +126,7 @@ def EditNPC(index, isNew):
             if isNew < 1:
                 Game.assets.delete_NPC(index)
         return redirect(url_for('AssetsTop'))
-    return render_template('EditNPC.html', npc=npc)
+    return render_template('EditNPC.html', npc=npc.to_json())
 
 ### display chosen objects attributes in editable forms
 @app.route('/GameMaster/Assets/Encounter_<int:index><int:isNew>', methods=['GET', 'POST'])
@@ -141,11 +135,7 @@ def EditEncounter(index, isNew):
         encounter = Game.assets.encounterList[index]
     else:
         encounter = Encounter("blank", [], "")
-    # create serialized lists of all pictures to be dynamically used
-    objectPics = []
-    for npc in Game.assets.NPCList:
-        objectPics.append(npc.mapIconImgFile)
-    objectPicURLs = [url_for('static', filename=path) for path in objectPics]
+    npcJSONs = [npc.to_json() for npc in Game.assets.NPCList]
     if request.method == 'POST':
         if request.form.get("action") == "save_encounter_form":
             encounterName = request.form.get('encounterName')
@@ -162,15 +152,11 @@ def EditEncounter(index, isNew):
             if isNew == 0:
                 Game.assets.delete_encounter(index)
         return redirect(url_for('AssetsTop'))
-    return render_template('EditEncounter.html', encounter=encounter, npcList=Game.assets.NPCList, objectPicURLs=objectPicURLs)
+    return render_template('EditEncounter.html', encounter=encounter.to_json(), mapObjects=npcJSONs)
 
 ### display chosen campaign world map, premise, recent party events, etc.
 @app.route('/GameMaster/RunCampaign/Campaign_<int:index>')
 def RunCampaign(index):
     campaign = Game.assets.campaignList[index]
-    # create serialized lists of all pictures to be dynamically used
-    landmarkPics = []
-    for landmark in Game.assets.landmarkList:
-        landmarkPics.append(landmark.mapIconImgFile)
-    landmarkPicURLs = [url_for('static', filename=path) for path in landmarkPics]
-    return render_template('RunCampaign.html', campaign=campaign, landmarkList=Game.assets.landmarkList, landmarkPicURLs=landmarkPicURLs)
+    regionJSONs = [rg.to_json() for rg in Game.assets.regionList]
+    return render_template('RunCampaign.html', campaign=campaign.to_json(), regions=regionJSONs)

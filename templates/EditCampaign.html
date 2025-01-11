@@ -21,63 +21,67 @@
 </header>
 
 <body>
-    <div id="map_container">
-        <h3>Campaign Map</h3>
-        <div id="map_dimensions">
-            {% if campaign.name != "blank" %}
-                <label for="rows">Rows:</label>
-                <input type="number" id="rows" name="rows" min="1" value={{ campaign.regionMapIndexes|length }} required><br>
-                <label for="cols">Columns:</label>
-                <input type="number" id="cols" name="cols" min="1" value={{ campaign.regionMapIndexes[0]|length }} required><br>
-            {% else %}
-                <label for="rows">Rows:</label>
-                <input type="number" id="rows" name="rows" min="1" value=14 required><br>
-                <label for="cols">Columns:</label>
-                <input type="number" id="cols" name="cols" min="1" value=14 required><br>
-            {% endif %}
-            <button type="button" onclick="createMap()">Reset Map</button>
-        </div>
-        <div id="map_form">
-            <form method="POST" id="save_campaign_form">
-                <input type="hidden" name="action" value="save_campaign_form">
-                <label for="regionSelect">Select Region:</label>
-                <select id="regionSelect" onchange="updateSelectedRegionIndex()">
-                    {% for i in range(0, regionNames|length) %}
-                        <option value="{{ i }}">{{ regionNames[i] }}</option>
-                    {% endfor %}
-                </select>
-                <br><br>
-                <div id="map"></div>
-                <input type="hidden" name="map_data" id="map_data">
-                <br><br>
-                <script>
-                    const JSRegionURLS = {{ regionURLs|tojson }};
-                </script>
-                <script src="{{ url_for('static', filename='js/EditCampaign.js') }}"></script>
-                {% if campaign.name != "blank" %}
-                    <h3>Campaign Name</h3>
-                    <input type="text" name="campaignName" value={{ campaign.name }} placeholder="campaign name">
-                    <script>
-                        const mapDataOriginal = {{ campaign.regionMapIndexes|tojson }};
-                    </script>
-                {% else %}
-                    <h3>Campaign Name</h3>
-                    <input type="text" name="campaignName" placeholder="campaign name">
-                    <script>
-                        // get input values independently
-                        const rows = parseInt(document.getElementById('rows').value);
-                        const cols = parseInt(document.getElementById('cols').value);
-                        updateSelectedRegionIndex();
-                        const mapDataOriginal = Array(rows).fill(null).map(() => Array(cols).fill(selectedRegionIndex)); // Initialize map data
-                    </script>
-                {% endif %}
-                <script>
-                    createMap();
-                </script>
-            </form>
-            <button type="submit" form="save_campaign_form">Save Campaign</button>
-        </div>
-    </div>
+    <h3>Campaign Map</h3>
+    {% if campaign.name != "blank" %}
+        <label for="rows">Rows:</label>
+        <input type="number" id="rows" name="rows" min="1" value={{ campaign.regionMapIndexes|length }} required><br>
+        <label for="cols">Columns:</label>
+        <input type="number" id="cols" name="cols" min="1" value={{ campaign.regionMapIndexes[0]|length }} required><br>
+    {% else %}
+        <label for="rows">Rows:</label>
+        <input type="number" id="rows" name="rows" min="1" value=14 required><br>
+        <label for="cols">Columns:</label>
+        <input type="number" id="cols" name="cols" min="1" value=14 required><br>
+    {% endif %}
+
+    <button type="button" onclick="createMap()">Reset Map</button>
+
+    <script>
+        const regions = {{ regions|tojson }};
+    </script>
+
+    <form method="POST" id="save_campaign_form">
+        <input type="hidden" name="action" value="save_campaign_form">
+        <label for="regionSelect">Select Region:</label>
+        <select id="regionSelect" onchange="updateSelectedRegionIndex()">
+            {% for i in range(0, regions|length) %}
+                <option value="{{ i }}">{{ regions[i].name }}</option>
+            {% endfor %}
+        </select>
+        <br>
+        <br>
+        <div id="map"></div>
+        <input type="hidden" name="map_data" id="map_data">
+        <br>
+        <br>
+        
+        <script src="{{ url_for('static', filename='js/EditCampaign.js') }}"></script>
+
+        {% if campaign.name != "blank" %}
+            <h3>Campaign Name</h3>
+            <input type="text" name="campaignName" value={{ campaign.name }} placeholder="campaign name">
+            <script>
+                const mapDataOriginal = {{ campaign.regionMapIndexes|tojson }};
+            </script>
+        {% else %}
+            <h3>Campaign Name</h3>
+            <input type="text" name="campaignName" placeholder="campaign name">
+            <script>
+                // get input values independently
+                const rows = parseInt(document.getElementById('rows').value);
+                const cols = parseInt(document.getElementById('cols').value);
+                updateSelectedRegionIndex();
+                const mapDataOriginal = Array(rows).fill(null).map(() => Array(cols).fill(selectedRegionIndex)); // Initialize map data
+            </script>
+        {% endif %}
+
+        <script>
+            createMap();
+        </script>
+    </form>
+
+    <button type="submit" form="save_campaign_form">Save Campaign</button>
+    
     <form method="POST" id="delete_campaign_form">
         <input type="hidden" name="action" value="delete_campaign_form">
     </form>

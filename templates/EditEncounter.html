@@ -31,21 +31,22 @@
     <br>
     <br>
     <div id="object-palette">
-        {% for i in range(0, npcList|length) %}
-            <div class="palette-object" data-index="{{ i }}" data-type="npc" draggable="true">{{ npcList[i].name }}</div>
+        {% for i in range(0, mapObjects|length) %}
+            <div class="palette-object" data-index="{{ i }}" data-type="npc" draggable="true">{{ mapObjects[i].name }}</div>
         {% endfor %}
     </div>
     <script>
-        const objectPicURLs = {{ objectPicURLs|tojson }};
+        const mapObjects = {{ mapObjects|tojson }};
         const gridDataOriginString = {{ encounter.mapGrid|tojson }};
     </script>
+    {# must create grid before sourcing js #}
     <div id="grid-container">
         {% for row in range(10) %}
-        <div class="grid-row">
-            {% for col in range(10) %}
-            <div class="grid-cell" data-row="{{ row }}" data-col="{{ col }}"></div>
-            {% endfor %}
-        </div>
+            <div class="grid-row">
+                {% for col in range(10) %}
+                    <div class="grid-cell" data-row="{{ row }}" data-col="{{ col }}"></div>
+                {% endfor %}
+            </div>
         {% endfor %}
     </div>
     <script src="{{ url_for('static', filename='js/EditEncounter.js') }}"></script>

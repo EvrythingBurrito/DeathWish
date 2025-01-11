@@ -51,3 +51,7 @@ body::before {
 img {
   object-fit: fill;
 }
+
+input[type="text"] {
+  width: 300px;
+}

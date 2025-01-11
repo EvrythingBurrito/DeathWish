@@ -22,12 +22,12 @@ function createMap() {
             cell.type = 'button' // Important: Prevent form submission
             cell.classList.add('map-cell');
             // cell.textContent = mapData[i][j];
-            cell.style.backgroundImage = `url(${JSRegionURLS[mapData[i][j]]})`;
+            cell.style.backgroundImage = `url(${regions[mapData[i][j]].worldMapIconFile})`;
 
             cell.addEventListener('click', () => {
                 // cell.textContent = selectedRegionIndex;
-                cell.style.backgroundImage = `url(${JSRegionURLS[selectedRegionIndex]})`
                 mapData[i][j] = selectedRegionIndex;
+                cell.style.backgroundImage = `url(${regions[mapData[i][j]].worldMapIconFile})`;
                 document.getElementById("map_data").value = JSON.stringify(mapData);
             });
             row.appendChild(cell);

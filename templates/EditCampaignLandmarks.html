@@ -4,27 +4,45 @@
 <h2>Landmarks</h2>
 <br>
 <br>
-<div id="object-palette">
-    {% for i in range(0, landmarkList|length) %}
-        <div class="palette-object" data-index="{{ i }}" data-type="stationary" draggable="true">{{ landmarkList[i].name }}</div>
-    {% endfor %}
-</div>
-<script>
-    const landmarkPicURLs = {{ landmarkPicURLs|tojson }};
-</script>
-<div id="grid-container">
-    {% for row in range(10) %}
-    <div class="grid-row">
-        {% for col in range(10) %}
-        <div class="grid-cell" data-row="{{ row }}" data-col="{{ col }}"></div>
-        {% endfor %}
-    </div>
-    {% endfor %}
-</div>
-<script src="{{ url_for('static', filename='js/EditCampaignLandmarks.js') }}"></script>
+{# pre-main processing tasks #}
+{# <script>
+    const JSAssets = {{ assets|tojson }};
+    console.log(JSAssets);
+</script> #}
+{# <script src="{{ url_for('static', filename='js/EditCampaignLandmarks.js') }}"></script>
 {% if campaign.name != "blank" %}
     <script>
         // const gridDataOrigin = JSON.parse(gridDataOriginString);
         // updateGridFromData();
     </script>
-{% endif %}
+{% endif %} #}
+
+{# const landmarkPicURLs = {{ assets.|tojson }};
+const regionMapIndexes = {{ campaign.regionMapIndexes|tojson }};
+for (let i = 0; i < rows; i++) {
+    const row = document.createElement('div');
+    row.classList.add('grid-row');
+    for (let i = 0; i < rows; i++) {
+        const cell = document.createElement('div');
+        cell.classList.add('grid-cell');
+        cell.style.backgroundRepeat = 'no-repeat'; // Ensure image doesn't repeat
+        cell.style.backgroundSize = 'cover'; // Resize image to fit object size
+        cell.style.backgroundImage = `url(${JSRegionURLS[mapData[i][j]]})`;
+    }
+}
+
+<div id="grid-container">
+{% for row in range(0, campaign.regionMapIndexes|length) %}
+    <div class="grid-row">
+        {% for col in range(0, campaign.regionMapIndexes[0]|length) %}
+            <div class="grid-cell" data-row="{{ row }}" data-col="{{ col }}" id="gridCell-{{ row }}-{{ col }}"></div>
+        {% endfor %}
+    </div>
+{% endfor %}
+</div> #}
+
+{# <div id="object-palette">
+    {% for i in range(0, landmarkList|length) %}
+        <div class="palette-object" data-index="{{ i }}" data-type="stationary" draggable="true">{{ landmarkList[i].name }}</div>
+    {% endfor %}
+</div> #}

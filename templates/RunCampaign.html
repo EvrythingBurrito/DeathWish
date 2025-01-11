@@ -5,12 +5,23 @@
 {% endblock %}
 
 {% block content %}
+
+<script>
+    const campaign = {{ campaign|tojson }};
+    const regions = {{ regions|tojson }};
+    console.log(regions);
+</script>
+
 <header>
     <h1>{{ campaign.name }}</h1>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/maps.css') }}">
 </header>
 
 <body>
-    {% include 'EditCampaignLandmarks.html' with context %} {# Include EditCampaignLandmarks.html #}
+    <form method="POST" id="save_campaign_form">
+        <input type="hidden" name="action" value="save_campaign_form">
+        <input type="hidden" id="landmarkObjects" name="landmarkObjects">
+        {% include 'EditCampaignLandmarks.html' with context %}
+    </form>
 </body>
+
 {% endblock %}

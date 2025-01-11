@@ -86,7 +86,7 @@ function createDraggableObject(objectType, objectIndex, x, y) {
     const obj = document.createElement('div');
     obj.id = `${objectType}-${objectIndex}-${nextObjectId++}`; // each object is the type, type asset index, then an arbitrary id value to differentiate
     obj.classList.add('draggable-object', objectType);
-    obj.style.backgroundImage = `url(${objectPicURLs[objectIndex]})`
+    obj.style.backgroundImage = `url(${mapObjects[objectIndex].mapIconImgFile})`
     obj.style.backgroundRepeat = 'no-repeat'; // Ensure image doesn't repeat
     obj.style.backgroundSize = 'cover'; // Resize image to fit object size
     obj.draggable = true;
