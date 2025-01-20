@@ -1,12 +1,12 @@
 import json
 
 class Campaign:
-    def __init__(self, name, regionMapIndexes):
+    def __init__(self, name, regionMapIndexes, mapGrid):
         self.name = name
         # 2D array of regions
         self.regionMapIndexes = regionMapIndexes
-        # key: landmark name, value: coordinates on map where it lies
-        # self.landmarkCoordinateDict = {}
+        # 2D list of dictionaries of map landmarks and conditions
+        self.mapGrid = mapGrid
 
     def to_json(self):
         return self.__dict__

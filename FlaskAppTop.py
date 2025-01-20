@@ -27,27 +27,35 @@ def create_flask_app(processQueue):
 
     @app.route('/GameMaster/EditCampaign/Campaign_<int:index><int:isNew>', methods=['GET', 'POST'])
     def EditCampaign(index, isNew):
+        dummyMatrix = [[0 for _ in range(8)] for _ in range(8)]
         if isNew == 0:
             campaign = Game.assets.campaignList[index]
         else:
-            campaign = Campaign("blank", 0)
+            campaign = Campaign("New Campaign", dummyMatrix, "blank")
         regionJSONs = [rg.to_json() for rg in Game.assets.regionList]
+        landmarkJSONs = [lm.to_json() for lm in Game.assets.landmarkList]
         if request.method == 'POST':
             action = request.form.get('action')
-            if action == 'save_campaign_form':
+            if action == 'update_region_form':
                 campaignName = request.form.get('campaignName')
-                mapDataJson = request.form['map_data']
-                mapDataIndexes = json.loads(mapDataJson)
-                campaign = Campaign(campaignName, mapDataIndexes)
+                regionDataJSON = request.form.get('regionData')
+                regionData = json.loads(regionDataJSON)
+                campaign = Campaign(campaignName, regionData, "blank")
                 if isNew == 1:
                     Game.assets.add_campaign(campaign)
                 else:
                     Game.assets.campaignList[index] = campaign
                     Game.assets.update_campaign_save(campaign)
+            elif action == 'update_landmarks_form':
+                newMapGrid = request.form.get('landmarkObjects')
+                print(newMapGrid)
+                campaign = Campaign(campaign.name, campaign.regionMapIndexes, newMapGrid)
+                Game.assets.campaignList[index] = campaign
+                Game.assets.update_campaign_save(campaign)
             elif action == 'delete_campaign_form':
                 Game.assets.delete_campaign(index)
-            return redirect(url_for('GameMaster'))
-        return render_template('EditCampaign.html', campaign=campaign.to_json(), regions=regionJSONs)
+                return redirect(url_for('GameMaster'))
+        return render_template('EditCampaign.html', campaign=campaign.to_json(), regions=regionJSONs, landmarks=landmarkJSONs)
 
     ### display all global objects as URLs in a big list (tangibles (equipment, weapons, items), encounters, regions, and NPCs (monsters, humanoids))
     @app.route('/GameMaster/Assets', methods=['GET', 'POST'])
@@ -162,6 +170,7 @@ def create_flask_app(processQueue):
         processQueue.put(("currentEncounter", Game.assets.encounterList[0]))
         processQueue.put(("gameState", 'encounter'))
         regionJSONs = [rg.to_json() for rg in Game.assets.regionList]
-        return render_template('RunCampaign.html', campaign=campaign.to_json(), regions=regionJSONs)
+        landmarkJSONs = [lm.to_json() for lm in Game.assets.landmarkList]
+        return render_template('RunCampaign.html', campaign=campaign.to_json(), regions=regionJSONs, landmarks=landmarkJSONs)
 
     return app

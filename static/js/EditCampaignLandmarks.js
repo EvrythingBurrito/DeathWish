@@ -86,7 +86,7 @@ function createDraggableObject(objectType, objectIndex, x, y) {
     const obj = document.createElement('div');
     obj.id = `${objectType}-${objectIndex}-${nextObjectId++}`; // each object is the type, type asset index, then an arbitrary id value to differentiate
     obj.classList.add('draggable-object', objectType);
-    obj.style.backgroundImage = `url(${landmarkPicURLs[objectIndex]})`
+    obj.style.backgroundImage = `url(${landmarks[objectIndex].mapIconImgFile})`
     obj.style.backgroundRepeat = 'no-repeat'; // Ensure image doesn't repeat
     obj.style.backgroundSize = 'cover'; // Resize image to fit object size
     obj.draggable = true;
@@ -184,10 +184,10 @@ function makeDraggable(obj) {
 function updateGridData() {
     // (This function remains the same)
     const grid = [];
-    for (let row = 0; row < 10; row++) {
+    for (let row = 0; row < curGridRows; row++) {
         grid.push([]);
-        for (let col = 0; col < 10; col++) {
-            grid[row].push({ objects: [] });
+        for (let col = 0; col < curGridCols; col++) {
+            grid[row].push([]);
         }
     }
 
@@ -200,20 +200,21 @@ function updateGridData() {
         const objBottom = objTop + objRect.height;
         const objName = obj.id;
 
-        for (let row = 0; row < 10; row++) {
-            for (let col = 0; col < 10; col++) {
+        for (let row = 0; row < curGridRows; row++) {
+            for (let col = 0; col < curGridCols; col++) {
                 const cellLeft = col * cellSize;
                 const cellTop = row * cellSize;
                 const cellRight = cellLeft + cellSize;
                 const cellBottom = cellTop + cellSize;
 
                 if ((objRight <= cellRight) && (objLeft >= cellLeft) && (objBottom <= cellBottom) && (objTop >= cellTop)) {
-                    grid[row][col].objects.push(objName);
+                    console.log("pushed!");
+                    grid[row][col].push(objName);
                 }
             }
         }
     });
-    // console.log(objectsOnGrid.length);
+    console.log(grid);
     gridDataInput.value = JSON.stringify(grid);
 }
 
@@ -224,7 +225,7 @@ function updateGridFromData() {
     objectsOnGrid = [];
     nextObjectId = 0;
 
-    // console.log(gridDataOrigin);
+    console.log(gridDataOrigin);
     for (let row = 0; row < gridDataOrigin.length; row++) {
         for (let col = 0; col < gridDataOrigin[row].length; col++) {
             const cellData = gridDataOrigin[row][col];
@@ -243,5 +244,4 @@ function updateGridFromData() {
             }
         }
     }
-    updateGridData();
 }
