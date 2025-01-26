@@ -16,21 +16,21 @@
         const landmarks = {{ landmarks|tojson }};
         const gridDataOriginString = {{ campaign.mapGrid|tojson }};
         const gridDataOrigin = JSON.parse(gridDataOriginString);
+        console.log(gridDataOrigin);
         const curGridRows = campaign.regionMapIndexes.length;
         const curGridCols = campaign.regionMapIndexes[0].length;
         // console.log(curGridRows);
         // console.log(curGridCols);
     </script>
-    {# this container is being arranged horizontally, not vertically - dumb fix: swap col and row for grid creation #}
     <div id="grid-container">
-    {% for row in range(0, campaign.regionMapIndexes[0]|length) %}
+    {% for row in range(0, campaign.regionMapIndexes|length) %}
         <div class="grid-row">
-            {% for col in range(0, campaign.regionMapIndexes|length) %}
+            {% for col in range(0, campaign.regionMapIndexes[0]|length) %}
                 <div class="grid-cell"
                     data-row="{{ row }}"
                     data-col="{{ col }}"
                     id="gridCell-{{ row }}-{{ col }}"
-                    style="background-image: url('{{ regions[campaign.regionMapIndexes[col][row]|int].worldMapIconFile }}');">
+                    style="background-image: url('{{ regions[campaign.regionMapIndexes[row][col]|int].worldMapIconFile }}');">
                 </div>
             {% endfor %}
         </div>
@@ -39,7 +39,8 @@
     <button type="submit" form="update_landmarks_form">Update Landmarks</button>
     <script src="{{ url_for('static', filename='js/EditCampaignLandmarks.js') }}"></script>
     <script>
-        if (gridDataOrigin != "blank")
-        updateGridFromData();
+        if (gridDataOriginString != "blank") {
+            updateGridFromData();
+        }
     </script>
 </body>

@@ -2,6 +2,7 @@ let selectedRegionIndex = 0; // Default region
 
 function updateSelectedRegionIndex() {
     selectedRegionIndex = document.getElementById('regionSelect').value;
+    console.log(selectedRegionIndex);
 }
 
 function createMap() {
