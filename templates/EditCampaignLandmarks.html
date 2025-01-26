@@ -14,11 +14,14 @@
     </div>
     <script>
         const landmarks = {{ landmarks|tojson }};
-        const gridDataOrigin = {{ campaign.mapGrid|tojson }};
+        const gridDataOriginString = {{ campaign.mapGrid|tojson }};
+        const gridDataOrigin = JSON.parse(gridDataOriginString);
         const curGridRows = campaign.regionMapIndexes.length;
         const curGridCols = campaign.regionMapIndexes[0].length;
+        // console.log(curGridRows);
+        // console.log(curGridCols);
     </script>
-    {# this container is being arranged horizontally, not vertically #}
+    {# this container is being arranged horizontally, not vertically - dumb fix: swap col and row for grid creation #}
     <div id="grid-container">
     {% for row in range(0, campaign.regionMapIndexes[0]|length) %}
         <div class="grid-row">
@@ -27,7 +30,7 @@
                     data-row="{{ row }}"
                     data-col="{{ col }}"
                     id="gridCell-{{ row }}-{{ col }}"
-                    style="background-image: url('{{ regions[campaign.regionMapIndexes[row][col]|int].worldMapIconFile }}');">
+                    style="background-image: url('{{ regions[campaign.regionMapIndexes[col][row]|int].worldMapIconFile }}');">
                 </div>
             {% endfor %}
         </div>

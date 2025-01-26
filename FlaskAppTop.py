@@ -48,10 +48,10 @@ def create_flask_app(processQueue):
                     Game.assets.update_campaign_save(campaign)
             elif action == 'update_landmarks_form':
                 newMapGrid = request.form.get('landmarkObjects')
-                print(newMapGrid)
                 campaign = Campaign(campaign.name, campaign.regionMapIndexes, newMapGrid)
                 Game.assets.campaignList[index] = campaign
                 Game.assets.update_campaign_save(campaign)
+                return redirect(url_for('GameMaster'))
             elif action == 'delete_campaign_form':
                 Game.assets.delete_campaign(index)
                 return redirect(url_for('GameMaster'))
