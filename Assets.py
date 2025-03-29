@@ -69,14 +69,13 @@ class Assets:
 
 ########################################################### CAMPAIGNS
     ### create or update save file for desired campaign
-    def update_campaign_save(self, campaign):
+    def update_campaign_save(self, index, campaign):
         filename = self.campaignDir + "/" + campaign.name.replace(" ", "_") + ".json"
-        if campaign not in self.campaignList:
-            self.add_campaign(campaign)
         if os.path.exists(filename):
             print("overwriting campaign save!")
         with open(filename, 'w') as f:
             json.dump(campaign.to_json(), f)
+        self.update_campaign_list()
 
     def delete_campaign_save(self, campaign):
         filename = self.campaignDir + "/" + campaign.name.replace(" ", "_") + ".json"

@@ -15,12 +15,6 @@
     <script>
         const landmarks = {{ landmarks|tojson }};
         const gridDataOriginString = {{ campaign.mapGrid|tojson }};
-        const gridDataOrigin = JSON.parse(gridDataOriginString);
-        console.log(gridDataOrigin);
-        const curGridRows = campaign.regionMapIndexes.length;
-        const curGridCols = campaign.regionMapIndexes[0].length;
-        // console.log(curGridRows);
-        // console.log(curGridCols);
     </script>
     <div id="grid-container">
     {% for row in range(0, campaign.regionMapIndexes|length) %}
@@ -40,7 +34,8 @@
     <script src="{{ url_for('static', filename='js/EditCampaignLandmarks.js') }}"></script>
     <script>
         if (gridDataOriginString != "blank") {
-            updateGridFromData();
+            const gridDataOrigin = JSON.parse(gridDataOriginString);
+            updateGridFromData(gridDataOrigin);
         }
     </script>
 </body>

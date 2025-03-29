@@ -3,13 +3,13 @@
 from flask import *
 # DeathWish Custom
 import Game
-from Campaign import Campaign
-from Region import Region
-from Landmark import Landmark
-from NPC import NPC
-from Encounter import Encounter
-from Monster import Monster
-from Sentient import Sentient
+from Campaign import *
+from Region import *
+from Landmark import *
+from NPC import *
+from Encounter import *
+from Monster import *
+from Sentient import *
 
 import DeathWish
 
@@ -23,6 +23,7 @@ def create_flask_app(processQueue):
     ############################################################################################# Game Master Pages
     @app.route('/GameMaster')
     def GameMaster():
+        processQueue.put(("gameState", 'title'))
         return render_template('GameMaster.html', campaigns=Game.assets.campaignList)
 
     @app.route('/GameMaster/EditCampaign/Campaign_<int:index><int:isNew>', methods=['GET', 'POST'])
@@ -44,13 +45,11 @@ def create_flask_app(processQueue):
                 if isNew == 1:
                     Game.assets.add_campaign(campaign)
                 else:
-                    Game.assets.campaignList[index] = campaign
-                    Game.assets.update_campaign_save(campaign)
+                    Game.assets.update_campaign_save(index, campaign)
             elif action == 'update_landmarks_form':
                 newMapGrid = request.form.get('landmarkObjects')
                 campaign = Campaign(campaign.name, campaign.regionMapIndexes, newMapGrid)
-                Game.assets.campaignList[index] = campaign
-                Game.assets.update_campaign_save(campaign)
+                Game.assets.update_campaign_save(index, campaign)
                 return redirect(url_for('GameMaster'))
             elif action == 'delete_campaign_form':
                 Game.assets.delete_campaign(index)
@@ -164,13 +163,22 @@ def create_flask_app(processQueue):
         return render_template('EditEncounter.html', encounter=encounter.to_json(), mapObjects=npcJSONs)
 
     ### display chosen campaign world map, premise, recent party events, etc.
-    @app.route('/GameMaster/RunCampaign/Campaign_<int:index>')
+    @app.route('/GameMaster/RunCampaign/Campaign_<int:index>', methods=['GET', 'POST'])
     def RunCampaign(index):
         campaign = Game.assets.campaignList[index]
-        processQueue.put(("currentEncounter", Game.assets.encounterList[0]))
-        processQueue.put(("gameState", 'encounter'))
+        processQueue.put(("refreshCampaign", campaign))
+        processQueue.put(("gameState", 'campaign'))
         regionJSONs = [rg.to_json() for rg in Game.assets.regionList]
         landmarkJSONs = [lm.to_json() for lm in Game.assets.landmarkList]
+        # update assets if landmarks change
+        if request.method == 'POST':
+            action = request.form.get('action')
+            if action == 'update_landmarks_form':
+                newMapGrid = request.form.get('landmarkObjects')
+                campaign = Campaign(campaign.name, campaign.regionMapIndexes, newMapGrid)
+                Game.assets.update_campaign_save(index, campaign)
+                print(len(Game.assets.campaignList))
+                processQueue.put(("refreshCampaign", campaign))
         return render_template('RunCampaign.html', campaign=campaign.to_json(), regions=regionJSONs, landmarks=landmarkJSONs)
 
     return app

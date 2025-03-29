@@ -32,13 +32,11 @@ def title_screen(canvas):
         anchor=tk.CENTER #Ensure text is properly centered
     )
 
-def encounter_screen(encounterIndex, canvas): #from previous responses
-    encounter = Game.assets.encounterList[encounterIndex]
-    print(encounter.name)
+def encounter_screen(encounter, canvas):
     # mapGrid is stored as a json string
     mapGrid = json.loads(encounter.mapGrid)
-    numRows = len(mapGrid[0])
-    numCols = len(mapGrid)
+    numRows = len(mapGrid)
+    numCols = len(mapGrid[0])
     canvas_width = canvas.winfo_width()
     canvas_height = canvas.winfo_height()
     cellWidth = canvas_width / numCols
@@ -69,6 +67,57 @@ def encounter_screen(encounterIndex, canvas): #from previous responses
                     image_id = canvas.create_image(col * cellWidth, row * cellHeight, anchor=tk.NW, image=photo)
                     canvas.image_refs.append(photo) # Keep a reference!
 
+def campaign_screen(campaign, canvas):
+    # mapGrid is stored as a json string
+    mapGrid = json.loads(campaign.mapGrid)
+    # regionMapIndexes is a 2D list
+    regionMapIndexes = campaign.regionMapIndexes
+    numRows = len(mapGrid)
+    numCols = len(mapGrid[0])
+    canvas_width = canvas.winfo_width()
+    canvas_height = canvas.winfo_height()
+    cellWidth = canvas_width / numCols
+    cellHeight = canvas_height / numRows
+
+    # Store image references to prevent garbage collection
+    canvas.image_refs = []  
+
+    mapIconImgFile = None
+    for row in range(numRows):
+        for col in range(numCols):
+            x1 = col * cellWidth
+            y1 = row * cellHeight
+            x2 = (col + 1) * cellWidth
+            y2 = (row + 1) * cellHeight
+            image = Image.open(Game.assets.regionList[int(campaign.regionMapIndexes[row][col])].worldMapIconFile[1:])
+            # Resize the image to fit the cell
+            image = image.resize((int(cellWidth), int(cellHeight)), Image.LANCZOS)
+            photo = ImageTk.PhotoImage(image)
+            
+            # Create the image on the canvas
+            image_id = canvas.create_image(x1, y1, anchor=tk.NW, image=photo)
+            canvas.image_refs.append(photo)
+
+            # Optionally create the rectangle outline on top of the image
+            canvas.create_rectangle(x1, y1, x2, y2, outline="gray", width=1) #Width added to make outlines thinner
+            for object in mapGrid[row][col]["objects"]:
+                mapObjectID = object.split("-")
+                # print(mapObjectID)
+                if mapObjectID[1]: # object found on cell location
+                    assetIndex = int(mapObjectID[1])
+                    if mapObjectID[0] == "stationary":
+                        mapIconImgFile = Game.assets.landmarkList[assetIndex].mapIconImgFile
+                    # get rid of starting "/"
+                    mapIconImgFile = mapIconImgFile[1:]
+                    img = Image.open(mapIconImgFile)
+                    # Resize image to fit the cell
+                    img = img.resize((int(cellWidth), int(cellHeight)), Image.LANCZOS) # Use LANCZOS for best quality
+                    photo = ImageTk.PhotoImage(img)
+                
+                    # Add image to canvas and store a reference
+                    image_id = canvas.create_image(col * cellWidth, row * cellHeight, anchor=tk.NW, image=photo)
+                    canvas.image_refs.append(photo) # Keep a reference!
+
 def create_tkinter_thread(processQueue):
     def tkinter_thread():
         root = tk.Tk()
@@ -81,35 +130,34 @@ def create_tkinter_thread(processQueue):
         canvas.pack(fill=tk.BOTH, expand=True)
         gameState = "title"
         curState = "encounter"
-        encounterIndex = 0
-        curEncounterIndex = 0
+        # initialize game screens
+        curEncounter = Game.assets.encounterList[0]
+        curCampaign = Game.assets.campaignList[0]
 
         def update_tkinter():
-            nonlocal gameState, curState, encounterIndex, curEncounterIndex
+            nonlocal gameState, curState, curEncounter, curCampaign
             # pop state changes off queue
             if processQueue.qsize() > 0:
                 message = processQueue.get_nowait()
+                print(message)
+                refresh = 1
                 if isinstance(message, tuple) and message[0] == "gameState":
                     gameState = message[1]
-                elif isinstance(message, tuple) and message[0] == "encounterIndex":
-                    encounterIndex = message[1]
+                elif isinstance(message, tuple) and message[0] == "refreshEncounter":
+                    curEncounter = message[1]
+                elif isinstance(message, tuple) and message[0] == "refreshCampaign":
+                    curCampaign = message[1]
             # update game screen based on state changes
             else:
-                # update state screen
-                if curState != gameState: 
-                    curState = gameState
-                    canvas.delete("all")
-                    if gameState == "title":
-                        title_screen(canvas)
-                        canvas.update()
-                    elif gameState == "encounter":
-                        encounter_screen(curEncounterIndex, canvas)
-                        canvas.update()
-                # if encounter state has changed, update encounter screen
-                elif (gameState == "encounter") & (curEncounterIndex != encounterIndex):
-                    curEncounterIndex = encounterIndex
-                    canvas.delete("all")
-                    encounter_screen(curEncounterIndex, canvas)
+                refresh = 0
+                if gameState == "title":
+                    title_screen(canvas)
+                    canvas.update()
+                elif gameState == "encounter":
+                    encounter_screen(curEncounter, canvas)
+                    canvas.update()
+                elif gameState == "campaign":
+                    campaign_screen(curCampaign, canvas)
                     canvas.update()
 
             root.after(100, update_tkinter)

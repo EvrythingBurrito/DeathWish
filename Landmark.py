@@ -1,6 +1,6 @@
 import json
+from enum import Enum
 
-# basically a region that can easily move and/or change throughout the campaign
 class Landmark:
     def __init__(self, name, mapIconImgFile):
         ### required

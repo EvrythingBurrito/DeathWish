@@ -53,7 +53,7 @@
     {% if encounter.name != "blank" %}
         <script>
             const gridDataOrigin = JSON.parse(gridDataOriginString);
-            updateGridFromData();
+            updateGridFromData(gridDataOrigin);
         </script>
     {% endif %}
     <button type="submit" form="save_encounter_form">Save Encounter</button>

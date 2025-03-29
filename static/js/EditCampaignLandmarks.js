@@ -184,6 +184,8 @@ function makeDraggable(obj) {
 function updateGridData() {
     // (This function remains the same)
     const grid = [];
+    const curGridRows = campaign.regionMapIndexes.length;
+    const curGridCols = campaign.regionMapIndexes[0].length;
     for (let row = 0; row < curGridRows; row++) {
         grid.push([]);
         for (let col = 0; col < curGridCols; col++) {
@@ -215,19 +217,20 @@ function updateGridData() {
         }
     });
     // console.log(grid);
+    // console.log(JSON.stringify(grid));
     gridDataInput.value = JSON.stringify(grid);
 }
 
-function updateGridFromData() {
+function updateGridFromData(gridData) {
     // Clear existing objects on the grid
     const gridRect = gridContainer.getBoundingClientRect();
     objectsOnGrid.forEach(obj => gridContainer.removeChild(obj));
     objectsOnGrid = [];
     nextObjectId = 0;
 
-    for (let row = 0; row < gridDataOrigin.length; row++) {
-        for (let col = 0; col < gridDataOrigin[row].length; col++) {
-            const cellData = gridDataOrigin[row][col];
+    for (let row = 0; row < gridData.length; row++) {
+        for (let col = 0; col < gridData[row].length; col++) {
+            const cellData = gridData[row][col];
             if (cellData.objects && cellData.objects.length > 0) {
                 cellData.objects.forEach(obj => {
                     // Find the index of the object type. The data transferred and the data contained within the grid expects an index, not the name of the object.
@@ -241,4 +244,5 @@ function updateGridFromData() {
             }
         }
     }
+    updateGridData();
 }

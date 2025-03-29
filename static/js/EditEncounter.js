@@ -213,23 +213,23 @@ function updateGridData() {
             }
         }
     });
-    console.log(objectsOnGrid.length);
+    // console.log(objectsOnGrid.length);
+    // console.log(JSON.stringify(grid));
     gridDataInput.value = JSON.stringify(grid);
 }
 
 // note: grid cells will also have a dict key called "conditions", which points to a list of active conditions on that cell
 
-function updateGridFromData() {
+function updateGridFromData(gridData) {
     // Clear existing objects on the grid
     const gridRect = gridContainer.getBoundingClientRect();
     objectsOnGrid.forEach(obj => gridContainer.removeChild(obj));
     objectsOnGrid = [];
     nextObjectId = 0;
 
-    // console.log(gridDataOrigin);
-    for (let row = 0; row < gridDataOrigin.length; row++) {
-        for (let col = 0; col < gridDataOrigin[row].length; col++) {
-            const cellData = gridDataOrigin[row][col];
+    for (let row = 0; row < gridData.length; row++) {
+        for (let col = 0; col < gridData[row].length; col++) {
+            const cellData = gridData[row][col];
             // console.log(cellData);
             if (cellData.objects && cellData.objects.length > 0) {
                 cellData.objects.forEach(obj => {
