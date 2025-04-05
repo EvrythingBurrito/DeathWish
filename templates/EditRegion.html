@@ -26,9 +26,21 @@
             <br>
             <label for="mapIconImgFile">Path to map icon image:</label>
             <input type="text" name="mapIconImgFile" value="{{ region.worldMapIconFile }}" placeholder="mapIcon.jpg">
+            <h3>Encounters</h3>
+            {% for i in range(0, region.encounterList|length) %}
+                    <i>{{ encounters[region.encounterList[i]].name }}</i>
+                    <button type="submit" name="delete_encounter" value="{{ region.encounterList[i] }}" form="save_region_form">delete</button>
+                    <br>
+            {% endfor %}
+            <h4>Available Encounters</h4>
+            {% for i in range(0, encounters|length) %}
+                    <i>{{ encounters[i].name }}</i>
+                    <button type="submit" name="add_encounter" value="{{ i }}" form="save_region_form">Add</button>
+                    <br>
+            {% endfor %}
         {% endif %}
     </form>
-    <button type="submit" form="save_region_form">Save Region</button>
+    <button type="submit" name='update_region' form="save_region_form">Save Region</button>
     <br>
     <br>
     <form method="POST" id="delete_region_form">

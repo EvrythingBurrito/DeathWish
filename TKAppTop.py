@@ -105,7 +105,7 @@ def campaign_screen(campaign, canvas):
                 # print(mapObjectID)
                 if mapObjectID[1]: # object found on cell location
                     assetIndex = int(mapObjectID[1])
-                    if mapObjectID[0] == "stationary":
+                    if mapObjectID[0] == "landmark":
                         mapIconImgFile = Game.assets.landmarkList[assetIndex].mapIconImgFile
                     # get rid of starting "/"
                     mapIconImgFile = mapIconImgFile[1:]
@@ -133,9 +133,10 @@ def create_tkinter_thread(processQueue):
         # initialize game screens
         curEncounter = Game.assets.encounterList[0]
         curCampaign = Game.assets.campaignList[0]
+        refresh = 0
 
         def update_tkinter():
-            nonlocal gameState, curState, curEncounter, curCampaign
+            nonlocal refresh, gameState, curState, curEncounter, curCampaign
             # pop state changes off queue
             if processQueue.qsize() > 0:
                 message = processQueue.get_nowait()
@@ -149,16 +150,17 @@ def create_tkinter_thread(processQueue):
                     curCampaign = message[1]
             # update game screen based on state changes
             else:
-                refresh = 0
-                if gameState == "title":
-                    title_screen(canvas)
-                    canvas.update()
-                elif gameState == "encounter":
-                    encounter_screen(curEncounter, canvas)
-                    canvas.update()
-                elif gameState == "campaign":
-                    campaign_screen(curCampaign, canvas)
-                    canvas.update()
+                if (refresh == 1):
+                    refresh = 0
+                    if gameState == "title":
+                        title_screen(canvas)
+                        canvas.update()
+                    elif gameState == "encounter":
+                        encounter_screen(curEncounter, canvas)
+                        canvas.update()
+                    elif gameState == "campaign":
+                        campaign_screen(curCampaign, canvas)
+                        canvas.update()
 
             root.after(100, update_tkinter)
 

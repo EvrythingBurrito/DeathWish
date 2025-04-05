@@ -9,7 +9,7 @@
 
     <div id="object-palette">
         {% for i in range(0, landmarks|length) %}
-            <div class="palette-object" data-index="{{ i }}" data-type="stationary" draggable="true">{{ landmarks[i].name }}</div>
+            <div class="palette-object" data-index="{{ i }}" data-type="landmark" draggable="true">{{ landmarks[i].name }}</div>
         {% endfor %}
     </div>
     <script>

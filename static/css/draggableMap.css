@@ -49,7 +49,7 @@ body {
     border-radius: 50%;
 }
 
-.draggable-object.stationary {
+.draggable-object.landmark {
     width: 48px;
     height: 48px;
     background-color: black;

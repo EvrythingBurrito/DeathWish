@@ -1,1 +1,1 @@
-{"name": "Tavern", "mapIconImgFile": "/static/Assets/Landmarks/Images/tavernToken.jpg"}
+{"name": "Tavern", "mapIconImgFile": "/static/Assets/Landmarks/Images/tavernToken.jpg", "isParty": false, "encounterList": [0]}

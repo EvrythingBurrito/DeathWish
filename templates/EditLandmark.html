@@ -11,24 +11,41 @@
 {% block content %}
 <body>
     <form method="POST" id="save_landmark_form">
-        <h3>Landmark Name</h3>
         <input type="hidden" name="action" value="save_landmark_form">
         <!-- autopopulate if landmark already exists -->
         {% if landmark.name == "blank" %}
+            <h1>Landmark Name</h1>
             <label for="landmarkName">Landmark Name:</label>
             <input type="text" name="landmarkName" placeholder="landmark name">
             <br>
             <label for="mapIconImgFile">Path to map icon image:</label>
             <input type="text" name="mapIconImgFile" placeholder="mapIcon.jpg">
         {% else %}
+            <h1>{{ landmark.name }}</h1>
             <label for="landmarkName">Landmark Name:</label>
             <input type="text" name="landmarkName" value="{{ landmark.name }}" placeholder="landmark name">
             <br>
             <label for="mapIconImgFile">Path to map icon image:</label>
-            <input type="text" name="mapIconImgFile" value="{{ landmark.worldMapIconFile }}" placeholder="mapIcon.jpg">
+            <input type="text" name="mapIconImgFile" value="{{ landmark.mapIconImgFile }}" placeholder="mapIcon.jpg">
+            <br>
+            <h3>Encounters</h3>
+            {% for i in range(0, landmark.encounterList|length) %}
+                    <i>{{ encounters[landmark.encounterList[i]].name }}</i>
+                    <button type="submit" name="delete_encounter" value="{{ landmark.encounterList[i] }}" form="save_landmark_form">delete</button>
+                    <br>
+            {% endfor %}
+            <h4>Available Encounters</h4>
+            {% for i in range(0, encounters|length) %}
+                    <i>{{ encounters[i].name }}</i>
+                    <button type="submit" name="add_encounter" value="{{ i }}" form="save_landmark_form">Add</button>
+                    <br>
+            {% endfor %}
         {% endif %}
+        <br>
+        <input type="checkbox" name="isParty" value="unchecked"> Is Party?
+        <br>
+        <button type="submit" name="update_landmark" form="save_landmark_form">Save Landmark</button>
     </form>
-    <button type="submit" form="save_landmark_form">Save Landmark</button>
     <br>
     <br>
     <form method="POST" id="delete_landmark_form">

@@ -69,7 +69,7 @@ class Assets:
 
 ########################################################### CAMPAIGNS
     ### create or update save file for desired campaign
-    def update_campaign_save(self, index, campaign):
+    def update_campaign_save(self, campaign):
         filename = self.campaignDir + "/" + campaign.name.replace(" ", "_") + ".json"
         if os.path.exists(filename):
             print("overwriting campaign save!")

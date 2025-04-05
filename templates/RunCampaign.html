@@ -16,6 +16,17 @@
     <h1>{{ campaign.name }}</h1>
 </header>
 
-{% include 'EditCampaignLandmarks.html' with context %}
+<div class="container">
+    <div class="column">
+        {% include 'EditCampaignLandmarks.html' with context %}
+    </div>
+    <div class="column">
+        <h3>Available Encounters</h3>
+        {% for i in range(0, campaign.availableEncounterIndexes|length) %}
+            <a href="{{ url_for('RunEncounter', index=campaign.availableEncounterIndexes[i]) }}"> {{ encounters[campaign.availableEncounterIndexes[i]].name }}</a>
+            <br>
+        {% endfor %}
+    </div>
+</div>
 
 {% endblock %}
