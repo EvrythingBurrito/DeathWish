@@ -37,7 +37,7 @@
     </div>
     <script>
         const mapObjects = {{ mapObjects|tojson }};
-        const gridDataOriginString = {{ encounter.mapGrid|tojson }};
+        const gridDataOriginString = {{ encounter.mapGridJSON|tojson }};
     </script>
     {# must create grid before sourcing js #}
     <div id="grid-container">

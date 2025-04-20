@@ -14,7 +14,7 @@
     </div>
     <script>
         const landmarks = {{ landmarks|tojson }};
-        const gridDataOriginString = {{ campaign.mapGrid|tojson }};
+        const gridDataOriginString = {{ campaign.mapGridJSON|tojson }};
     </script>
     <div id="grid-container">
     {% for row in range(0, campaign.regionMapIndexes|length) %}

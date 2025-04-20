@@ -32,24 +32,23 @@ def create_flask_app(processQueue):
         if isNew == 0:
             campaign = Game.assets.campaignList[index]
         else:
-            campaign = Campaign("New Campaign", dummyMatrix, "blank", None, None, None)
+            campaign = Campaign("New Campaign", dummyMatrix, "blank", None)
         regionJSONs = [rg.to_json() for rg in Game.assets.regionList]
         landmarkJSONs = [lm.to_json() for lm in Game.assets.landmarkList]
         if request.method == 'POST':
             action = request.form.get('action')
             if action == 'update_region_form':
-                campaignName = request.form.get('campaignName')
-                regionDataJSON = request.form.get('regionData')
-                regionData = json.loads(regionDataJSON)
                 campaign.name = request.form.get('campaignName')
-                campaign.regionMapIndexes = request.form.get('regionData')
+                # transfer to object format
+                campaign.regionMapIndexes = json.loads(request.form.get('regionData'))
                 if isNew == 1:
                     Game.assets.add_campaign(campaign)
                 else:
                     Game.assets.update_campaign_save(campaign)
             elif action == 'update_landmarks_form':
-                campaign.mapGrid = request.form.get('landmarkObjects')
-                campaign.update_party_landmark(Game.assets.landmarkList, Game.assets.regionList)
+                # keep in json format
+                campaign.mapGridJSON = request.form.get('landmarkObjects')
+                # campaign.update_party_landmark(Game.assets.landmarkList, Game.assets.regionList)
                 Game.assets.update_campaign_save(campaign)
                 return redirect(url_for('GameMaster'))
             elif action == 'delete_campaign_form':
@@ -69,19 +68,19 @@ def create_flask_app(processQueue):
             region = Game.assets.regionList[index]
         else:
             region = Region("blank", "path_to_image", [])
-        print(region.encounterList)
+        print(region.encounterListIndexes)
         encounterJSONS = [en.to_json() for en in Game.assets.encounterList]
         if request.method == 'POST':
             if request.form.get("action") == "save_region_form":
                 if 'delete_encounter' in request.form:
-                    del region.encounterList[int(request.form['delete_encounter'])]
+                    del region.encounterListIndexes[int(request.form['delete_encounter'])]
                 elif 'add_encounter' in request.form:
-                    region.encounterList.append(int(request.form['add_encounter']))
+                    region.encounterListIndexes.append(int(request.form['add_encounter']))
                 else:
                     regionName = request.form.get('regionName')
                     ### only expect the user to type in the filename, not the relative path
                     mapIconImgFile = request.form.get('mapIconImgFile')
-                    region = Region(regionName, mapIconImgFile, region.encounterList)
+                    region = Region(regionName, mapIconImgFile, region.encounterListIndexes)
                 if isNew == 1:
                     Game.assets.add_region(region)
                 else:
@@ -106,15 +105,15 @@ def create_flask_app(processQueue):
         if request.method == 'POST':
             if request.form.get("action") == "save_landmark_form":
                 if 'delete_encounter' in request.form:
-                    del landmark.encounterList[int(request.form['delete_encounter'])]
+                    del landmark.encounterListIndexes[int(request.form['delete_encounter'])]
                 elif 'add_encounter' in request.form:
-                    landmark.encounterList.append(int(request.form['add_encounter']))
+                    landmark.encounterListIndexes.append(int(request.form['add_encounter']))
                 else:
                     isParty = 'isParty' in request.form
                     landmarkName = request.form.get('landmarkName')
                     ### expect the user to type in the relative path
                     mapIconImgFile = request.form.get('mapIconImgFile')
-                    landmark = Landmark(landmarkName, mapIconImgFile, isParty, landmark.encounterList)
+                    landmark = Landmark(landmarkName, mapIconImgFile, isParty, landmark.encounterListIndexes)
                 if isNew == 1:
                     Game.assets.add_landmark(landmark)
                 else:
@@ -194,8 +193,10 @@ def create_flask_app(processQueue):
         if request.method == 'POST':
             action = request.form.get('action')
             if action == 'update_landmarks_form':
-                campaign.mapGrid = request.form.get('landmarkObjects')
+                campaign.mapGridJSON = request.form.get('landmarkObjects')
                 campaign.update_party_landmark(Game.assets.landmarkList, Game.assets.regionList)
+                # print(campaign.partyLocation)
+                # print(campaign.availableEncounterIndexes)
                 Game.assets.campaignList[index] = campaign
                 Game.assets.update_campaign_save(campaign)
                 print(len(Game.assets.campaignList))

@@ -2,12 +2,12 @@ import json
 from enum import Enum
 
 class Landmark:
-    def __init__(self, name, mapIconImgFile, isParty, encounterList):
+    def __init__(self, name, mapIconImgFile, isParty, encounterListIndexes):
         ### required
         self.name = name
         self.mapIconImgFile = mapIconImgFile
         self.isParty = isParty
-        self.encounterList = encounterList
+        self.encounterListIndexes = encounterListIndexes
         # ### optional
         # # flavor text
         # self.description = ""

@@ -2,11 +2,11 @@ import json
 
 class Encounter:
 
-    def __init__(self, name, mapGrid, description):
+    def __init__(self, name, mapGridJSON, description):
         ### required
         self.name = name
         # 2D array of lists of mapObjects, the rules of which should be enforced in the browser side
-        self.mapGrid = mapGrid
+        self.mapGridJSON = mapGridJSON
         ### optional
         self.description = description
 

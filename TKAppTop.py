@@ -33,10 +33,10 @@ def title_screen(canvas):
     )
 
 def encounter_screen(encounter, canvas):
-    # mapGrid is stored as a json string
-    mapGrid = json.loads(encounter.mapGrid)
-    numRows = len(mapGrid)
-    numCols = len(mapGrid[0])
+    # mapGridJSON is stored as a json string
+    mapGridJSON = json.loads(encounter.mapGridJSON)
+    numRows = len(mapGridJSON)
+    numCols = len(mapGridJSON[0])
     canvas_width = canvas.winfo_width()
     canvas_height = canvas.winfo_height()
     cellWidth = canvas_width / numCols
@@ -49,7 +49,7 @@ def encounter_screen(encounter, canvas):
     for row in range(numRows):
         for col in range(numCols):
             canvas.create_rectangle(col * cellWidth, row * cellHeight, (col + 1) * cellWidth, (row + 1) * cellHeight, outline="gray")
-            for object in mapGrid[row][col]["objects"]:
+            for object in mapGridJSON[row][col]["objects"]:
                 mapObjectID = object.split("-")
                 print(mapObjectID)
                 if mapObjectID[1]: # object found on cell location
@@ -68,12 +68,12 @@ def encounter_screen(encounter, canvas):
                     canvas.image_refs.append(photo) # Keep a reference!
 
 def campaign_screen(campaign, canvas):
-    # mapGrid is stored as a json string
-    mapGrid = json.loads(campaign.mapGrid)
+    # mapGridJSON is stored as a json string
+    mapGridJSON = json.loads(campaign.mapGridJSON)
     # regionMapIndexes is a 2D list
     regionMapIndexes = campaign.regionMapIndexes
-    numRows = len(mapGrid)
-    numCols = len(mapGrid[0])
+    numRows = len(mapGridJSON)
+    numCols = len(mapGridJSON[0])
     canvas_width = canvas.winfo_width()
     canvas_height = canvas.winfo_height()
     cellWidth = canvas_width / numCols
@@ -100,7 +100,7 @@ def campaign_screen(campaign, canvas):
 
             # Optionally create the rectangle outline on top of the image
             canvas.create_rectangle(x1, y1, x2, y2, outline="gray", width=1) #Width added to make outlines thinner
-            for object in mapGrid[row][col]["objects"]:
+            for object in mapGridJSON[row][col]["objects"]:
                 mapObjectID = object.split("-")
                 # print(mapObjectID)
                 if mapObjectID[1]: # object found on cell location

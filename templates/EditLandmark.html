@@ -29,9 +29,9 @@
             <input type="text" name="mapIconImgFile" value="{{ landmark.mapIconImgFile }}" placeholder="mapIcon.jpg">
             <br>
             <h3>Encounters</h3>
-            {% for i in range(0, landmark.encounterList|length) %}
-                    <i>{{ encounters[landmark.encounterList[i]].name }}</i>
-                    <button type="submit" name="delete_encounter" value="{{ landmark.encounterList[i] }}" form="save_landmark_form">delete</button>
+            {% for i in range(0, landmark.encounterListIndexes|length) %}
+                    <i>{{ encounters[landmark.encounterListIndexes[i]].name }}</i>
+                    <button type="submit" name="delete_encounter" value="{{ landmark.encounterListIndexes[i] }}" form="save_landmark_form">delete</button>
                     <br>
             {% endfor %}
             <h4>Available Encounters</h4>
