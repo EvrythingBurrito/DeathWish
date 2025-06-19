@@ -1,1 +1,1 @@
-{"name": "city guard", "weight": "10", "mapIconImgFile": "/static/Assets/NPCs/Images/cityGuardToken.png", "health": 0}
+{"name": "city guard", "weight": "10", "mapIconImgFile": "/static/Assets/NPCs/Images/cityGuardToken.png", "health": 0, "type": "npc"}

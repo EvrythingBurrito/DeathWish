@@ -1,3 +1,5 @@
+<!DOCTYPE html>
+<html>
 {% extends "DeathWishBase.html" %}
 
 {% block title %}
@@ -10,59 +12,53 @@
 
 {% block content %}
 <head>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/draggableMap.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/campaign.css') }}">
 </head>
+
 <body>
-    <form method="POST" id="save_encounter_form">
-        {% if encounter.name != "blank" %}
-            <h2>{{ encounter.name }}</h2>
-        {% else %}
-            <h2>New Encounter</h2>
-        {% endif %}
-        <input type="hidden" name="action" value="save_encounter_form">
-        {% if encounter.name == "blank" %}
-            <input type="text" name="encounterName" placeholder="encounter name">
-        {% else %}
-            <input type="text" name="encounterName" value="{{ encounter.name }}" placeholder="encounter name">
-        {% endif %}
-        <input type="hidden" id="mapData" name="mapData">
-    </form>
-
-    <br>
-    <br>
-    <div id="object-palette">
-        {% for i in range(0, mapObjects|length) %}
-            <div class="palette-object" data-index="{{ i }}" data-type="npc" draggable="true">{{ mapObjects[i].name }}</div>
-        {% endfor %}
-    </div>
     <script>
-        const mapObjects = {{ mapObjects|tojson }};
-        const gridDataOriginString = {{ encounter.mapGridJSON|tojson }};
+        const footings = {{ footings|tojson }};
+        const encounter = {{ encounter|tojson }};
     </script>
-    {# must create grid before sourcing js #}
-    <div id="grid-container">
-        {% for row in range(10) %}
-            <div class="grid-row">
-                {% for col in range(10) %}
-                    <div class="grid-cell" data-row="{{ row }}" data-col="{{ col }}"></div>
-                {% endfor %}
-            </div>
-        {% endfor %}
+    <div class="container">
+        <div class="column">
+            <h3>Footing Select</h3>
+            <label for="rows">Rows:</label>
+            <input type="number" id="rows" name="rows" min="1" value={{ encounter.footingMapIndexes|length }} required><br>
+            <label for="cols">Columns:</label>
+            <input type="number" id="cols" name="cols" min="1" value={{ encounter.footingMapIndexes[0]|length }} required><br>
+            <button type="button" onclick="createMap()">Reset Map</button>
+            <form method="POST" id="update_footing_form">
+                <input type="hidden" name="action" value="update_footing_form">
+                <label for="footingSelect">Select Footing:</label>
+                <select id="footingSelect" onchange="updateSelectedFootingIndex()">
+                    {% for i in range(0, footings|length) %}
+                        <option value="{{ i }}">{{ footings[i].name }}</option>
+                    {% endfor %}
+                </select>
+                <br>
+                <div id="map"></div>
+                <input type="hidden" name="footingData" id="footingData">
+                <br>
+                <script src="{{ url_for('static', filename='js/EditEncounter.js') }}"></script>
+                <h3>Encounter Name</h3>
+                    <input type="text" name="encounterName" value={{ encounter.name }} placeholder="encounter name">
+                <script>
+                    createMap();
+                </script>
+            </form>
+            <button type="submit" form="update_footing_form">Update Footing Map</button>
+        </div>
+        <div class="column">
+            <h3>Update MapObjects</h3>
+            {% include 'EditEncounterMapObjects.html' with context %}
+        </div>
     </div>
-    <script src="{{ url_for('static', filename='js/EditEncounter.js') }}"></script>
-    {% if encounter.name != "blank" %}
-        <script>
-            const gridDataOrigin = JSON.parse(gridDataOriginString);
-            updateGridFromData(gridDataOrigin);
-        </script>
-    {% endif %}
-    <button type="submit" form="save_encounter_form">Save Encounter</button>
 
-    <br>
-    <br>
     <form method="POST" id="delete_encounter_form">
         <input type="hidden" name="action" value="delete_encounter_form">
-        <button type="submit" name="delete_encounter">Delete Encounter</button>
     </form>
+    <button type="submit" form="delete_encounter_form">Delete Encounter</button>
 </body>
 {% endblock %}
+</html>

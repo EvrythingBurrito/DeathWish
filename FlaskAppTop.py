@@ -256,26 +256,32 @@ def create_flask_app(processQueue):
     ### display chosen objects attributes in editable forms
     @app.route('/GameMaster/Assets/Encounter_<int:index><int:isNew>', methods=['GET', 'POST'])
     def EditEncounter(index, isNew):
-        if isNew < 1:
+        dummyMatrix = [[0 for _ in range(8)] for _ in range(8)]
+        if isNew == 0:
             encounter = Game.assets.encounterList[index]
         else:
-            encounter = Encounter("blank", [], "")
-        npcJSONs = [npc.to_json() for npc in Game.assets.NPCList]
+            encounter = Encounter("New Encounter", dummyMatrix, "blank", None)
+        footingJSONs = [ft.to_json() for ft in Game.assets.footingList]
+        mapObjectJSONs = [mo.to_json() for mo in Game.assets.NPCList]
         if request.method == 'POST':
-            if request.form.get("action") == "save_encounter_form":
-                encounterName = request.form.get('encounterName')
-                encounterMap = request.form.get('mapData')
-                encounter = Encounter(encounterName, encounterMap, "")
+            action = request.form.get('action')
+            if action == 'update_footing_form':
+                encounter.name = request.form.get('encounterName')
+                # transfer to object format
+                encounter.footingMapIndexes = json.loads(request.form.get('footingData'))
                 if isNew == 1:
                     Game.assets.add_encounter(encounter)
                 else:
-                    Game.assets.encounterList[index] = encounter
                     Game.assets.update_encounter_save(encounter)
-            elif request.form.get("action") == "delete_encounter_form":
-                if isNew == 0:
-                    Game.assets.delete_encounter(index)
-            return redirect(url_for('AssetsTop'))
-        return render_template('EditEncounter.html', encounter=encounter.to_json(), mapObjects=npcJSONs)
+            elif action == 'update_mapObjects_form':
+                # keep in json format
+                encounter.mapGridJSON = request.form.get('mapObjects')
+                Game.assets.update_encounter_save(encounter)
+                return redirect(url_for('AssetsTop'))
+            elif action == 'delete_encounter_form':
+                Game.assets.delete_encounter(index)
+                return redirect(url_for('AssetsTop'))
+        return render_template('EditEncounter.html', encounter=encounter.to_json(), footings=footingJSONs, mapObjects=mapObjectJSONs)
 
     ### display chosen campaign world map, premise, recent party events, etc.
     @app.route('/GameMaster/RunCampaign/Campaign_<int:index>', methods=['GET', 'POST'])
