@@ -2,9 +2,8 @@ import json
 import os
 
 class MapObject:
-    def __init__(self, name, health, weight, mapIconImgFile):
+    def __init__(self, name, weight, mapIconImgFile):
         self.name = name
-        self.health = health
         self.weight = weight
         self.mapIconImgFile = mapIconImgFile
 

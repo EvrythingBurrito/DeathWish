@@ -1,0 +1,1 @@
+{"name": "guard", "movementRange": "5", "targetSelf": true, "numTargets": "0", "targetRange": "0", "setupTime": "0", "cooldownTime": "2", "staminaCost": "1", "manaCost": "0", "negationAmount": "0", "interruptStrength": "100", "effectListIndexes": [6]}

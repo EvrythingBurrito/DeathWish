@@ -1,0 +1,1 @@
+{"name": "slash", "movementRange": "1", "targetSelf": false, "numTargets": "1", "targetRange": "1", "setupTime": "1", "cooldownTime": "2", "staminaCost": "1", "manaCost": "0", "negationAmount": "8", "interruptStrength": "8", "effectListIndexes": [4]}

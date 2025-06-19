@@ -1,24 +1,32 @@
 import json
 import os
 from Region import Region
+from Footing import Footing
 from Landmark import Landmark
 from Encounter import Encounter
 from Campaign import Campaign
 from NPC import NPC
+from Action import Action
+from Effect import Effect
 import glob
 
 class Assets:
     def __init__(self):
         self.campaignDir = "Assets/Campaigns"
         self.regionDir = "Assets/Regions"
+        self.footingDir = "Assets/Footings"
         self.landmarkDir = "Assets/Landmarks"
         self.encounterDir = "Assets/Encounters"
         self.NPCDir = "Assets/NPCs"
+        self.actionDir = "Assets/Actions"
+        self.effectDir = "Assets/Effects"
         ### initialize lists
         self.campaignList = []
         self.update_campaign_list()
         self.regionList = []
         self.update_region_list()
+        self.footingList = []
+        self.update_footing_list()
         self.landmarkList = []
         self.update_landmark_list()
         self.tangibleList = []
@@ -26,6 +34,10 @@ class Assets:
         self.update_encounter_list()
         self.NPCList = []
         self.update_NPC_list()
+        self.actionList = []
+        self.update_action_list()
+        self.effectList = []
+        self.update_effect_list()
 
 ### operate specific elements
     def add_campaign(self, campaign):
@@ -41,6 +53,13 @@ class Assets:
     def delete_region(self, index):
         self.delete_region_save(self.regionList[index])
         del self.regionList[index]
+
+    def add_footing(self, footing):
+        self.footingList.append(footing)
+        self.update_footing_save(footing)
+    def delete_footing(self, index):
+        self.delete_footing_save(self.footingList[index])
+        del self.footingList[index]
 
     def add_landmark(self, landmark):
         self.landmarkList.append(landmark)
@@ -62,6 +81,20 @@ class Assets:
     def delete_NPC(self, index):
         self.delete_NPC_save(self.NPCList[index])
         del self.NPCList[index]
+
+    def add_action(self, action):
+        self.actionList.append(action)
+        self.update_action_save(action)
+    def delete_action(self, index):
+        self.delete_action_save(self.actionList[index])
+        del self.actionList[index]
+
+    def add_effect(self, effect):
+        self.effectList.append(effect)
+        self.update_effect_save(effect)
+    def delete_effect(self, index):
+        self.delete_effect_save(self.effectList[index])
+        del self.effectList[index]
 
 ###########################################################
 #################### SERIALIZATION ########################
@@ -112,6 +145,31 @@ class Assets:
                 data = json.load(f)
                 aRegion = Region.from_json(data)
                 self.regionList.append(aRegion)
+
+########################################################### FOOTINGS
+
+    ### create or update save file for desired footing
+    def update_footing_save(self, footing):
+        filename = self.footingDir + "/" + footing.name.replace(" ", "_") + ".json"
+        if footing not in self.footingList:
+            self.add_footing(footing)
+        if os.path.exists(filename):
+            print("overwriting footing save!")
+        with open(filename, 'w') as f:
+            json.dump(footing.to_json(), f)
+
+    def delete_footing_save(self, footing):
+        filename = self.footingDir + "/" + footing.name.replace(" ", "_") + ".json"
+        os.remove(filename)
+
+    def update_footing_list(self):
+        self.footingList = []
+        for filename in glob.glob(self.footingDir + "/*.json"):
+            with open(filename, 'r') as f:
+                data = json.load(f)
+                aFooting = Footing.from_json(data)
+                self.footingList.append(aFooting)
+
 
 ########################################################### LANDMARKS
 
@@ -184,3 +242,51 @@ class Assets:
                 data = json.load(f)
                 npc = NPC.from_json(data)
                 self.NPCList.append(npc)
+
+########################################################### ACTIONS
+
+    ### create or update save file for desired action
+    def update_action_save(self, action):
+        filename = self.actionDir + "/" + action.name.replace(" ", "_") + ".json"
+        if action not in self.actionList:
+            self.add_NPC(action)
+        if os.path.exists(filename):
+            print("overwriting action save!")
+        with open(filename, 'w') as f:
+            json.dump(action.to_json(), f)
+
+    def delete_action_save(self, action):
+        filename = self.actionDir + "/" + action.name.replace(" ", "_") + ".json"
+        os.remove(filename)
+
+    def update_action_list(self):
+        self.actionList = []
+        for filename in glob.glob(self.actionDir + "/*.json"):
+            with open(filename, 'r') as f:
+                data = json.load(f)
+                action = Action.from_json(data)
+                self.actionList.append(action)
+
+########################################################### EFFECTS
+
+    ### create or update save file for desired effect
+    def update_effect_save(self, effect):
+        filename = self.effectDir + "/" + effect.name.replace(" ", "_") + ".json"
+        if effect not in self.effectList:
+            self.add_NPC(effect)
+        if os.path.exists(filename):
+            print("overwriting effect save!")
+        with open(filename, 'w') as f:
+            json.dump(effect.to_json(), f)
+
+    def delete_effect_save(self, effect):
+        filename = self.effectDir + "/" + effect.name.replace(" ", "_") + ".json"
+        os.remove(filename)
+
+    def update_effect_list(self):
+        self.effectList = []
+        for filename in glob.glob(self.effectDir + "/*.json"):
+            with open(filename, 'r') as f:
+                data = json.load(f)
+                effect = Effect.from_json(data)
+                self.effectList.append(effect)

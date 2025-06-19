@@ -5,7 +5,10 @@ from flask import *
 import Game
 from Campaign import *
 from Region import *
+from Footing import *
 from Landmark import *
+from Effect import *
+from Action import *
 from NPC import *
 from Encounter import *
 from Monster import *
@@ -93,6 +96,100 @@ def create_flask_app(processQueue):
                     Game.assets.delete_region(index)
                 return redirect(url_for('AssetsTop'))
         return render_template('EditRegion.html', region=region.to_json(), encounters=encounterJSONS)
+
+    ### display chosen objects attributes in editable forms
+    @app.route('/GameMaster/Assets/Footing_<int:index><int:isNew>', methods=['GET', 'POST'])
+    def EditFooting(index, isNew):
+        if isNew < 1:
+            footing = Game.assets.footingList[index]
+        else:
+            footing = Footing("blank", "path_to_image", 0, 0, 0)
+        if request.method == 'POST':
+            if request.form.get("action") == "save_footing_form":
+                footing.name = request.form.get('footingName')
+                footing.mapIconFile = request.form.get('mapIconFile')
+                footing.terrainDifficulty = request.form.get('terrainDifficulty')
+                footing.opacity = request.form.get('opacity')
+                footing.solidity = request.form.get('solidity')
+                if isNew == 1:
+                    Game.assets.add_footing(footing)
+                else:
+                    Game.assets.footingList[index] = footing
+                    Game.assets.update_footing_save(footing)
+                if 'update_footing' in request.form:
+                    return redirect(url_for('AssetsTop'))
+            elif request.form.get("action") == "delete_footing_form":
+                if isNew == 0:
+                    Game.assets.delete_footing(index)
+                return redirect(url_for('AssetsTop'))
+        return render_template('EditFooting.html', footing=footing.to_json())
+    
+    ### display chosen objects attributes in editable forms
+    @app.route('/GameMaster/Assets/Effect_<int:index><int:isNew>', methods=['GET', 'POST'])
+    def EditEffect(index, isNew):
+        if isNew < 1:
+            effect = Game.assets.effectList[index]
+        else:
+            effect = Effect("blank", 0, 0, 0)
+        if request.method == 'POST':
+            if request.form.get("effect") == "save_effect_form":
+                effect.name = request.form.get('effectName')
+                effect.effectQuantity = request.form.get('effectQuantity')
+                effect.effectType = request.form.get('effectType')
+                effect.durationTurns = request.form.get('durationTurns')
+                if isNew == 1:
+                    Game.assets.add_effect(effect)
+                else:
+                    Game.assets.effectList[index] = effect
+                    Game.assets.update_effect_save(effect)
+                return redirect(url_for('AssetsTop'))
+            elif request.form.get("effect") == "delete_effect_form":
+                if isNew == 0:
+                    Game.assets.delete_effect(index)
+                return redirect(url_for('AssetsTop'))
+        return render_template('EditEffect.html', effect=effect.to_json())
+
+    ### display chosen objects attributes in editable forms
+    @app.route('/GameMaster/Assets/Action_<int:index><int:isNew>', methods=['GET', 'POST'])
+    def EditAction(index, isNew):
+        if isNew < 1:
+            action = Game.assets.actionList[index]
+        else:
+            action = Action("blank", 0, False, 0, 0, 0, 0, 0, 0, 0, 0, [])
+        effectJSONS = [effect.to_json() for effect in Game.assets.effectList]
+        if request.method == 'POST':
+            if request.form.get("action") == "save_action_form":
+                if 'delete_effect' in request.form:
+                    del action.effectListIndexes[int(request.form['delete_effect'])]
+                elif 'add_effect' in request.form:
+                    action.effectListIndexes.append(int(request.form['add_effect']))
+                else:
+                    action.name = request.form.get('actionName')
+                    action.movementRange = request.form.get('movementRange') 
+                    if (request.form.get('targetSelf')):
+                        action.targetSelf = True
+                    else:
+                        action.targetSelf = False
+                    action.numTargets = request.form.get('numTargets')
+                    action.targetRange = request.form.get('targetRange')
+                    action.setupTime = request.form.get('setupTime')
+                    action.cooldownTime = request.form.get('cooldownTime')
+                    action.staminaCost = request.form.get('staminaCost')
+                    action.manaCost = request.form.get('manaCost') 
+                    action.negationAmount = request.form.get('negationAmount') 
+                    action.interruptStrength = request.form.get('interruptStrength') 
+                if isNew == 1:
+                    Game.assets.add_action(action)
+                else:
+                    Game.assets.actionList[index] = action
+                    Game.assets.update_action_save(action)
+                if 'update_action' in request.form:
+                    return redirect(url_for('AssetsTop'))
+            elif request.form.get("action") == "delete_action_form":
+                if isNew == 0:
+                    Game.assets.delete_action(index)
+                return redirect(url_for('AssetsTop'))
+        return render_template('EditAction.html', action=action.to_json(), effects=effectJSONS)
 
     ### display chosen objects attributes in editable forms
     @app.route('/GameMaster/Assets/Landmark_<int:index><int:isNew>', methods=['GET', 'POST'])

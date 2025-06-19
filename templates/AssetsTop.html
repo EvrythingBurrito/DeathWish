@@ -6,39 +6,58 @@
 <body>
     <h1>GM Assets</h1>
     <div class="container">
-        <div class="column">
-            <h3>Tangibles</h3>
-            {% for item in assets.tangibleList %}
-                <p>{{ item.name }}</p>
-            {% endfor %}
+        <div class="row">
+            <div class="column">
+                <h3>Actions</h3>
+                <a href="{{ url_for('EditAction', index=0, isNew=1) }}">New Action</a>
+                {% for i in range(0, assets.actionList|length) %}
+                    <p><a href="{{ url_for('EditAction', index=i, isNew=0) }}">{{ assets.actionList[i].name }}</a></p>
+                {% endfor %}
+            </div>
+            <div class="column">
+                <h3>Regions</h3>
+                <a href="{{ url_for('EditRegion', index=0, isNew=1) }}">New Region</a>
+                {% for i in range(0, assets.regionList|length) %}
+                    <p><a href="{{ url_for('EditRegion', index=i, isNew=0) }}">{{ assets.regionList[i].name }}</a></p>
+                {% endfor %}
+            </div>
+            <div class="column">
+                <h3>Landmarks</h3>
+                <a href="{{ url_for('EditLandmark', index=0, isNew=1) }}">New Landmark</a>
+                {% for i in range(0, assets.landmarkList|length) %}
+                    <p><a href="{{ url_for('EditLandmark', index=i, isNew=0) }}">{{ assets.landmarkList[i].name }}</a></p>
+                {% endfor %}
+            </div>
+            <div class="column">
+                <h3>NPCs</h3>
+                <a href="{{ url_for('EditNPC', index=0, isNew=1) }}">New NPC</a>
+                {% for i in range(0, assets.NPCList|length) %}
+                    <p><a href="{{ url_for('EditNPC', index=i, isNew=0) }}">{{ assets.NPCList[i].name }}</a></p>
+                {% endfor %}
+            </div>
+            <div class="column">
+                <h3>Encounters</h3>
+                <a href="{{ url_for('EditEncounter', index=0, isNew=1) }}">New Encounter</a>
+                {% for i in range(0, assets.encounterList|length) %}
+                    <p><a href="{{ url_for('EditEncounter', index=i, isNew=0) }}">{{ assets.encounterList[i].name }}</a></p>
+                {% endfor %}
+            </div>
         </div>
-        <div class="column">
-            <h3>Regions</h3>
-            <a href="{{ url_for('EditRegion', index=0, isNew=1) }}">New Region</a>
-            {% for i in range(0, assets.regionList|length) %}
-                <p><a href="{{ url_for('EditRegion', index=i, isNew=0) }}">{{ assets.regionList[i].name }}</a></p>
-            {% endfor %}
-        </div>
-        <div class="column">
-            <h3>Landmarks</h3>
-            <a href="{{ url_for('EditLandmark', index=0, isNew=1) }}">New Landmark</a>
-            {% for i in range(0, assets.landmarkList|length) %}
-                <p><a href="{{ url_for('EditLandmark', index=i, isNew=0) }}">{{ assets.landmarkList[i].name }}</a></p>
-            {% endfor %}
-        </div>
-        <div class="column">
-            <h3>NPCs</h3>
-            <a href="{{ url_for('EditNPC', index=0, isNew=1) }}">New NPC</a>
-            {% for i in range(0, assets.NPCList|length) %}
-                <p><a href="{{ url_for('EditNPC', index=i, isNew=0) }}">{{ assets.NPCList[i].name }}</a></p>
-            {% endfor %}
-        </div>
-        <div class="column">
-            <h3>Encounters</h3>
-            <a href="{{ url_for('EditEncounter', index=0, isNew=1) }}">New Encounter</a>
-            {% for i in range(0, assets.encounterList|length) %}
-                <p><a href="{{ url_for('EditEncounter', index=i, isNew=0) }}">{{ assets.encounterList[i].name }}</a></p>
-            {% endfor %}
+        <div class="row">
+            <div class="column">
+                <h3>Effects</h3>
+                <a href="{{ url_for('EditEffect', index=0, isNew=1) }}">New Effect</a>
+                {% for i in range(0, assets.effectList|length) %}
+                    <p><a href="{{ url_for('EditEffect', index=i, isNew=0) }}">{{ assets.effectList[i].name }}</a></p>
+                {% endfor %}
+            </div>
+            <div class="column">
+                <h3>Footings</h3>
+                <a href="{{ url_for('EditFooting', index=0, isNew=1) }}">New Footing</a>
+                {% for i in range(0, assets.footingList|length) %}
+                    <p><a href="{{ url_for('EditFooting', index=i, isNew=0) }}">{{ assets.footingList[i].name }}</a></p>
+                {% endfor %}
+            </div>
         </div>
     </div>
 </body>

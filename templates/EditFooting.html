@@ -1,0 +1,57 @@
+{% extends "DeathWishBase.html" %}
+
+{% block title %}
+    {% if footing.name != "blank" %}
+        {{ footing.name }}
+    {% else %}
+        New Footing
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<body>
+    <form method="POST" id="save_footing_form">
+        <h3>Footing Name</h3>
+        <input type="hidden" name="action" value="save_footing_form">
+        <!-- autopopulate if footing already exists -->
+        {% if footing.name == "blank" %}
+            <label for="footingName">Footing Name:</label>
+            <input type="text" name="footingName" placeholder="footing name">
+            <br>
+            <label for="mapIconFile">Path to map icon image:</label>
+            <input type="text" name="mapIconFile" placeholder="mapIcon.jpg">
+            <br>
+            <label for="terrainDifficulty">Terrain Difficulty:</label>
+            <input type="text" name="terrainDifficulty" placeholder="0 to 100">
+            <br>
+            <label for="opacity">Terrain Opacity:</label>
+            <input type="text" name="opacity" placeholder="0(clear) to 100(can't see anything)">
+            <br>
+            <label for="solidity">Terrain Solidity:</label>
+            <input type="text" name="solidity" placeholder="0(no completely empty) to 100(completely solid)">
+        {% else %}
+            <label for="footingName">Footing Name:</label>
+            <input type="text" name="footingName" value="{{ footing.name }}" placeholder="footing name">
+            <br>
+            <label for="mapIconFile">Path to map icon image:</label>
+            <input type="text" name="mapIconFile" value="{{ footing.mapIconFile }}" placeholder="mapIcon.jpg">
+            <br>
+            <label for="terrainDifficulty">Terrain Difficulty:</label>
+            <input type="text" name="terrainDifficulty" value="{{ footing.terrainDifficulty }}" placeholder="0 to 100">
+            <br>
+            <label for="opacity">Terrain Opacity:</label>
+            <input type="text" name="opacity" value="{{ footing.opacity }}" placeholder="0(clear) to 100(can't see anything)">
+            <br>
+            <label for="solidity">Terrain Solidity:</label>
+            <input type="text" name="solidity" value="{{ footing.solidity }}" placeholder="0(no completely empty) to 100(completely solid)">
+        {% endif %}
+    </form>
+    <button type="submit" name='update_footing' form="save_footing_form">Save Footing</button>
+    <br>
+    <br>
+    <form method="POST" id="delete_footing_form">
+        <input type="hidden" name="action" value="delete_footing_form">
+        <button type="submit" name="delete_footing">Delete Footing</button>
+    </form>
+</body>
+{% endblock %}

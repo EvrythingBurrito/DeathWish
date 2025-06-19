@@ -1,0 +1,51 @@
+{% extends "DeathWishBase.html" %}
+
+{% block title %}
+    {% if effect.name != "blank" %}
+        {{ effect.name }}
+    {% else %}
+        New EFFECT
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<body>
+    <form method="POST" id="save_effect_form">
+        <h3>Effect Name</h3>
+        <input type="hidden" name="effect" value="save_effect_form">
+        <!-- autopopulate if effect already exists -->
+        {% if effect.name == "blank" %}
+            <label for="effectName">Effect Name:</label>
+            <input type="text" name="effectName" placeholder="effect name">
+            <br>
+            <label for="effectQuantity">Effect Quantity:</label>
+            <input type="text" name="effectQuantity" placeholder="2">
+            <br>
+            <label for="effectType">Effect Type:</label>
+            <input type="text" name="effectType" placeholder="e.g. 'fire'">
+            <br>
+            <label for="durationTurns">Effect Duration (turns):</label>
+            <input type="text" name="durationTurns" placeholder="1">
+        {% else %}
+            <label for="effectName">Effect Name:</label>
+            <input type="text" name="effectName" value="{{ effect.name }}" placeholder="effect name">
+            <br>
+            <label for="effectQuantity">Effect Quantity:</label>
+            <input type="text" name="effectQuantity" value="{{ effect.effectQuantity }}" placeholder="2">
+            <br>
+            <label for="effectType">Effect Type:</label>
+            <input type="text" name="effectType" value="{{ effect.effectType }}" placeholder="e.g. 'fire'">
+            <br>
+            <label for="durationTurns">Effect Duration (turns):</label>
+            <input type="text" name="durationTurns" value="{{ effect.durationTurns }}" placeholder="1">
+        {% endif %}
+    </form>
+    <button type="submit" form="save_effect_form">Save Effect</button>
+    <br>
+    <br>
+    <form method="POST" id="delete_effect_form">
+        <input type="hidden" name="effect" value="delete_effect_form">
+        <button type="submit" name="delete_effect">Delete Effect</button>
+    </form>
+</body>
+{% endblock %}
