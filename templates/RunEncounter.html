@@ -6,8 +6,19 @@
 
 {% block content %}
 
+<script>
+    const encounter = {{ encounter|tojson }};
+    const footings = {{ footings|tojson }};
+</script>
+
 <header>
     <h1>{{ encounter.name }}</h1>
 </header>
+
+<div class="container">
+    <div class="column">
+        {% include 'EditEncounterMapObjects.html' with context %}
+    </div>
+</div>
 
 {% endblock %}

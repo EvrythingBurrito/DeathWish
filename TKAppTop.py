@@ -105,7 +105,7 @@ def campaign_screen(campaign, canvas):
                 # print(mapObjectID)
                 if mapObjectID[1]: # object found on cell location
                     assetIndex = int(mapObjectID[1])
-                    if mapObjectID[0] == "landmark":
+                    if mapObjectID[0] == "stationary" or mapObjectID[0] == "party":
                         mapIconImgFile = Game.assets.landmarkList[assetIndex].mapIconImgFile
                     # get rid of starting "/"
                     mapIconImgFile = mapIconImgFile[1:]

@@ -50,8 +50,9 @@ def create_flask_app(processQueue):
                     Game.assets.update_campaign_save(campaign)
             elif action == 'update_landmarks_form':
                 # keep in json format
-                campaign.mapGridJSON = request.form.get('landmarkObjects')
-                # campaign.update_party_landmark(Game.assets.landmarkList, Game.assets.regionList)
+                campaign.mapGridJSON = request.form.get('mapObjects')
+                print(campaign.mapGridJSON)
+                campaign.update_party_landmark(Game.assets.landmarkList, Game.assets.regionList)
                 Game.assets.update_campaign_save(campaign)
                 return redirect(url_for('GameMaster'))
             elif action == 'delete_campaign_form':
@@ -206,11 +207,13 @@ def create_flask_app(processQueue):
                 elif 'add_encounter' in request.form:
                     landmark.encounterListIndexes.append(int(request.form['add_encounter']))
                 else:
-                    isParty = 'isParty' in request.form
-                    landmarkName = request.form.get('landmarkName')
+                    if 'isParty' in request.form:
+                        landmark.type = "party"
+                    else:
+                        landmark.type = "stationary"
+                    landmark.name = request.form.get('landmarkName')
                     ### expect the user to type in the relative path
-                    mapIconImgFile = request.form.get('mapIconImgFile')
-                    landmark = Landmark(landmarkName, mapIconImgFile, isParty, landmark.encounterListIndexes)
+                    landmark.mapIconImgFile = request.form.get('mapIconImgFile')
                 if isNew == 1:
                     Game.assets.add_landmark(landmark)
                 else:
@@ -296,7 +299,7 @@ def create_flask_app(processQueue):
         if request.method == 'POST':
             action = request.form.get('action')
             if action == 'update_landmarks_form':
-                campaign.mapGridJSON = request.form.get('landmarkObjects')
+                campaign.mapGridJSON = request.form.get('mapObjects')
                 campaign.update_party_landmark(Game.assets.landmarkList, Game.assets.regionList)
                 # print(campaign.partyLocation)
                 # print(campaign.availableEncounterIndexes)
@@ -310,6 +313,8 @@ def create_flask_app(processQueue):
     @app.route('/GameMaster/RunEncounter/Encounter_<int:index>', methods=['GET', 'POST'])
     def RunEncounter(index):
         encounter = Game.assets.encounterList[index]
-        return render_template('RunEncounter.html', encounter=encounter.to_json())
+        footingJSONs = [ft.to_json() for ft in Game.assets.footingList]
+        mapObjectJSONs = [mo.to_json() for mo in Game.assets.NPCList]
+        return render_template('RunEncounter.html', encounter=encounter.to_json(), footings=footingJSONs, mapObjects=mapObjectJSONs)
 
     return app

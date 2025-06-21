@@ -30,10 +30,10 @@ class Campaign:
             xcoord = 0
             for cellDict in row:
                 for cellObject in cellDict['objects']:
-                    if "landmark" in cellObject:
+                    if cellObject:
                         mapObjectID = cellObject.split("-")
                         # Fixme - only one party is allowed for now, just stops when it finds the first landmark that is a party
-                        if landmarkList[int(mapObjectID[1])].isParty:
+                        if landmarkList[int(mapObjectID[1])].type == "party":
                             partyLocation = [xcoord, ycoord]
                             partyLandmarkIndex = int(mapObjectID[1])
                             self.update_available_encounters(partyLocation, partyLandmarkIndex, landmarkList, regionList)
@@ -52,7 +52,7 @@ class Campaign:
             mapObjectID = object.split("-")
             print(mapObjectID)
             # if another non party landmark is at location of party, add its encounters to list
-            if not landmarkList[int(mapObjectID[1])].isParty:
+            if not landmarkList[int(mapObjectID[1])].type == "party":
                 self.availableEncounterIndexes = self.availableEncounterIndexes + landmarkList[mapObjectID[1]].encounterListIndexes
 
         # from regions

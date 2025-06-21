@@ -43,15 +43,43 @@ body {
 }
 
 .draggable-object.npc {
+    width: 40px;
+    height: 40px;
+    background-color: black;
+    border-radius: 50%;
+}
+
+.draggable-object.party {
+    width: 40px;
+    height: 40px;
+    background-color: black;
+    border-radius: 50%;
+}
+
+/* must be 48px or smaller or it won't register to be "in the cell" */
+.draggable-object.stationary {
     width: 48px;
     height: 48px;
     background-color: black;
     border-radius: 50%;
 }
 
-.draggable-object.landmark {
-    width: 48px;
-    height: 48px;
-    background-color: black;
-    border-radius: 50%;
+#trash-area {
+    width: 75px; /* Adjust as needed */
+    height: 75px; /* Adjust as needed */
+    border: 2px dashed red;
+    background-color: #ffe0e0;
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: sans-serif;
+    color: #cc0000;
+    font-weight: bold;
+    text-align: center;
+}
+
+#trash-area.drag-over {
+    background-color: #ffcccc; /* Highlight when dragging over */
+    border-color: darkred;
 }
