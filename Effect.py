@@ -15,7 +15,7 @@ import json
     # buff options:
         # none
         # alertness (+% chance to dodge at all times) - use sparingly
-        # elusiveness (+% chance to dodge only reactions) - example: granted with "step"
+        # elusiveness (+% chance to dodge only reactions) - example: granted for 1 turn with "step"
         # defensiveness (+multiplier negation amount for all actions) - example: granted with "guard"
 
 ### basic notes

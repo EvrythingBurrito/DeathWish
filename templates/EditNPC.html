@@ -18,12 +18,6 @@
             <label for="npcName">NPC Name:</label>
             <input type="text" name="npcName" placeholder="NPC name">
             <br>
-            <label for="npcType">NPC Type:</label>
-            <select id="npcType">
-                <option value="Monster">Monster</option>
-                <option value="Sentient">Sentient</option>
-            </select>
-            <br>
             <label for="npcHealth">NPC Health:</label>
             <input type="text" name="npcHealth" placeholder="10">
             <br>
@@ -33,20 +27,26 @@
             <label for="npcName">NPC Name:</label>
             <input type="text" name="npcName" value="{{ npc.name }}" placeholder="NPC name">
             <br>
-            <label for="npcType">NPC Type:</label>
-            <select id="npcType">
-                <option value="Monster">Monster</option>
-                <option value="Sentient">Sentient</option>
-            </select>
-            <br>
             <label for="npcHealth">NPC Health:</label>
             <input type="text" name="npcHealth" value="{{ npc.health }}" placeholder="10">
             <br>
             <label for="mapIconImgFile">Path to map icon image:</label>
             <input type="text" name="mapIconImgFile" value="{{ npc.mapIconImgFile }}" placeholder="mapIcon.jpg">
+            <h3>Actions</h3>
+            {% for i in range(0, npc.actionListIndexes|length) %}
+                    <i>{{ actions[npc.actionListIndexes[i]].name }}</i>
+                    <button type="submit" name="delete_action" value="{{ npc.actionListIndexes[i] }}" form="save_NPC_form">delete</button>
+                    <br>
+            {% endfor %}
+            <h4>Available Actions</h4>
+            {% for i in range(0, actions|length) %}
+                    <i>{{ actions[i].name }}</i>
+                    <button type="submit" name="add_action" value="{{ i }}" form="save_NPC_form">Add</button>
+                    <br>
+            {% endfor %}
         {% endif %}
     </form>
-    <button type="submit" form="save_NPC_form">Save NPC</button>
+    <button type="submit" name="update_NPC" form="save_NPC_form">Save NPC</button>
     <br>
     <br>
     <form method="POST" id="delete_NPC_form">

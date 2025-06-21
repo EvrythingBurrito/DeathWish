@@ -11,8 +11,6 @@ from Effect import *
 from Action import *
 from NPC import *
 from Encounter import *
-from Monster import *
-from Sentient import *
 
 import DeathWish
 
@@ -233,28 +231,31 @@ def create_flask_app(processQueue):
         if isNew < 1:
             npc = Game.assets.NPCList[index]
         else:
-            npc = NPC("blank", 0, 0, "path_to_image")
+            npc = NPC("blank", 0, 0, "path_to_image", "npc", [])
+        actionJSONS = [action.to_json() for action in Game.assets.actionList]
         if request.method == 'POST':
             if request.form.get("action") == "save_NPC_form":
-                npcName = request.form.get('npcName')
-                npcType = request.form.get('npcType')
-                npcHealth = request.form.get('npcHealth')
-                ### only expect the user to type in the filename, not the relative path
-                mapIconImgFile = request.form.get('mapIconImgFile')
-                if (npcType == "Monster"):
-                    npc = Monster(npcName, 0, npcHealth, mapIconImgFile)
+                if 'delete_action' in request.form:
+                    del npc.actionListIndexes[int(request.form['delete_action'])]
+                elif 'add_action' in request.form:
+                    npc.actionListIndexes.append(int(request.form['add_action']))
                 else:
-                    npc = Sentient(npcName, 0, npcHealth, mapIconImgFile)
-                if isNew == 1:
-                    Game.assets.add_NPC(npc)
-                else:
-                    Game.assets.NPCList[index] = npc
-                    Game.assets.update_NPC_save(npc)
+                    npc.name = request.form.get('npcName')
+                    npc.health = request.form.get('npcHealth')
+                    ### only expect the user to type in the filename, not the relative path
+                    npc.mapIconImgFile = request.form.get('mapIconImgFile')
+                    if isNew == 1:
+                        Game.assets.add_NPC(npc)
+                    else:
+                        Game.assets.NPCList[index] = npc
+                        Game.assets.update_NPC_save(npc)
+                if 'update_NPC' in request.form:
+                    return redirect(url_for('AssetsTop'))
             elif request.form.get("action") == "delete_NPC_form":
-                if isNew < 1:
+                if isNew == 0:
                     Game.assets.delete_NPC(index)
-            return redirect(url_for('AssetsTop'))
-        return render_template('EditNPC.html', npc=npc.to_json())
+                return redirect(url_for('AssetsTop'))
+        return render_template('EditNPC.html', npc=npc.to_json(), actions=actionJSONS)
 
     ### display chosen objects attributes in editable forms
     @app.route('/GameMaster/Assets/Encounter_<int:index><int:isNew>', methods=['GET', 'POST'])
@@ -313,8 +314,14 @@ def create_flask_app(processQueue):
     @app.route('/GameMaster/RunEncounter/Encounter_<int:index>', methods=['GET', 'POST'])
     def RunEncounter(index):
         encounter = Game.assets.encounterList[index]
+        turnOrder = encounter.initialize_turn_order(Game.assets.NPCList)
         footingJSONs = [ft.to_json() for ft in Game.assets.footingList]
         mapObjectJSONs = [mo.to_json() for mo in Game.assets.NPCList]
-        return render_template('RunEncounter.html', encounter=encounter.to_json(), footings=footingJSONs, mapObjects=mapObjectJSONs)
+        actionJSONS = [action.to_json() for action in Game.assets.actionList]
+        # turn-ordered list of json entities
+        entityJSONs = [et.to_json() for et in turnOrder[0]]
+        # turn-ordered list of display-friendly entity name strings
+        entityNames = turnOrder[1]
+        return render_template('RunEncounter.html', encounter=encounter.to_json(), actions=actionJSONS, footings=footingJSONs, mapObjects=mapObjectJSONs, entities=entityJSONs, entityNames=entityNames)
 
     return app

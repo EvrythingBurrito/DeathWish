@@ -9,6 +9,8 @@
 <script>
     const encounter = {{ encounter|tojson }};
     const footings = {{ footings|tojson }};
+    const entities = {{ entities|tojson }};
+    const actions = {{ actions|tojson }};
 </script>
 
 <header>
@@ -16,8 +18,20 @@
 </header>
 
 <div class="container">
+    <div class="column" style="width: 400px;">
+        <h3>Turn Order</h3>
+        {% for i in range(0, entityNames|length) %}
+            <p>{{ entityNames[i] }}</a></p>
+        {% endfor %}
+    </div>
     <div class="column">
         {% include 'EditEncounterMapObjects.html' with context %}
+    </div>
+    <div class="column">
+        <h3>{{ entityNames[0] }}'s Turn</h3>
+        {% for i in range(0, entities[0].actionListIndexes|length) %}
+            <p>{{ actions[entities[0].actionListIndexes[i]].name }}</a></p>
+        {% endfor %}
     </div>
 </div>
 
