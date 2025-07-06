@@ -21,14 +21,6 @@
             <label for="movementRange">Movement Range:</label>
             <input type="text" name="movementRange" placeholder="movement range">
             <br>
-            <input type="checkbox" name="targetSelf"> Targets Self
-            <br>
-            <label for="numTargets">Number of Targets:</label>
-            <input type="text" name="numTargets" placeholder="1">
-            <br>
-            <label for="targetRange">Target Range:</label>
-            <input type="text" name="targetRange" placeholder="1">
-            <br>
             <label for="setupTime">Setup Time (by 100ms):</label>
             <input type="text" name="setupTime" placeholder="1">
             <br>
@@ -54,18 +46,6 @@
             <label for="movementRange">Movement Range:</label>
             <input type="text" name="movementRange" value="{{ action.movementRange }}" placeholder="movement range">
             <br>
-            {% if action.targetSelf %}
-                <input type="checkbox" name="targetSelf" checked=true> Targets Self
-            {% else %}
-                <input type="checkbox" name="targetSelf"> Targets Self
-            {% endif %}
-            <br>
-            <label for="numTargets">Number of Targets:</label>
-            <input type="text" name="numTargets" value="{{ action.numTargets }}" placeholder="1">
-            <br>
-            <label for="targetRange">Target Range:</label>
-            <input type="text" name="targetRange" value="{{ action.targetRange }}" placeholder="1">
-            <br>
             <label for="setupTime">Setup Time (by 100ms):</label>
             <input type="text" name="setupTime" value="{{ action.setupTime }}" placeholder="1">
             <br>
@@ -84,16 +64,16 @@
             <label for="interruptStrength">Interrupt Strength:</label>
             <input type="text" name="interruptStrength" value="{{ action.interruptStrength }}" placeholder="1">
             <br>
-            <h3>Effects</h3>
-            {% for i in range(0, action.effectListIndexes|length) %}
-                    <i>{{ effects[action.effectListIndexes[i]].name }}</i>
-                    <button type="submit" name="delete_effect" value="{{ action.effectListIndexes[i] }}" form="save_action_form">delete</button>
+            <h3>Activities</h3>
+            {% for i in range(0, action.activityListIndexes|length) %}
+                    <i>{{ activities[action.activityListIndexes[i]].name }}</i>
+                    <button type="submit" name="delete_effect" value="{{ action.activityListIndexes[i] }}" form="save_action_form">delete</button>
                     <br>
             {% endfor %}
-            <h4>Available Effects</h4>
-            {% for i in range(0, effects|length) %}
-                    <i>{{ effects[i].name }}</i>
-                    <button type="submit" name="add_effect" value="{{ i }}" form="save_action_form">Add</button>
+            <h4>Available Activities</h4>
+            {% for i in range(0, activities|length) %}
+                    <i>{{ activities[i].name }}</i>
+                    <button type="submit" name="add_activity" value="{{ i }}" form="save_action_form">Add</button>
                     <br>
             {% endfor %}
         {% endif %}

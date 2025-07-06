@@ -27,8 +27,9 @@
     <div class="column">
         {% include 'EditEncounterMapObjects.html' with context %}
     </div>
-    <div class="column">
+    <div class="column" style="width: 600px;">
         <h3>{{ entityNames[0] }}'s Turn</h3>
+        {# <p> Remaining Actions: {{  }}</p> #}
         {% for i in range(0, entities[0].actionListIndexes|length) %}
             <p>{{ actions[entities[0].actionListIndexes[i]].name }}</a></p>
         {% endfor %}

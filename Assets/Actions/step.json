@@ -1,1 +1,1 @@
-{"name": "step", "movementRange": "5", "targetSelf": true, "numTargets": "0", "targetRange": "0", "setupTime": "2", "cooldownTime": "0", "staminaCost": "1", "manaCost": "0", "negationAmount": "0", "interruptStrength": "100", "effectListIndexes": [4]}
+{"name": "step", "movementRange": "5", "setupTime": "0", "cooldownTime": "1", "staminaCost": "1", "manaCost": "0", "negationAmount": "0", "interruptStrength": "0", "activityListIndexes": []}

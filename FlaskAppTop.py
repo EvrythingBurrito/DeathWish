@@ -9,6 +9,7 @@ from Footing import *
 from Landmark import *
 from Effect import *
 from Action import *
+from Activity import *
 from NPC import *
 from Encounter import *
 
@@ -154,29 +155,23 @@ def create_flask_app(processQueue):
         if isNew < 1:
             action = Game.assets.actionList[index]
         else:
-            action = Action("blank", 0, False, 0, 0, 0, 0, 0, 0, 0, 0, [])
-        effectJSONS = [effect.to_json() for effect in Game.assets.effectList]
+            action = Action("blank", 0, 0, 0, 0, 0, 0, 0, [])
+        activityJSONS = [activity.to_json() for activity in Game.assets.activityList]
         if request.method == 'POST':
             if request.form.get("action") == "save_action_form":
-                if 'delete_effect' in request.form:
-                    del action.effectListIndexes[int(request.form['delete_effect'])]
-                elif 'add_effect' in request.form:
-                    action.effectListIndexes.append(int(request.form['add_effect']))
+                if 'delete_activity' in request.form:
+                    del action.activityListIndexes[int(request.form['delete_activity'])]
+                elif 'add_activity' in request.form:
+                    action.activityListIndexes.append(int(request.form['add_activity']))
                 else:
                     action.name = request.form.get('actionName')
                     action.movementRange = request.form.get('movementRange') 
-                    if (request.form.get('targetSelf')):
-                        action.targetSelf = True
-                    else:
-                        action.targetSelf = False
-                    action.numTargets = request.form.get('numTargets')
-                    action.targetRange = request.form.get('targetRange')
                     action.setupTime = request.form.get('setupTime')
                     action.cooldownTime = request.form.get('cooldownTime')
                     action.staminaCost = request.form.get('staminaCost')
                     action.manaCost = request.form.get('manaCost') 
                     action.negationAmount = request.form.get('negationAmount') 
-                    action.interruptStrength = request.form.get('interruptStrength') 
+                    action.interruptStrength = request.form.get('interruptStrength')
                 if isNew == 1:
                     Game.assets.add_action(action)
                 else:
@@ -188,7 +183,39 @@ def create_flask_app(processQueue):
                 if isNew == 0:
                     Game.assets.delete_action(index)
                 return redirect(url_for('AssetsTop'))
-        return render_template('EditAction.html', action=action.to_json(), effects=effectJSONS)
+        return render_template('EditAction.html', action=action.to_json(), activities=activityJSONS)
+
+    ### display chosen objects attributes in editable forms
+    @app.route('/GameMaster/Assets/Activity_<int:index><int:isNew>', methods=['GET', 'POST'])
+    def EditActivity(index, isNew):
+        dummyMatrix = [[0 for _ in range(9)] for _ in range(9)]
+        if isNew < 1:
+            activity = Game.assets.activityList[index]
+        else:
+            activity = Activity("blank", dummyMatrix, False, [])
+        effectJSONS = [effect.to_json() for effect in Game.assets.effectList]
+        if request.method == 'POST':
+            if request.form.get("activity") == "save_activity_form":
+                if 'delete_effect' in request.form:
+                    del activity.effectListIndexes[int(request.form['delete_effect'])]
+                elif 'add_effect' in request.form:
+                    activity.effectListIndexes.append(int(request.form['add_effect']))
+                else:
+                    activity.name = request.form.get('activityName')
+                    activity.shape = json.loads(request.form.get('shapeData'))
+                    activity.activityType = request.form.get('activityType')
+                if isNew == 1:
+                    Game.assets.add_activity(activity)
+                else:
+                    Game.assets.activityList[index] = activity
+                    Game.assets.update_activity_save(activity)
+                if 'update_activity' in request.form:
+                    return redirect(url_for('AssetsTop'))
+            elif request.form.get("activity") == "delete_activity_form":
+                if isNew == 0:
+                    Game.assets.delete_activity(index)
+                return redirect(url_for('AssetsTop'))
+        return render_template('EditActivity.html', activity=activity.to_json(), effects=effectJSONS)
 
     ### display chosen objects attributes in editable forms
     @app.route('/GameMaster/Assets/Landmark_<int:index><int:isNew>', methods=['GET', 'POST'])
@@ -323,5 +350,15 @@ def create_flask_app(processQueue):
         # turn-ordered list of display-friendly entity name strings
         entityNames = turnOrder[1]
         return render_template('RunEncounter.html', encounter=encounter.to_json(), actions=actionJSONS, footings=footingJSONs, mapObjects=mapObjectJSONs, entities=entityJSONs, entityNames=entityNames)
+
+    ### Action contains modified info 
+    @app.route('/GameMaster/CompleteAction', methods=['GET', 'POST'])
+    def CompleteAction(entityID, actionJSON):
+        npc = Game.assets.NPCList[int(entityID.split("-")[1])]
+        action = Action.from_json(actionJSON)
+        encounter = Game.assets.get_current_encounter()
+        mapObjectJSONs = [mo.to_json() for mo in Game.assets.NPCList]
+        # modify action from encounter state, incorporates character/npc stats, equipment modifiers, footing modifiers, status conditions
+        return render_template('CompleteAction.html', encounter=encounter.to_json(), mapObjects=mapObjectJSONs, action=action.to_json(), npc=npc.to_json())
 
     return app

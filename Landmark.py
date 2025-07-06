@@ -1,5 +1,4 @@
 import json
-from enum import Enum
 
 class Landmark:
     def __init__(self, name, mapIconImgFile, type, encounterListIndexes):

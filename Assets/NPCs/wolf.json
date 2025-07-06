@@ -1,1 +1,1 @@
-{"name": "wolf", "weight": 0, "mapIconImgFile": "/static/Assets/NPCs/Images/wolfToken.png", "health": "10", "type": "npc", "actionListIndexes": [2, 3]}
+{"name": "wolf", "weight": 0, "mapIconImgFile": "/static/Assets/NPCs/Images/wolfToken.png", "health": "10", "type": "npc", "actionListIndexes": []}

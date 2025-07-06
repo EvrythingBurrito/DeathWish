@@ -1,0 +1,73 @@
+{% extends "DeathWishBase.html" %}
+
+{% block title %}
+    {% if activity.name != "blank" %}
+        {{ activity.name }}
+    {% else %}
+        New Activity
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/campaign.css') }}">
+<body>
+    <script>
+        const activity = {{ activity|tojson }};
+    </script>
+    <form method="POST" id="save_activity_form">
+        <h3>Activity Name</h3>
+        <input type="hidden" name="activity" value="save_activity_form">
+        <!-- autopopulate if activity already exists -->
+        {% if activity.name == "blank" %}
+            <label for="activityName">Activity Name:</label>
+            <input type="text" name="activityName" placeholder="activity name">
+            <br>
+            <select name="activityType" id="activityType">
+                <option value="rush">rush</option>
+                <option value="jump">jump</option>
+                <option value="singleTarget">singleTarget</option>
+                <option value="AOE">AOE</option>
+            </select>
+            <br>
+        {% else %}
+            <label for="activityName">Activity Name:</label>
+            <input type="text" name="activityName" value="{{ activity.name }}" placeholder="activity name">
+            <br>
+            <script>console.log(activity.activityType);</script>
+            <select name="activityType" id="activityType">
+                <option value="rush" {% if activity.activityType == 'rush' %} selected {% endif %}>Rush</option>
+                <option value="jump" {% if activity.activityType == 'jump' %} selected {% endif %}>Jump</option>
+                <option value="singleTarget" {% if activity.activityType == 'singleTarget' %} selected {% endif %}>Single Target</option>
+                <option value="AOE" {% if activity.activityType == 'AOE' %} selected {% endif %}>AOE</option>
+            </select>
+            <h3>Effects (not applicable with movement types) </h3>
+            {% for i in range(0, activity.effectListIndexes|length) %}
+                    <i>{{ effects[activity.effectListIndexes[i]].name }}</i>
+                    <button type="submit" name="delete_effect" value="{{ activity.effectListIndexes[i] }}" form="save_activity_form">delete</button>
+                    <br>
+            {% endfor %}
+            <h4>Available Effects</h4>
+            {% for i in range(0, effects|length) %}
+                    <i>{{ effects[i].name }}</i>
+                    <button type="submit" name="add_effect" value="{{ i }}" form="save_activity_form">Add</button>
+                    <br>
+            {% endfor %}
+        {% endif %}
+        <h3> Edit Activity Shape </h3>
+        <div id="map"></div>
+        <input type="hidden" name="shapeData" id="shapeData">
+        <br>
+        <script src="{{ url_for('static', filename='js/EditActivityShape.js') }}"></script>
+        <script>
+            createMap();
+        </script>
+    </form>
+    <button type="submit" name="update_activity" form="save_activity_form">Save Activity</button>
+    <br>
+    <br>
+    <form method="POST" id="delete_activity_form">
+        <input type="hidden" name="activity" value="delete_activity_form">
+        <button type="submit" name="delete_activity">Delete Activity</button>
+    </form>
+</body>
+{% endblock %}

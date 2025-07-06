@@ -7,6 +7,7 @@ from Encounter import Encounter
 from Campaign import Campaign
 from NPC import NPC
 from Action import Action
+from Activity import Activity
 from Effect import Effect
 import glob
 
@@ -19,6 +20,7 @@ class Assets:
         self.encounterDir = "Assets/Encounters"
         self.NPCDir = "Assets/NPCs"
         self.actionDir = "Assets/Actions"
+        self.activityDir = "Assets/Activities"
         self.effectDir = "Assets/Effects"
         ### initialize lists
         self.campaignList = []
@@ -43,6 +45,8 @@ class Assets:
         self.update_NPC_list()
         self.actionList = []
         self.update_action_list()
+        self.activityList = []
+        self.update_activity_list()
         self.effectList = []
         self.update_effect_list()
 
@@ -95,6 +99,13 @@ class Assets:
     def delete_action(self, index):
         self.delete_action_save(self.actionList[index])
         del self.actionList[index]
+
+    def add_activity(self, activity):
+        self.activityList.append(activity)
+        self.update_activity_save(activity)
+    def delete_activity(self, index):
+        self.delete_activity_save(self.activityList[index])
+        del self.activityList[index]
 
     def add_effect(self, effect):
         self.effectList.append(effect)
@@ -226,6 +237,11 @@ class Assets:
                 aEncounter = Encounter.from_json(data)
                 self.encounterList.append(aEncounter)
     
+    def get_current_encounter(self):
+        for i in range(0, len(self.encounterList) - 1):
+            if self.encounterList[i].name == "Current":
+                return self.encounterList[i]
+
     def update_current_encounter(self, encounter):
         for i in range(0, len(self.encounterList) - 1):
             if self.encounterList[i].name == "Current":
@@ -281,6 +297,30 @@ class Assets:
                 data = json.load(f)
                 action = Action.from_json(data)
                 self.actionList.append(action)
+
+########################################################### ACTIVITIES
+
+    ### create or update save file for desired activity
+    def update_activity_save(self, activity):
+        filename = self.activityDir + "/" + activity.name.replace(" ", "_") + ".json"
+        if activity not in self.activityList:
+            self.add_NPC(activity)
+        if os.path.exists(filename):
+            print("overwriting activity save!")
+        with open(filename, 'w') as f:
+            json.dump(activity.to_json(), f)
+
+    def delete_activity_save(self, activity):
+        filename = self.activityDir + "/" + activity.name.replace(" ", "_") + ".json"
+        os.remove(filename)
+
+    def update_activity_list(self):
+        self.activityList = []
+        for filename in glob.glob(self.activityDir + "/*.json"):
+            with open(filename, 'r') as f:
+                data = json.load(f)
+                activity = Activity.from_json(data)
+                self.activityList.append(activity)
 
 ########################################################### EFFECTS
 

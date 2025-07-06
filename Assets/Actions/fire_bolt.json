@@ -1,1 +1,0 @@
-{"name": "fire bolt", "movementRange": "0", "targetSelf": false, "numTargets": "1", "targetRange": "20", "setupTime": "2", "cooldownTime": "3", "staminaCost": "0", "manaCost": "1", "negationAmount": "1", "interruptStrength": "2", "effectListIndexes": []}

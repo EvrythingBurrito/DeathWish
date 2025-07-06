@@ -45,6 +45,13 @@
         </div>
         <div class="row">
             <div class="column">
+                <h3>Activities</h3>
+                <a href="{{ url_for('EditActivity', index=0, isNew=1) }}">New Activity</a>
+                {% for i in range(0, assets.activityList|length) %}
+                    <p><a href="{{ url_for('EditActivity', index=i, isNew=0) }}">{{ assets.activityList[i].name }}</a></p>
+                {% endfor %}
+            </div>
+            <div class="column">
                 <h3>Effects</h3>
                 <a href="{{ url_for('EditEffect', index=0, isNew=1) }}">New Effect</a>
                 {% for i in range(0, assets.effectList|length) %}
