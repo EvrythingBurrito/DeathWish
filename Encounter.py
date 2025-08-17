@@ -1,5 +1,6 @@
 import json
 import random
+from NPC import NPC
 
 class Encounter:
 
@@ -22,28 +23,28 @@ class Encounter:
 
     def __str__(self):
         return f"{self.name}"
-    
-    # FIXME should be random, right now it goes from left to right, top to bottom
-    def initialize_turn_order(self, NPCList):
-        # an ordered list of NPC objects in some starting turn order
-        encounterEntities = []
-        # an ordered list of those same NPCs but with encounter-specific names which will be displayed
-        entityNames = []
+
+    # FIXME initiative should be random, right now it goes from left to right, top to bottom
+    # [
+    #     [entityid, NPC object, mapObjectid]
+    #     [entityid, NPC object, mapObjectid]
+    # ]
+    def create_map_object_list(self, NPCList):
+        mapObjectList = []
         for row in json.loads(self.mapGridJSON):
             for cellDict in row:
                 for cellObject in cellDict['objects']:
                     if cellObject:
                         if cellObject.split("-")[0] == "npc":
                             npcToAdd = NPCList[int(cellObject.split("-")[1])]
-                            # add the npc type
-                            encounterEntities.append(npcToAdd)
                             # make a unique encounter-specific identifier for the NPC (different than the token id, should be easy to remember for players)
                             nextIDNum = 0
-                            for name in entityNames:
-                                if name.split("_")[1] == nextIDNum:
+                            for item in mapObjectList:
+                                if item[0].split("_")[1] == nextIDNum:
                                     nextIDNum += 1
                             entityName = npcToAdd.name + "_" + str(nextIDNum)
-                            entityNames.append(entityName)
-        # return a tuple describing the combat order
-        return (encounterEntities, entityNames)
+                            # index 0 is entity id, index 1 is JSON for NPC object, index 2 is the string that the map list cell contains
+                            mapObjectList.append([entityName, npcToAdd.to_json(), cellObject])
+        # return the list of lists
+        return (mapObjectList)
                             

@@ -1,37 +1,34 @@
 {% extends "DeathWishBase.html" %}
 
-{% block title %}
-    {{ encounter.name }}
-{% endblock %}
-
 {% block content %}
 
 <script>
     const encounter = {{ encounter|tojson }};
     const footings = {{ footings|tojson }};
-    const entities = {{ entities|tojson }};
     const actions = {{ actions|tojson }};
+    const mapObjectList = {{ mapObjectList|safe }};
+    // console.log(mapObjectList)
+    // console.log(encounter.mapGridJSON)
+    let actionActivities = null;
+    let executorID = null;
 </script>
-
-<header>
-    <h1>{{ encounter.name }}</h1>
-</header>
 
 <div class="container">
     <div class="column" style="width: 400px;">
         <h3>Turn Order</h3>
-        {% for i in range(0, entityNames|length) %}
-            <p>{{ entityNames[i] }}</a></p>
+        {% for i in range(0, mapObjectList|length) %}
+            <p> {{ mapObjectList[i][0] }} </p>
         {% endfor %}
     </div>
     <div class="column">
-        {% include 'EditEncounterMapObjects.html' with context %}
+        {% include 'CompleteActionMap.html' with context %}
     </div>
     <div class="column" style="width: 600px;">
-        <h3>{{ entityNames[0] }}'s Turn</h3>
-        {# <p> Remaining Actions: {{  }}</p> #}
-        {% for i in range(0, entities[0].actionListIndexes|length) %}
-            <p>{{ actions[entities[0].actionListIndexes[i]].name }}</a></p>
+        <h3> {{ mapObjectList[0][0] }}'s turn </h3>
+        <p> Actions Remaining: {{ mapObjectList[0][1].actionCount }}</p>
+        {% for i in range(0, mapObjectList[0][1].actionListIndexes|length) %}
+            <a href="{{ url_for('CompleteAction', mapObjectID=mapObjectList[0][2], actionListIndex=mapObjectList[0][1].actionListIndexes[i]) }}"> {{ actions[mapObjectList[0][1].actionListIndexes[i]].name }}</a>
+            <br>
         {% endfor %}
     </div>
 </div>

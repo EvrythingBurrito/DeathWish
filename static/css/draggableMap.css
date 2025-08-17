@@ -64,6 +64,46 @@ body {
     border-radius: 50%;
 }
 
+/* --- Selectable Object Styles --- */
+.selectable-object {
+    /* Inherit basic appearance from draggable-object types, but make it non-movable */
+    width: 40px; /* Example size, adjust as needed */
+    height: 40px; /* Example size, adjust as needed */
+    background-color: black; /* Example base color */
+    border-radius: 50%; /* Example shape */
+    position: absolute; /* To position it within the grid container */
+    cursor: pointer; /* Indicates it's clickable */
+    transition: all 0.2s ease-in-out; /* Smooth transition for hover/selection effects */
+    box-sizing: border-box; /* Include padding/border in element's total width and height */
+    border: 2px solid transparent; /* Neutral border by default */
+}
+
+/* Specific selectable types, mimicking draggable types if desired */
+.selectable-object.npc {
+    /* If you want different selectable types to look distinct, define them here */
+    background-color: black; /* Example: slightly different color for selectable NPC */
+}
+
+.selectable-object.stationary {
+    width: 48px; /* Match stationary draggable size */
+    height: 48px;
+    background-color: black; /* Example: distinct color for selectable stationary */
+}
+
+/* Style for when a selectable object is chosen/highlighted */
+.selectable-object.selected {
+    border: 2px solid blue; /* Highlight with a blue border */
+    box-shadow: 0 0 10px rgba(0, 0, 255, 0.5); /* Add a subtle glow */
+    transform: scale(1.05); /* Slightly enlarge when selected */
+}
+
+/* Optional: Hover effect for selectable objects */
+.selectable-object:hover {
+    filter: brightness(1.2); /* Slightly brighter on hover */
+    /* You could also change border, background, or add a subtle shadow */
+}
+
+
 #trash-area {
     width: 75px; /* Adjust as needed */
     height: 75px; /* Adjust as needed */
@@ -82,4 +122,20 @@ body {
 #trash-area.drag-over {
     background-color: #ffcccc; /* Highlight when dragging over */
     border-color: darkred;
+}
+
+.AOE-cell {
+    /*
+    The box-shadow creates a solid-color layer *inside* the element.
+    It sits on top of the background-image but doesn't replace it.
+  */
+  box-shadow: inset 0 0 0 1000px rgba(253, 171, 104, 0.5);
+}
+
+.targeting-cell {
+    /*
+    The box-shadow creates a solid-color layer *inside* the element.
+    It sits on top of the background-image but doesn't replace it.
+  */
+  box-shadow: inset 0 0 0 1000px rgba(135, 255, 80, 0.3);
 }

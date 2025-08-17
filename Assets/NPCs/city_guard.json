@@ -1,1 +1,1 @@
-{"name": "city guard", "weight": 0, "mapIconImgFile": "/static/Assets/NPCs/Images/cityGuardToken.png", "health": "10", "type": "npc", "actionListIndexes": []}
+{"name": "city guard", "weight": 0, "mapIconImgFile": "/static/Assets/NPCs/Images/cityGuardToken.png", "health": "10", "stamina": "10", "mana": "5", "actionCount": "2", "type": "npc", "actionListIndexes": [2, 0, 1]}

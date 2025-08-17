@@ -1,0 +1,39 @@
+
+{# For selecting single/multiple targets only #}
+
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/draggableMap.css') }}">
+</head>
+<body>
+    <form method="POST" id="update_mapObjects_form">
+        <input type="hidden" name="action" value="update_mapObjects_form">
+        <input type="hidden" id="mapObjects" name="mapObjects">
+    </form>
+
+    <script>
+        const mapObjects = {{ mapObjects|tojson }};
+        const gridDataOriginString = {{ encounter.mapGridJSON|tojson }};
+    </script>
+    <div id="grid-container">
+    {% for row in range(0, encounter.footingMapIndexes|length) %}
+        <div class="grid-row">
+            {% for col in range(0, encounter.footingMapIndexes[0]|length) %}
+                <div class="grid-cell"
+                    data-row="{{ row }}"
+                    data-col="{{ col }}"
+                    id="gridCell-{{ row }}-{{ col }}"
+                    style="background-image: url('{{ footings[encounter.footingMapIndexes[row][col]|int].mapIconFile }}');">
+                </div>
+            {% endfor %}
+        </div>
+    {% endfor %}
+    </div>
+    <button type="submit" form="update_mapObjects_form">Update mapObjects</button>
+    <script src="{{ url_for('static', filename='js/CompleteActionMap.js') }}"></script>
+    <script>
+        if (gridDataOriginString != "blank") {
+            const gridDataOrigin = JSON.parse(gridDataOriginString);
+            updateGridFromData(gridDataOrigin);
+        }
+    </script>
+</body>

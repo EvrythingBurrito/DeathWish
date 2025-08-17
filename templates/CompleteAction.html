@@ -1,0 +1,35 @@
+{% extends "DeathWishBase.html" %}
+
+{% block content %}
+
+<script>
+    const activities = {{ activities|tojson }};
+    const encounter = {{ encounter|tojson }};
+    const footings = {{ footings|tojson }};
+    const action = {{ action|tojson }};
+    const npc = {{ npc|tojson }};
+    const executorID = {{ executorID|tojson }};
+    // define activities which make up the action
+    let actionActivities = [];
+    for (let i = 0; i < action.activityListIndexes.length; i++) {
+        actionActivities.push(activities[action.activityListIndexes[i]]);
+    }
+    console.log(actionActivities);
+</script>
+
+<div class="container">
+    <div class="column">
+        {% include 'CompleteActionMap.html' with context %}
+    </div>
+    <div class="column" style="width: 600px;">
+        <h3> action: {{ action.name }} </h3>
+        {% for i in range(0, action.activityListIndexes|length) %}
+            <h3> activity {{ i }} : {{ activities[action.activityListIndexes[i]].name }} </h3>
+        {% endfor %}
+        <h3> health: {{ npc.health }} </h3>
+        <h3> stamina: {{ npc.stamina }} </h3>
+        <h3> mana: {{ npc.mana }} </h3>
+    </div>
+</div>
+
+{% endblock %}

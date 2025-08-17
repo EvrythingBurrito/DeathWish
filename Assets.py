@@ -34,13 +34,8 @@ class Assets:
         self.tangibleList = []
         self.encounterList = []
         self.update_encounter_list()
-        # create the "current" encounter
-        if len(self.encounterList) > 0:
-            curEncounter = self.encounterList[0]
-            curEncounter.name = "Current"
-        else:
-            curEncounter = Encounter("Current", [[0 for _ in range(8)] for _ in range(8)], "blank", None)
-        self.add_encounter(curEncounter)
+        # create a blank "current" encounter
+        curEncounter = Encounter("Current", [[0 for _ in range(8)] for _ in range(8)], "blank", None)
         self.NPCList = []
         self.update_NPC_list()
         self.actionList = []
@@ -237,18 +232,18 @@ class Assets:
                 aEncounter = Encounter.from_json(data)
                 self.encounterList.append(aEncounter)
     
-    def get_current_encounter(self):
-        for i in range(0, len(self.encounterList) - 1):
-            if self.encounterList[i].name == "Current":
-                return self.encounterList[i]
+    # def get_current_encounter(self):
+    #     for i in range(0, len(self.encounterList) - 1):
+    #         if self.encounterList[i].name == "Current":
+    #             return self.encounterList[i]
 
-    def update_current_encounter(self, encounter):
-        for i in range(0, len(self.encounterList) - 1):
-            if self.encounterList[i].name == "Current":
-                self.encounterList[i] = encounter
-                self.encounterList[i].name = "Current"
-                self.update_encounter_save(self.encounterList[i])
-        print("error! current encounter not found!")
+    # def update_current_encounter(self, encounter):
+    #     for i in range(0, len(self.encounterList) - 1):
+    #         if self.encounterList[i].name == "Current":
+    #             self.encounterList[i] = encounter
+    #             self.encounterList[i].name = "Current"
+    #             self.update_encounter_save(self.encounterList[i])
+    #     print("error! current encounter not found!")
 
 ########################################################### NPCS
 

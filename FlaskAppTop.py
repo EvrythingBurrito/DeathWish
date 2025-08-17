@@ -3,6 +3,7 @@
 from flask import *
 # DeathWish Custom
 import Game
+import Assets
 from Campaign import *
 from Region import *
 from Footing import *
@@ -340,25 +341,24 @@ def create_flask_app(processQueue):
     ### display encounter map, party/enemy stats, party member/NPC headshot 
     @app.route('/GameMaster/RunEncounter/Encounter_<int:index>', methods=['GET', 'POST'])
     def RunEncounter(index):
-        encounter = Game.assets.encounterList[index]
-        turnOrder = encounter.initialize_turn_order(Game.assets.NPCList)
-        footingJSONs = [ft.to_json() for ft in Game.assets.footingList]
+        Game.assets.curEncounter = Game.assets.encounterList[index]
+        encounter = Game.assets.curEncounter
+        mapObjectList = encounter.create_map_object_list(Game.assets.NPCList)
         mapObjectJSONs = [mo.to_json() for mo in Game.assets.NPCList]
+        footingJSONs = [ft.to_json() for ft in Game.assets.footingList]
         actionJSONS = [action.to_json() for action in Game.assets.actionList]
-        # turn-ordered list of json entities
-        entityJSONs = [et.to_json() for et in turnOrder[0]]
-        # turn-ordered list of display-friendly entity name strings
-        entityNames = turnOrder[1]
-        return render_template('RunEncounter.html', encounter=encounter.to_json(), actions=actionJSONS, footings=footingJSONs, mapObjects=mapObjectJSONs, entities=entityJSONs, entityNames=entityNames)
+        return render_template('RunEncounter.html', encounter=encounter.to_json(), mapObjects=mapObjectJSONs, actions=actionJSONS, footings=footingJSONs, mapObjectList=mapObjectList)
 
     ### Action contains modified info 
-    @app.route('/GameMaster/CompleteAction', methods=['GET', 'POST'])
-    def CompleteAction(entityID, actionJSON):
-        npc = Game.assets.NPCList[int(entityID.split("-")[1])]
-        action = Action.from_json(actionJSON)
-        encounter = Game.assets.get_current_encounter()
+    @app.route('/GameMaster/CompleteAction/Action_<string:mapObjectID>_<int:actionListIndex>', methods=['GET', 'POST'])
+    def CompleteAction(mapObjectID, actionListIndex):
+        npc = Game.assets.NPCList[int(mapObjectID.split("-")[1])]
+        activityJSONS = [ac.to_json() for ac in Game.assets.activityList]
+        action = Game.assets.actionList[actionListIndex]
+        footingJSONs = [ft.to_json() for ft in Game.assets.footingList]
+        encounter = Game.assets.curEncounter
         mapObjectJSONs = [mo.to_json() for mo in Game.assets.NPCList]
         # modify action from encounter state, incorporates character/npc stats, equipment modifiers, footing modifiers, status conditions
-        return render_template('CompleteAction.html', encounter=encounter.to_json(), mapObjects=mapObjectJSONs, action=action.to_json(), npc=npc.to_json())
+        return render_template('CompleteAction.html', encounter=encounter.to_json(), mapObjects=mapObjectJSONs, footings=footingJSONs, action=action.to_json(), npc=npc.to_json(), activities=activityJSONS, executorID=mapObjectID)
 
     return app
