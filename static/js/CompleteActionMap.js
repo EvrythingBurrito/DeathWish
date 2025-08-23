@@ -15,11 +15,69 @@ let currentlySelectedObjects = []; // Keeps track of all currently selected obje
  * @param {Array<Array<number>>} shape - The list of [row, col] offsets to highlight.
  * @param {string} type - AOE or targeting highlight
  */
-function applyHighlightToGrid(startObjectID, shape, type) {
+function applyHighlightToGrid(highlightIndexes, type) {
+    highlightIndexes.forEach(([row, col]) => {
+        const targetCell = gridContainer.querySelector(`#gridCell-${row}-${col}`);
+        if (targetCell && type == "AOE") {
+            // add dual highlight class
+            if (targetCell.classList.contains('targeting-cell')) {
+                targetCell.classList.add('AOE-and-targeting-cell');
+            } else {
+                targetCell.classList.add('AOE-cell');
+            }
+        }
+        if (targetCell && type == "targeting") {
+            // add dual highlight class
+            if (targetCell.classList.contains('AOE-cell')) {
+                targetCell.classList.add('AOE-and-targeting-cell');
+            } else {
+                targetCell.classList.add('targeting-cell');
+            }
+        }
+        if (targetCell && type == "move") {
+            targetCell.classList.add('move-cell');
+        }
+    });
+}
+
+/**
+ * Evaluates a list of activities and highlights the grid accordingly.
+ * @param {Array<Object>} activitiesList - The list of activity JSON objects.
+ * @param {HTMLElement|null} selectedMapObject - The currently selected map object (null if none).
+ */
+function updateMapActivities(activitiesList, selectedMapObject) {
+    // clear any previous highlights
+    const allHighlightedCells = gridContainer.querySelectorAll('.AOE-cell, .targeting-cell, .AOE-and-targeting-cell, .move-cell');
+    allHighlightedCells.forEach(cell => {
+        cell.classList.remove('AOE-cell', 'targeting-cell', 'AOE-and-targeting-cell', 'move-cell');
+    });
+    console.log("removed highlights");
+    // remove selectable state from all cells
+    disableCellSelectionMode();
+    // apply highlights, enable cell selection for movement
+    for (let i = 0; i < activitiesList.length; i++) {
+        if (activitiesList[i].type === 'singleTarget') {
+            console.log("applying single target highlight");
+            applyHighlightToGrid(getActionIndexes(executorID, activitiesList[i].shape), "targeting");
+        } 
+        if (activitiesList[i].type === 'AOE' && selectedMapObject) {
+            console.log("applying AOE highlight");
+            applyHighlightToGrid(getActionIndexes(selectedMapObject.id, activitiesList[i].shape), "AOE");
+        }
+        if (activitiesList[i].type === 'move') {
+            console.log("applying move highlight");
+            applyHighlightToGrid(getActionIndexes(executorID, activitiesList[i].shape), "move");
+            enableCellSelectionMode(getActionIndexes(executorID, activitiesList[i].shape));
+        }
+    }
+}
+
+function getActionIndexes(startObjectID, shape) {
     let startRow = 0;
     let startCol = 0;
-
-    // get coords for selected object
+    let actionIndexes = [];
+// create list of indexes to be highlighted/selectable
+        // get coords for selected object
     for (let row = 0; row < curGrid.length; row++) {
         for (let col = 0; col < curGrid[row].length; col++) {
             if (curGrid[row][col].objects.includes(startObjectID)) {
@@ -29,62 +87,17 @@ function applyHighlightToGrid(startObjectID, shape, type) {
             // console.log(curGrid[row]);
         }
     }
-
     // activity shape is 9x9 centered at 4,4
     for (let row = startRow - 4; row < startRow + 5; row++) {
         for (let col = startCol - 4; col < startCol + 5; col++) {
             // console.log(row - startRow + 4);
             // console.log(col - startCol + 4);
             if (JSON.stringify(shape[row - startRow + 4][col - startCol + 4]) == 1) {
-                const targetCell = gridContainer.querySelector(`.grid-row:nth-child(${row + 1}) .grid-cell:nth-child(${col + 1})`);
-                if (targetCell && type == "AOE") {
-                    // add dual highlight class
-                    if (targetCell.classList.contains('targeting-cell')) {
-                        targetCell.classList.add('AOE-and-targeting-cell');
-                    } else {
-                        targetCell.classList.add('AOE-cell');
-                    }
-                }
-                if (targetCell && type == "targeting") {
-                    // add dual highlight class
-                    if (targetCell.classList.contains('AOE-cell')) {
-                        targetCell.classList.add('AOE-and-targeting-cell');
-                    } else {
-                        targetCell.classList.add('targeting-cell');
-                    }
-                }
+                actionIndexes.push([row, col]);
             }
         }
     }
-}
-
-/**
- * Evaluates a list of activities and highlights the grid accordingly.
- * @param {Array<Object>} activitiesList - The list of activity JSON objects.
- * @param {HTMLElement|null} selectedMapObject - The currently selected map object (null if none).
- */
-function highlightActivities(activitiesList, selectedMapObject) {
-    // clear any previous highlights
-    const allAOECells = gridContainer.querySelectorAll(`.AOE-cell`);
-    allAOECells.forEach(cell => {
-        cell.classList.remove('AOE-cell');
-    });
-    const allTargetingCells = gridContainer.querySelectorAll(`.targeting-cell`);
-    allTargetingCells.forEach(cell => {
-        cell.classList.remove('targeting-cell');
-    });
-    console.log("removed highlights");
-    // reapply highlights
-    for (let i = 0; i < activitiesList.length; i++) {
-        if (activitiesList[i].activityType === 'singleTarget') {
-            console.log("applying single target highlight");
-            applyHighlightToGrid(executorID, activitiesList[i].shape, "targeting");
-        } 
-        if (activitiesList[i].activityType === 'AOE' && selectedMapObject) {
-            console.log("applying AOE highlight");
-            applyHighlightToGrid(selectedMapObject.id, activitiesList[i].shape, "AOE");
-        }
-    }
+    return actionIndexes;
 }
 
 function createSelectableObject(objectType, objectIndex, objectIDNum, x, y) {
@@ -112,12 +125,14 @@ function createSelectableObject(objectType, objectIndex, objectIDNum, x, y) {
     const snappedY = row * cellSize;
     // need to use translate3d rather than the style.left/top attributes so that it can be moved again with no jumps
     obj.style.transform = `translate3d(${snappedX}px, ${snappedY}px, 0)`;
+    // update object's dataset for row and col
+    obj.dataset.row = row;
+    obj.dataset.col = col;
     objectsOnGrid.push(obj);
     makeSelectable(obj, x, y);
 }
 
 function updateGridData() {
-    // (This function remains the same)
     const grid = [];
     const curGridRows = encounter.footingMapIndexes.length;
     const curGridCols = encounter.footingMapIndexes[0].length;
@@ -128,33 +143,15 @@ function updateGridData() {
         }
     }
 
-    // console.log(currentlySelectedObject);
-
     objectsOnGrid.forEach(obj => {
-        const objRect = obj.getBoundingClientRect();
-        const gridRect = gridContainer.getBoundingClientRect();
-        const objLeft = objRect.left - gridRect.left;
-        const objTop = objRect.top - gridRect.top;
-        const objRight = objLeft + objRect.width;
-        const objBottom = objTop + objRect.height;
         const objName = obj.id;
-
-        for (let row = 0; row < curGridRows; row++) {
-            for (let col = 0; col < curGridCols; col++) {
-                const cellLeft = col * cellSize;
-                const cellTop = row * cellSize;
-                const cellRight = cellLeft + cellSize;
-                const cellBottom = cellTop + cellSize;
-
-                if ((objRight <= cellRight) && (objLeft >= cellLeft) && (objBottom <= cellBottom) && (objTop >= cellTop)) {
-                    // console.log("pushed!");
-                    grid[row][col].objects.push(objName);
-                }
-            }
+        const row = parseInt(obj.dataset.row);
+        const col = parseInt(obj.dataset.col);
+        if (!isNaN(row) && !isNaN(col) && grid[row] && grid[row][col]) {
+            grid[row][col].objects.push(objName);
         }
     });
-    // console.log(grid);
-    // console.log(JSON.stringify(grid));
+
     gridDataInput.value = JSON.stringify(grid);
     curGrid = grid;
 }
@@ -185,7 +182,7 @@ function updateGridFromData(gridData) {
     updateGridData();
     // only do these for action menu
     if (actionActivities) {
-        highlightActivities(actionActivities, null);
+        updateMapActivities(actionActivities, null);
     }
 }
 
@@ -205,6 +202,55 @@ function makeSelectable(obj) {
 
     obj.addEventListener('click', (e) => handleSelectionClick(e, obj));
     obj.addEventListener('touchstart', (e) => handleSelectionClick(e, obj), { passive: true }); // Use passive for touch events if not preventing default
+}
+
+function enableCellSelectionMode(selectableIndexes = []) {
+    // Remove previous selectable state from all cells
+    const allCells = gridContainer.querySelectorAll('.grid-cell');
+    allCells.forEach(cell => {
+        cell.classList.remove('cell-selectable');
+        cell.removeEventListener('click', cellSelectionHandler);
+    });
+
+    // Add selectable state only to specified cells
+    selectableIndexes.forEach(([row, col]) => {
+        const cell = gridContainer.querySelector(`#gridCell-${row}-${col}`);
+        if (cell) {
+            cell.classList.add('cell-selectable');
+            cell.addEventListener('click', cellSelectionHandler);
+        }
+    });
+}
+
+function disableCellSelectionMode() {
+    const cells = gridContainer.querySelectorAll('.grid-cell');
+    cells.forEach(cell => {
+        cell.classList.remove('cell-selectable');
+        cell.removeEventListener('click', cellSelectionHandler);
+    });
+}
+
+function cellSelectionHandler(e) {
+    e.stopPropagation();
+    const cell = e.currentTarget;
+    // Find the object by executorID
+    const obj = objectsOnGrid.find(o => o.id === executorID);
+    if (obj) {
+        // Get cell's row and col from data attributes
+        const row = parseInt(cell.getAttribute('data-row'));
+        const col = parseInt(cell.getAttribute('data-col'));
+        // Calculate new position
+        const snappedX = col * cellSize;
+        const snappedY = row * cellSize;
+        obj.style.transform = `translate3d(${snappedX}px, ${snappedY}px, 0)`;
+        // update object's dataset for row and col
+        obj.dataset.row = row;
+        obj.dataset.col = col;
+        // rerun map utilities
+        updateGridData();
+        // console.log(curGrid);
+        updateMapActivities(actionActivities, null);
+    }
 }
 
 /**
@@ -236,7 +282,7 @@ function handleSelectionClick(e, clickedObject) {
         ? currentlySelectedObjects[currentlySelectedObjects.length - 1]
         : null;
     if (actionActivities) {
-        highlightActivities(actionActivities, mostRecentlySelectedObject);
+        updateMapActivities(actionActivities, mostRecentlySelectedObject);
     }
 
     // Optional: Call a custom callback function if you need to do something else

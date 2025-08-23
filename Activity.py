@@ -18,13 +18,13 @@ import os
 #   AOE - shape represents entire area to receive effect
 
 class Activity:
-    def __init__(self, name, shape, activityType, effectListIndexes):
+    def __init__(self, name, shape, type, effectListIndexes):
         self.name = name
         # 2D grid describing shape: each value is a number describing multiplier for base effects it deals
         # this allows you to weight certain areas' damage (irrelevant for movement)
         self.shape = shape
         # activity type
-        self.activityType = activityType
+        self.type = type
         # apply these effects to targets if activity is successful
         self.effectListIndexes = effectListIndexes
 
