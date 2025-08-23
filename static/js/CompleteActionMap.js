@@ -38,9 +38,20 @@ function applyHighlightToGrid(startObjectID, shape, type) {
             if (JSON.stringify(shape[row - startRow + 4][col - startCol + 4]) == 1) {
                 const targetCell = gridContainer.querySelector(`.grid-row:nth-child(${row + 1}) .grid-cell:nth-child(${col + 1})`);
                 if (targetCell && type == "AOE") {
-                    targetCell.classList.add('AOE-cell');
-                } if (targetCell && type == "targeting") {
-                    targetCell.classList.add('targeting-cell');
+                    // add dual highlight class
+                    if (targetCell.classList.contains('targeting-cell')) {
+                        targetCell.classList.add('AOE-and-targeting-cell');
+                    } else {
+                        targetCell.classList.add('AOE-cell');
+                    }
+                }
+                if (targetCell && type == "targeting") {
+                    // add dual highlight class
+                    if (targetCell.classList.contains('AOE-cell')) {
+                        targetCell.classList.add('AOE-and-targeting-cell');
+                    } else {
+                        targetCell.classList.add('targeting-cell');
+                    }
                 }
             }
         }
@@ -65,10 +76,12 @@ function highlightActivities(activitiesList, selectedMapObject) {
     console.log("removed highlights");
     // reapply highlights
     for (let i = 0; i < activitiesList.length; i++) {
-        if (activitiesList[i].activityType === 'singleTarget' && (selectedMapObject == null)) {
-            console.log("single target found!");
+        if (activitiesList[i].activityType === 'singleTarget') {
+            console.log("applying single target highlight");
             applyHighlightToGrid(executorID, activitiesList[i].shape, "targeting");
-        } else if (activitiesList[i].activityType === 'AOE' && selectedMapObject) {
+        } 
+        if (activitiesList[i].activityType === 'AOE' && selectedMapObject) {
+            console.log("applying AOE highlight");
             applyHighlightToGrid(selectedMapObject.id, activitiesList[i].shape, "AOE");
         }
     }
@@ -176,8 +189,7 @@ function updateGridFromData(gridData) {
     }
 }
 
-///////////// 
-
+/////////////
 /**
  * Makes an individual HTML element selectable.
  * When clicked, it will toggle its selection state.
