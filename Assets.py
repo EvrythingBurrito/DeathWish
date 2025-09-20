@@ -35,7 +35,9 @@ class Assets:
         self.encounterList = []
         self.update_encounter_list()
         # create a blank "current" encounter
-        curEncounter = Encounter("Current", [[0 for _ in range(8)] for _ in range(8)], "blank", None)
+        curEncounter = Encounter("Current", None, None, None)
+        # create a blank "current" campaign
+        curCampaign = Campaign("Current", None, None, None)
         self.NPCList = []
         self.update_NPC_list()
         self.actionList = []

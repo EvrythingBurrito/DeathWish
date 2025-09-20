@@ -90,7 +90,6 @@ def create_flask_app(processQueue):
                 if isNew == 1:
                     Game.assets.add_region(region)
                 else:
-                    Game.assets.regionList[index] = region
                     Game.assets.update_region_save(region)
                 if 'update_region' in request.form:
                     return redirect(url_for('AssetsTop'))
@@ -117,7 +116,6 @@ def create_flask_app(processQueue):
                 if isNew == 1:
                     Game.assets.add_footing(footing)
                 else:
-                    Game.assets.footingList[index] = footing
                     Game.assets.update_footing_save(footing)
                 if 'update_footing' in request.form:
                     return redirect(url_for('AssetsTop'))
@@ -143,7 +141,6 @@ def create_flask_app(processQueue):
                 if isNew == 1:
                     Game.assets.add_effect(effect)
                 else:
-                    Game.assets.effectList[index] = effect
                     Game.assets.update_effect_save(effect)
                 return redirect(url_for('AssetsTop'))
             elif request.form.get("effect") == "delete_effect_form":
@@ -173,7 +170,6 @@ def create_flask_app(processQueue):
                 if isNew == 1:
                     Game.assets.add_action(action)
                 else:
-                    Game.assets.actionList[index] = action
                     Game.assets.update_action_save(action)
                 if 'update_action' in request.form:
                     return redirect(url_for('AssetsTop'))
@@ -205,7 +201,6 @@ def create_flask_app(processQueue):
                 if isNew == 1:
                     Game.assets.add_activity(activity)
                 else:
-                    Game.assets.activityList[index] = activity
                     Game.assets.update_activity_save(activity)
                 if 'update_activity' in request.form:
                     return redirect(url_for('AssetsTop'))
@@ -240,7 +235,6 @@ def create_flask_app(processQueue):
                 if isNew == 1:
                     Game.assets.add_landmark(landmark)
                 else:
-                    Game.assets.landmarkList[index] = landmark
                     Game.assets.update_landmark_save(landmark)
                 if 'update_landmark' in request.form:
                     return redirect(url_for('AssetsTop'))
@@ -272,7 +266,6 @@ def create_flask_app(processQueue):
                     if isNew == 1:
                         Game.assets.add_NPC(npc)
                     else:
-                        Game.assets.NPCList[index] = npc
                         Game.assets.update_NPC_save(npc)
                 if 'update_NPC' in request.form:
                     return redirect(url_for('AssetsTop'))
@@ -313,9 +306,11 @@ def create_flask_app(processQueue):
         return render_template('EditEncounter.html', encounter=encounter.to_json(), footings=footingJSONs, mapObjects=mapObjectJSONs)
 
     ### display chosen campaign world map, premise, recent party events, etc.
-    @app.route('/GameMaster/RunCampaign/Campaign_<int:index>', methods=['GET', 'POST'])
-    def RunCampaign(index):
-        campaign = Game.assets.campaignList[index]
+    @app.route('/GameMaster/RunCampaign/Campaign_<int:index><int:startNew>', methods=['GET', 'POST'])
+    def RunCampaign(index, startNew):
+        if (startNew == 1):
+            Game.assets.curCampaign = Game.assets.campaignList[index]
+        campaign = Game.assets.curCampaign
         processQueue.put(("refreshCampaign", campaign))
         processQueue.put(("gameState", 'campaign'))
         regionJSONs = [rg.to_json() for rg in Game.assets.regionList]
@@ -329,9 +324,7 @@ def create_flask_app(processQueue):
                 campaign.update_party_landmark(Game.assets.landmarkList, Game.assets.regionList)
                 # print(campaign.partyLocation)
                 # print(campaign.availableEncounterIndexes)
-                Game.assets.campaignList[index] = campaign
                 Game.assets.update_campaign_save(campaign)
-                print(len(Game.assets.campaignList))
                 processQueue.put(("refreshCampaign", campaign))
         return render_template('RunCampaign.html', campaign=campaign.to_json(), regions=regionJSONs, landmarks=landmarkJSONs, encounters=encounterJSONs)
 
@@ -350,11 +343,11 @@ def create_flask_app(processQueue):
     ### Action contains modified info 
     @app.route('/GameMaster/CompleteAction/Action_<string:mapObjectID>_<int:actionListIndex>', methods=['GET', 'POST'])
     def CompleteAction(mapObjectID, actionListIndex):
-        npc = Game.assets.NPCList[int(mapObjectID.split("-")[1])]
         activityJSONS = [ac.to_json() for ac in Game.assets.activityList]
         turnAction = Game.assets.actionList[actionListIndex]
         footingJSONs = [ft.to_json() for ft in Game.assets.footingList]
         encounter = Game.assets.curEncounter
+        npc = encounter.get_object_from_object_id(mapObjectID)
         mapObjectJSONs = [mo.to_json() for mo in Game.assets.NPCList]
         if request.method == 'POST':
             action = request.form.get('action')

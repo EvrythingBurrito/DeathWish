@@ -5,11 +5,18 @@ body {
     margin: 0;
 }
 
+.column.grid-column {
+    flex-shrink: 0;
+    min-width: max-content;
+}
+
 #grid-container {
     display: grid;
     position: relative; /* Needed for absolute positioning of objects */
     overflow-x: auto;
     white-space: nowrap;
+    width: max-content;
+    max-width:100%;
 }
 
 .grid-row {

@@ -13,7 +13,7 @@
         {% for i in range(0, campaigns|length) %}
             <h3>{{ campaigns[i].name }}</h3>
             <p>
-                <a href="{{ url_for('RunCampaign', index=i) }}">Run</a>
+                <a href="{{ url_for('RunCampaign', index=i, startNew=1) }}">Run</a>
                 <a href="{{ url_for('EditCampaign', index=i, isNew=0) }}">Edit</a>
             </p>
         {% endfor %}

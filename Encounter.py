@@ -3,6 +3,7 @@ import random
 from MapObject import MapObject
 from NPC import NPC
 from Effect import Effect
+import Game
 
 class Encounter:
 
@@ -67,9 +68,11 @@ class Encounter:
     def end_NPC_action(self, mapObjectID):
         npc = self.get_object_from_object_id(mapObjectID)
         npc.actionCount = max(0, int(npc.actionCount) - 1)
-        self.update_mapObject_from_id(mapObjectID, npc)
         if npc.actionCount == 0:
+            # reset action count to default action count for npc
+            npc.actionCount = Game.assets.NPCList[int(mapObjectID.split("-")[1])].actionCount
             self.advance_turn_order()
+        self.update_mapObject_from_id(mapObjectID, npc)
 
     def resolve_activity_effects(self, activity, effectList, mapObjectID, activityDataJSON):
         activityData = json.loads(activityDataJSON)

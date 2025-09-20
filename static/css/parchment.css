@@ -65,17 +65,29 @@ input[type="text"] {
   width: 300px;
 }
 
-.container {
-  display: flex;
-  justify-content: center; /* Center horizontally */
-  width: 80%; /* Adjust as needed */
-  margin: 20px auto; /* Center the container itself */
+.row.flex {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 16px; /* Optional: space between columns */
+}
+.column {
+    flex: 1 1 0;
+    min-width: 0;
 }
 
-.column {
-  flex: 1; /* Equal width columns */
-  padding: 10px;
-  text-align: center; /* Center text within columns */
-  border: 1px solid #ccc; /* Optional borders */
-  margin: 5px;
-}
+/* .container {
+/*   display: flex;
+/*   justify-content: center; /* Center horizontally */
+/*   width: 80%; /* Adjust as needed */
+/*   margin: 20px auto; /* Center the container itself */
+/* }
+/* 
+/* .column {
+/*   flex: 1; /* Equal width columns */
+/*   padding: 10px;
+/*   text-align: center; /* Center text within columns */
+/*   border: 1px solid #ccc; /* Optional borders */
+/*   margin: 5px;
+/* }

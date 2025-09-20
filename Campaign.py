@@ -1,7 +1,5 @@
 import json
 
-# every init field must be an input to init (serialization)
-
 class Campaign:
 
     def __init__(self, name, regionMapIndexes, mapGridJSON, availableEncounterIndexes):
