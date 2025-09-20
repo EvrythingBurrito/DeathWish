@@ -1,1 +1,1 @@
-{"name": "slash_I", "movementRange": "0", "setupTime": "1", "cooldownTime": "1", "staminaCost": "1", "manaCost": "0", "negationAmount": "1", "interruptStrength": "1", "activityListIndexes": [2]}
+{"name": "slash_I", "staminaCost": "1", "manaCost": "0", "activityListIndexes": [2]}

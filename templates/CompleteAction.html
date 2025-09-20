@@ -14,22 +14,53 @@
     for (let i = 0; i < action.activityListIndexes.length; i++) {
         actionActivities.push(activities[action.activityListIndexes[i]]);
     }
-    console.log(actionActivities);
 </script>
-
-<div class="container">
-    <div class="column">
-        {% include 'CompleteActionMap.html' with context %}
+{% if reactionDict %}
+    <div class="container">
+        <h3>Possible Reactions</h3>
+        <form method="POST">
+            <input type="hidden" name="action" value="submit_reaction_form">
+            {% for entityID in reactionDict %}
+                <div>
+                    <h4>{{ entityID }} can react:</h4>
+                    {% for action in reactionDict[entityID] %}
+                        <input type="radio" name="{{ action.name }}" value="{{ entity_name }}_{{ action.name }}"> {{ action.name }}<br>
+                    {% endfor %}
+                    <input type="radio" name="pass" value="pass"> Pass<br>
+                </div>
+            {% endfor %}
+            <button type="submit" form="submit_reaction_form">Submit All Reactions</button>
+        </form>
     </div>
-    <div class="column" style="width: 600px;">
-        <h3> action: {{ action.name }} </h3>
+{% else %}
+    <form method="POST" id="submit_action_form">
+        <input type="hidden" name="action" value="submit_action_form">
         {% for i in range(0, action.activityListIndexes|length) %}
-            <h3> activity {{ i }} : {{ activities[action.activityListIndexes[i]].name }} </h3>
+            <input type="hidden" 
+                id="activity_{{ i }}_data" 
+                name="activity_{{ i }}_data" 
+                value="">
+            <input type="hidden"
+                id="activity_{{ i }}_index"
+                name="activity_{{ i }}_index"
+                value="{{ action.activityListIndexes[i] }}">
         {% endfor %}
-        <h3> health: {{ npc.health }} </h3>
-        <h3> stamina: {{ npc.stamina }} </h3>
-        <h3> mana: {{ npc.mana }} </h3>
+    </form>
+    <div class="container">
+        <div class="column">
+            {% include 'CompleteActionMap.html' with context %}
+        </div>
+        <div class="column" style="width: 600px;">
+            <h3> action: {{ action.name }} </h3>
+            {% for i in range(0, action.activityListIndexes|length) %}
+                <h3> activity {{ i }} : {{ activities[action.activityListIndexes[i]].name }} </h3>
+            {% endfor %}
+            <h3> health: {{ npc.health }} </h3>
+            <h3> stamina: {{ npc.stamina }} </h3>
+            <h3> mana: {{ npc.mana }} </h3>
+            <button type="submit" form="submit_action_form">Submit {{ action.name }}</button>
+        </div>
     </div>
-</div>
+{% endif %}
 
 {% endblock %}

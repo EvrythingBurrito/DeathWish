@@ -5,11 +5,6 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/draggableMap.css') }}">
 </head>
 <body>
-    <form method="POST" id="update_mapObjects_form">
-        <input type="hidden" name="action" value="update_mapObjects_form">
-        <input type="hidden" id="mapObjects" name="mapObjects">
-    </form>
-
     <script>
         const mapObjects = {{ mapObjects|tojson }};
         const gridDataOriginString = {{ encounter.mapGridJSON|tojson }};
@@ -28,7 +23,6 @@
         </div>
     {% endfor %}
     </div>
-    <button type="submit" form="update_mapObjects_form">Update mapObjects</button>
     <script src="{{ url_for('static', filename='js/CompleteActionMap.js') }}"></script>
     <script>
         if (gridDataOriginString != "blank") {

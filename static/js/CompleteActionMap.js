@@ -1,13 +1,48 @@
 const gridContainer = document.getElementById('grid-container');
 const cellSize = 50;
 let objectsOnGrid = [];
-const gridDataInput = document.getElementById('mapObjects');
 let curGrid = [];
 
 let selectableObjectsOnGrid = [];
 let nextSelectableObjectId = 0;
 // Changed to an array to hold multiple selected objects
 let currentlySelectedObjects = []; // Keeps track of all currently selected objects
+
+document.getElementById('submit_action_form').addEventListener('submit', function(e) {
+    // For each activity, fill in the corresponding hidden input
+    actionActivities.forEach((activity, i) => {
+        let data = {};
+        if (activity.type === 'move') {
+            // Find executor object
+            const obj = objectsOnGrid.find(o => o.id === executorID);
+            if (obj) {
+                data.row = obj.dataset.row;
+                data.col = obj.dataset.col;
+            }
+            console.log("submitting move activity");
+            console.log(data);
+        } else if (activity.type === 'AOE') {
+            // Collect all grid cells with the AOE-cell class
+            const aoeCells = Array.from(document.querySelectorAll('.AOE-cell'));
+            data.locations = aoeCells.map(cell => ({
+                row: cell.getAttribute('data-row'),
+                col: cell.getAttribute('data-col')
+            }));
+            console.log(data.locations);
+        } else if (activity.type === 'singleTarget') {
+            // Collect all selected map objects
+            data.selectedObjects = currentlySelectedObjects.map(obj => ({
+                id: obj.id,
+                row: obj.dataset.row,
+                col: obj.dataset.col
+            }));
+            console.log(data.selectedObjects);
+        }
+        // Set the value as a JSON string
+        console.log(JSON.stringify(data));
+        document.getElementById(`activity_${i}_data`).value = JSON.stringify(data);
+    });
+});
 
 /**
  * Clears all existing highlight cells and applies new highlighting based on a shape.
@@ -51,21 +86,17 @@ function updateMapActivities(activitiesList, selectedMapObject) {
     allHighlightedCells.forEach(cell => {
         cell.classList.remove('AOE-cell', 'targeting-cell', 'AOE-and-targeting-cell', 'move-cell');
     });
-    console.log("removed highlights");
     // remove selectable state from all cells
     disableCellSelectionMode();
     // apply highlights, enable cell selection for movement
     for (let i = 0; i < activitiesList.length; i++) {
         if (activitiesList[i].type === 'singleTarget') {
-            console.log("applying single target highlight");
             applyHighlightToGrid(getActionIndexes(executorID, activitiesList[i].shape), "targeting");
         } 
         if (activitiesList[i].type === 'AOE' && selectedMapObject) {
-            console.log("applying AOE highlight");
             applyHighlightToGrid(getActionIndexes(selectedMapObject.id, activitiesList[i].shape), "AOE");
         }
         if (activitiesList[i].type === 'move') {
-            console.log("applying move highlight");
             applyHighlightToGrid(getActionIndexes(executorID, activitiesList[i].shape), "move");
             enableCellSelectionMode(getActionIndexes(executorID, activitiesList[i].shape));
         }
@@ -84,14 +115,11 @@ function getActionIndexes(startObjectID, shape) {
                 startRow = row;
                 startCol = col;
             }
-            // console.log(curGrid[row]);
         }
     }
     // activity shape is 9x9 centered at 4,4
     for (let row = startRow - 4; row < startRow + 5; row++) {
         for (let col = startCol - 4; col < startCol + 5; col++) {
-            // console.log(row - startRow + 4);
-            // console.log(col - startCol + 4);
             if (JSON.stringify(shape[row - startRow + 4][col - startCol + 4]) == 1) {
                 actionIndexes.push([row, col]);
             }
@@ -151,8 +179,7 @@ function updateGridData() {
             grid[row][col].objects.push(objName);
         }
     });
-
-    gridDataInput.value = JSON.stringify(grid);
+    
     curGrid = grid;
 }
 
@@ -301,13 +328,13 @@ function toggleObjectSelection(obj) {
         obj.classList.remove('selected');
         // Remove from the array
         currentlySelectedObjects = currentlySelectedObjects.filter(item => item !== obj);
-        console.log(`Object ${obj.id} unselected. Total selected: ${currentlySelectedObjects.length}`);
+        // console.log(`Object ${obj.id} unselected. Total selected: ${currentlySelectedObjects.length}`);
     } else {
         // Object is not selected, select it
         obj.classList.add('selected');
         // Add to the array
         currentlySelectedObjects.push(obj);
-        console.log(`Object ${obj.id} selected. Total selected: ${currentlySelectedObjects.length}`);
+        // console.log(`Object ${obj.id} selected. Total selected: ${currentlySelectedObjects.length}`);
     }
 }
 

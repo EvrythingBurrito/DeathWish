@@ -1,1 +1,1 @@
-{"name": "fireball_I", "movementRange": "0", "setupTime": "2", "cooldownTime": "1", "staminaCost": "1", "manaCost": "2", "negationAmount": "0", "interruptStrength": "1", "activityListIndexes": [1, 0]}
+{"name": "fireball_I", "staminaCost": "1", "manaCost": "2", "activityListIndexes": [1, 0]}
