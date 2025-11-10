@@ -14,28 +14,26 @@
 </script>
 
 <div class="container">
-    <div class="row flex">
-        <div class="column" style="width: 400px;">
-            <h3>Turn Order</h3>
-            {% for i in range(0, mapObjectList|length) %}
-                <p> {{ mapObjectList[i][0] }}: Health: {{ mapObjectList[i][1].health }}, Stamina: {{ mapObjectList[i][1].stamina }}, Mana: {{ mapObjectList[i][1].mana }}</p>
-            {% endfor %}
-        </div>
-        <div class="column grid-column">
-            {% include 'CompleteActionMap.html' with context %}
-        </div>
-        <div class="column" style="width: 600px;">
-            <h3> {{ mapObjectList[0][0] }}'s turn </h3>
-            <p> Actions Remaining: {{ mapObjectList[0][1].actionCount }}</p>
-            {% for i in range(0, mapObjectList[0][1].actionListIndexes|length) %}
-                <a href="{{ url_for('CompleteAction', mapObjectID=mapObjectList[0][2], actionListIndex=mapObjectList[0][1].actionListIndexes[i]) }}"> {{ actions[mapObjectList[0][1].actionListIndexes[i]].name }}</a>
-                <br>
-            {% endfor %}
-        </div>
+    <div class="column" style="width: 400px;">
+        <h3>Turn Order</h3>
+        {% for i in range(0, mapObjectList|length) %}
+            <p> {{ mapObjectList[i][0] }}: Health: {{ mapObjectList[i][1].health }}, Stamina: {{ mapObjectList[i][1].stamina }}, Mana: {{ mapObjectList[i][1].mana }}</p>
+        {% endfor %}
     </div>
-    <div class="row">
-        <a href="{{ url_for('RunCampaign', index=0, startNew=0) }}"> End Encounter </a>
+    <div class="column grid-column">
+        {% include 'CompleteActionMap.html' with context %}
     </div>
+    <div class="column" style="width: 600px;">
+        <h3> {{ mapObjectList[0][0] }}'s turn </h3>
+        <p> Actions Remaining: {{ mapObjectList[0][1].actionCount }}</p>
+        {% for i in range(0, mapObjectList[0][1].actionListIndexes|length) %}
+            <a href="{{ url_for('CompleteAction', mapObjectID=mapObjectList[0][2], actionListIndex=mapObjectList[0][1].actionListIndexes[i]) }}"> {{ actions[mapObjectList[0][1].actionListIndexes[i]].name }}</a>
+            <br>
+        {% endfor %}
+    </div>
+</div>
+<div class="row">
+    <a href="{{ url_for('RunCampaign', index=0, startNew=0) }}"> End Encounter </a>
 </div>
 
 {% endblock %}

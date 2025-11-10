@@ -1,7 +1,57 @@
 {% extends "DeathWishBase.html" %}
 
 {% block title %}
-    {% if tangible is }
+    {% if tangible.name != "blank" %}
+        {{ tangible.name }}
+    {% else %}
+        New Tangible
+    {% endif %}
 {% endblock %}
 
-{% block content %}{% endblock %}
+{% block content %}
+<body>
+    <form method="POST" id="save_tangible_form">
+        <h3>Tangible Name</h3>
+        <input type="hidden" name="action" value="save_tangible_form">
+        <!-- autopopulate if tangible already exists -->
+        {% if tangible.name == "blank" %}
+            <label for="name">Tangible Name:</label>
+            <input type="text" name="name" placeholder="tangible name">
+            <br>
+            <label for="mapIconImgFile">Path to map icon image:</label>
+            <input type="text" name="mapIconImgFile" placeholder="mapIcon.jpg">
+            <br>
+            <label for="health">Health:</label>
+            <input type="text" name="health" placeholder="object health (before it breaks)">
+            <br>
+            <label for="weight">Weight:</label>
+            <input type="text" name="weight" placeholder="weight in lbs">
+            <br>
+            <label for="description">Description:</label>
+            <input type="text" name="description" placeholder="short description of object">
+        {% else %}
+            <label for="name">Tangible Name:</label>
+            <input type="text" name="name" value="{{ tangible.name }}" placeholder="tangible name">
+            <br>
+            <label for="mapIconImgFile">Path to map icon image:</label>
+            <input type="text" name="mapIconImgFile" value="{{ tangible.mapIconImgFile }}" placeholder="mapIcon.jpg">
+            <br>
+            <label for="health">Health:</label>
+            <input type="text" name="health" value="{{ tangible.health }}" placeholder="object health (before it breaks)">
+            <br>
+            <label for="weight">Weight:</label>
+            <input type="text" name="weight" value="{{ tangible.weight }}" placeholder="weight in lbs">
+            <br>
+            <label for="description">Description:</label>
+            <input type="text" name="description" value="{{ tangible.description }}" placeholder="short description of object">
+        {% endif %}
+    </form>
+    <button type="submit" name='update_tangible' form="save_tangible_form">Save Tangible</button>
+    <br>
+    <br>
+    <form method="POST" id="delete_tangible_form">
+        <input type="hidden" name="action" value="delete_tangible_form">
+        <button type="submit" name="delete_tangible">Delete Tangible</button>
+    </form>
+</body>
+{% endblock %}

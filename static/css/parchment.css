@@ -65,16 +65,22 @@ input[type="text"] {
   width: 300px;
 }
 
-.row.flex {
-    display: flex;
-    flex-direction: row;
-    align-items: flex-start;
-    justify-content: flex-start;
-    gap: 16px; /* Optional: space between columns */
+.container { 
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center; /* or flex-start */
+  overflow-x: auto;
 }
-.column {
-    flex: 1 1 0;
-    min-width: 0;
+
+.container > .row {
+  flex: 1 1 220px;
+  min-width: 180px;
+}
+
+.container > .column {
+  flex: 1 1 220px;
+  min-width: 180px;
 }
 
 /* .container {

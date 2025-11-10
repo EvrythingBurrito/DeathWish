@@ -19,12 +19,17 @@ class MapObject:
     def from_json(cls, json_data):
         return cls(**json_data)
     
-    def apply_effects(self, effectList):
+    def apply_effects(self, effectJSONList):
         jsonIndexesToRemove = []
+        # add serialized effects to list of effects to resolve
+        for effectJSON in effectJSONList:
+            self.currentEffectJSONList.append(effectJSON)
+            # print(f"adding effect {effectJSON} to")
+        # resolve applied effects
         for effectJSON in self.currentEffectJSONList:
             effect = Effect.from_json(effectJSON)
-            print(f'applying effect {effect.name} to {self.name}')
-            # apply effects
+            # print(f'resolving effect {effect.name} to {self.name}')
+            # apply effects FIXME - apply resistances here
             if effect.effectType == 'slashing':
                 self.health = max(0, int(self.health) - int(effect.effectQuantity))
             elif effect.effectType == 'bludgeoning':
@@ -45,9 +50,7 @@ class MapObject:
                 self.health = max(0, int(self.health) - int(effect.effectQuantity))
             # decrement duration counter
             effect.durationTurns = max(0, int(effect.durationTurns) - 1)
+            print(f'{self.name}s effectList is {self.currentEffectJSONList}')
             if effect.durationTurns == 0:
-                jsonIndexesToRemove.append(self.currentEffectJSONList.index(effectJSON))
-        # remove effect when duration times out
-        for index in jsonIndexesToRemove:
-            removedEffect = self.currentEffectJSONList.pop(index)
-            print(f'removed {removedEffect} from {self.name}s effectList')
+                removedEffect = self.currentEffectJSONList.pop(self.currentEffectJSONList.index(effectJSON))
+            print(f'{self.name}s effectList is now {self.currentEffectJSONList}')

@@ -2,6 +2,7 @@ import json
 import random
 from MapObject import MapObject
 from NPC import NPC
+from Tangible import Tangible
 from Effect import Effect
 import Game
 
@@ -45,17 +46,20 @@ class Encounter:
             for cellDict in row:
                 for cellObject in cellDict['objects']:
                     if cellObject:
-                        if cellObject.split("-")[0] == "npc":
+                        if cellObject.split("-")[0] == "npc" or cellObject.split("-")[0] == "tangible":
                             mapObjectToAdd = allMapObjects[int(cellObject.split("-")[1])]
                             # make a unique encounter-specific identifier for the mapObject (different than the token id, should be easy to remember for players)
                             nextIDNum = 0
-                            for item in self.mapObjectList:
-                                if item[0].split("_")[1] == nextIDNum:
-                                    nextIDNum += 1
                             entityName = mapObjectToAdd.name + "_" + str(nextIDNum)
+                            for item in self.mapObjectList:
+                                if item[0] == entityName:
+                                    nextIDNum += 1
+                                    entityName = mapObjectToAdd.name + "_" + str(nextIDNum)
                             # index 0 is entity id, index 1 is JSON for mapObject, index 2 is the string that the map list cell contains
                             self.mapObjectList.append([entityName, mapObjectToAdd.to_json(), cellObject])
         # return the list of lists
+        if self.mapObjectList[0][2].split("-")[0] != "npc":
+            self.advance_turn_order()
         return (self.mapObjectList)
 
     def advance_turn_order(self):
@@ -74,36 +78,49 @@ class Encounter:
             self.advance_turn_order()
         self.update_mapObject_from_id(mapObjectID, npc)
 
-    def resolve_activity_effects(self, activity, effectList, mapObjectID, activityDataJSON):
+    def resolve_activity_effects(self, activity, mapObjectID, activityDataJSON):
         activityData = json.loads(activityDataJSON)
         mapGrid = json.loads(self.mapGridJSON)
+        effectJSONsToApply = []
+        for effectIndex in activity.effectListIndexes:
+                effectJSONsToApply.append(Effect.to_json(Game.assets.effectList[effectIndex]))
         if activity.type == 'singleTarget':
             for object in activityData['selectedObjects']:
                 mapObject = self.get_object_from_object_id(object['id'])
                 # add serialized effects
                 # FIXME modify effects based on executor stats
-                for effectIndex in activity.effectListIndexes:
-                    mapObject.currentEffectJSONList.append(Effect.to_json(effectList[effectIndex]))
                 # apply effects immediately
-                mapObject.apply_effects(effectList)
-                # save changes to object
-                self.update_mapObject_from_id(object['id'], mapObject)
+                mapObject.apply_effects(effectJSONsToApply)
+                # remove object if health reached zero. otherwise, save changes to object
+                if int(mapObject.health) <= 0:
+                    self.remove_mapObject_by_id(object['id'])
+                else:
+                    self.update_mapObject_from_id(object['id'], mapObject)
         elif activity.type == "move":
-            print("executing move")
             newRow = int(activityData['row'])
             newCol = int(activityData['col'])
             # remove object at old location
             for row in mapGrid:
                 for cellDict in row:
-                    for cellObject in cellDict['objects']:
-                        if cellObject == mapObjectID:
-                            cellDict['objects'].remove(cellObject)
+                    for objectID in cellDict['objects']:
+                        if objectID == mapObjectID:
+                            cellDict['objects'].remove(objectID)
             # add object to new location
             mapGrid[newRow][newCol]['objects'].append(mapObjectID)
             # reserialize & update mapGrid
             self.mapGridJSON = json.dumps(mapGrid)
         elif activity.type == "AOE":
-            print(activityData)
+            for loc in activityData['locations']:
+                for objectID in mapGrid[int(loc['row'])][int(loc['col'])]['objects']:
+                    print(f"AOE applying effects to {objectID}")
+                    mapObject = self.get_object_from_object_id(objectID)
+                    # apply effects immediately
+                    mapObject.apply_effects(effectJSONsToApply)
+                    # remove object if health reached zero. otherwise, save changes to object
+                    if int(mapObject.health) <= 0:
+                        self.remove_mapObject_by_id(objectID)
+                    else:
+                        self.update_mapObject_from_id(objectID, mapObject)
 
     # deserialize object
     def get_object_from_object_id(self, mapObjectID):
@@ -111,6 +128,8 @@ class Encounter:
             if mapObjectID == encounterObject[2]:
                 if mapObjectID.split("-")[0] == "npc":
                     return NPC.from_json(encounterObject[1])
+                elif mapObjectID.split("-")[0] == "tangible":
+                    return Tangible.from_json(encounterObject[1])
                 else:
                     return MapObject.from_json(encounterObject[1])
                 
@@ -119,6 +138,24 @@ class Encounter:
         for encounterObject in self.mapObjectList:
             if mapObjectID in encounterObject:
                 encounterObject[1] = mapObject.to_json()
+                return
+
+    def remove_mapObject_by_id(self, mapObjectID):
+        for encounterObject in self.mapObjectList:
+            if mapObjectID in encounterObject:
+                self.mapObjectList.remove(encounterObject)
+                mapGrid = json.loads(self.mapGridJSON)
+                # print(f"removing {mapObjectID} from {json.loads(self.mapGridJSON)}")
+                for row in mapGrid:
+                    for cellDict in row:
+                        for objectID in cellDict['objects']:
+                            if objectID == mapObjectID:
+                                print(f"removed {mapObjectID} from {cellDict['objects']}")
+                                cellDict['objects'].remove(objectID)
+                                continue
+        # reserialize & update mapGrid
+        self.mapGridJSON = json.dumps(mapGrid)
+        
 
     def get_pre_activity_counters(self, activity, assets):
         preActivityCounters = {}

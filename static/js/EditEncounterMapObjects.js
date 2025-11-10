@@ -26,6 +26,8 @@ function createDraggableObject(objectType, objectIndex, x, y) {
     // need to use translate3d rather than the style.left/top attributes so that it can be moved again with no jumps
     obj.style.transform = `translate3d(${snappedX}px, ${snappedY}px, 0)`;
     objectsOnGrid.push(obj);
+    console.log(obj)
+    console.log(objectsOnGrid)
     makeDraggable(obj, x, y);
 }
 

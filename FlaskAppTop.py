@@ -12,6 +12,7 @@ from Effect import *
 from Action import *
 from Activity import *
 from NPC import *
+from Tangible import *
 from Encounter import *
 # re
 import re
@@ -125,6 +126,32 @@ def create_flask_app(processQueue):
                 return redirect(url_for('AssetsTop'))
         return render_template('EditFooting.html', footing=footing.to_json())
     
+    ### display chosen objects attributes in editable forms
+    @app.route('/GameMaster/Assets/Tangible_<int:index><int:isNew>', methods=['GET', 'POST'])
+    def EditTangible(index, isNew):
+        if isNew == 0:
+            tangible = Game.assets.tangibleList[index]
+        else:
+            tangible = Tangible(name="blank", health=0, weight=0, description="blank", mapIconImgFile="path_to_image", currentEffectJSONList=[])
+        if request.method == 'POST':
+            if request.form.get("action") == "save_tangible_form":
+                tangible.name = request.form.get('name')
+                tangible.health = request.form.get('health')
+                tangible.weight = request.form.get('weight')
+                tangible.description = request.form.get('description')
+                tangible.mapIconImgFile = request.form.get('mapIconImgFile')
+                if isNew == 1:
+                    Game.assets.add_tangible(tangible)
+                else:
+                    Game.assets.update_tangible_save(tangible)
+                if 'update_tangible' in request.form:
+                    return redirect(url_for('AssetsTop'))
+            elif request.form.get("action") == "delete_tangible_form":
+                if isNew == 0:
+                    Game.assets.delete_tangible(index)
+                return redirect(url_for('AssetsTop'))
+        return render_template('EditTangible.html', tangible=tangible.to_json())
+
     ### display chosen objects attributes in editable forms
     @app.route('/GameMaster/Assets/Effect_<int:index><int:isNew>', methods=['GET', 'POST'])
     def EditEffect(index, isNew):
@@ -284,7 +311,7 @@ def create_flask_app(processQueue):
         else:
             encounter = Encounter("New Encounter", dummyMatrix, "blank", None)
         footingJSONs = [ft.to_json() for ft in Game.assets.footingList]
-        mapObjectJSONs = [mo.to_json() for mo in Game.assets.NPCList]
+        mapObjectJSONs = [mo.to_json() for mo in Game.assets.NPCList + Game.assets.tangibleList]
         if request.method == 'POST':
             action = request.form.get('action')
             if action == 'update_footing_form':
@@ -311,6 +338,7 @@ def create_flask_app(processQueue):
         if (startNew == 1):
             Game.assets.curCampaign = Game.assets.campaignList[index]
         campaign = Game.assets.curCampaign
+        print(campaign.availableEncounterIndexes)
         processQueue.put(("refreshCampaign", campaign))
         processQueue.put(("gameState", 'campaign'))
         regionJSONs = [rg.to_json() for rg in Game.assets.regionList]
@@ -333,9 +361,9 @@ def create_flask_app(processQueue):
     def RunEncounter(index, startNew):
         if (startNew == 1):
             Game.assets.curEncounter = Game.assets.encounterList[index]
-            Game.assets.curEncounter.create_map_object_list(Game.assets.NPCList)
+            Game.assets.curEncounter.create_map_object_list(Game.assets.NPCList + Game.assets.tangibleList)
         encounter = Game.assets.curEncounter
-        mapObjectJSONs = [mo.to_json() for mo in Game.assets.NPCList]
+        mapObjectJSONs = [mo.to_json() for mo in Game.assets.NPCList + Game.assets.tangibleList]
         footingJSONs = [ft.to_json() for ft in Game.assets.footingList]
         actionJSONS = [action.to_json() for action in Game.assets.actionList]
         return render_template('RunEncounter.html', encounter=encounter.to_json(), mapObjects=mapObjectJSONs, actions=actionJSONS, footings=footingJSONs, mapObjectList=encounter.mapObjectList)
@@ -348,7 +376,7 @@ def create_flask_app(processQueue):
         footingJSONs = [ft.to_json() for ft in Game.assets.footingList]
         encounter = Game.assets.curEncounter
         npc = encounter.get_object_from_object_id(mapObjectID)
-        mapObjectJSONs = [mo.to_json() for mo in Game.assets.NPCList]
+        mapObjectJSONs = [mo.to_json() for mo in Game.assets.NPCList + Game.assets.tangibleList]
         if request.method == 'POST':
             action = request.form.get('action')
             if action == 'submit_action_form':
@@ -360,7 +388,7 @@ def create_flask_app(processQueue):
                     dataEntry = request.form.get(f'activity_{submissionNum}_data')
                     indexEntry = request.form.get(indexEntryName)
                     activity = Game.assets.activityList[int(indexEntry)]
-                    reactionDict = encounter.get_pre_activity_counters(activity, Game.assets)
+                    # reactionDict = encounter.get_pre_activity_counters(activity, Game.assets)
                     # pre reactions
                     # if (len(reactionDict.keys()) > 0):
                     #     return render_template('CompleteAction.html', encounter=encounter.to_json(), mapObjects=mapObjectJSONs,
@@ -368,7 +396,7 @@ def create_flask_app(processQueue):
                     #                             activities=activityJSONS, executorID=mapObjectID, reactionDict=reactionDict)
                     # else:
                         # resolve activity effects
-                    encounter.resolve_activity_effects(activity, Game.assets.effectList, mapObjectID, dataEntry)
+                    encounter.resolve_activity_effects(activity, mapObjectID, dataEntry)
                         # post reactions
                         # reactionDict = encounter.get_post_activity_counters(activity, Game.assets)
                         # if (len(reactionDict.keys()) > 0):

@@ -6,6 +6,7 @@ body {
 }
 
 .column.grid-column {
+    flex: 1 1 220px;
     flex-shrink: 0;
     min-width: max-content;
 }
@@ -65,6 +66,13 @@ body {
 
 /* must be 48px or smaller or it won't register to be "in the cell" */
 .draggable-object.stationary {
+    width: 48px;
+    height: 48px;
+    background-color: black;
+    border-radius: 50%;
+}
+
+.draggable-object.tangible {
     width: 48px;
     height: 48px;
     background-color: black;

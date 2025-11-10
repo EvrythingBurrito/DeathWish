@@ -1,0 +1,1 @@
+{"name": "city guard", "weight": 0, "mapIconImgFile": "/static/Assets/Characters/Images/cityGuardToken.png", "health": "10", "stamina": "10", "mana": "5", "actionCount": "2", "type": "character", "actionListIndexes": [2, 0, 1], "currentEffectJSONList": []}

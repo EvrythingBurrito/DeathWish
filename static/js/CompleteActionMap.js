@@ -23,7 +23,8 @@ document.getElementById('submit_action_form').addEventListener('submit', functio
             console.log(data);
         } else if (activity.type === 'AOE') {
             // Collect all grid cells with the AOE-cell class
-            const aoeCells = Array.from(document.querySelectorAll('.AOE-cell'));
+            const aoeCells = Array.from(document.querySelectorAll('.AOE-cell, .AOE-and-targeting-cell'));
+            console.log(aoeCells);
             data.locations = aoeCells.map(cell => ({
                 row: cell.getAttribute('data-row'),
                 col: cell.getAttribute('data-col')
@@ -73,6 +74,7 @@ function applyHighlightToGrid(highlightIndexes, type) {
             targetCell.classList.add('move-cell');
         }
     });
+    console.log(Array.from(document.querySelectorAll('.AOE-cell')));
 }
 
 /**

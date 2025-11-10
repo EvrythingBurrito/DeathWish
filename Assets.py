@@ -8,6 +8,7 @@ from Campaign import Campaign
 from NPC import NPC
 from Action import Action
 from Activity import Activity
+from Tangible import Tangible
 from Effect import Effect
 import glob
 
@@ -21,6 +22,7 @@ class Assets:
         self.NPCDir = "Assets/NPCs"
         self.actionDir = "Assets/Actions"
         self.activityDir = "Assets/Activities"
+        self.tangibleDir = "Assets/Tangibles"
         self.effectDir = "Assets/Effects"
         ### initialize lists
         self.campaignList = []
@@ -32,6 +34,7 @@ class Assets:
         self.landmarkList = []
         self.update_landmark_list()
         self.tangibleList = []
+        self.update_tangible_list()
         self.encounterList = []
         self.update_encounter_list()
         # create a blank "current" encounter
@@ -110,6 +113,13 @@ class Assets:
     def delete_effect(self, index):
         self.delete_effect_save(self.effectList[index])
         del self.effectList[index]
+
+    def add_tangible(self, tangible):
+        self.tangibleList.append(tangible)
+        self.update_tangible_save(tangible)
+    def delete_tangible(self, index):
+        self.delete_tangible_save(self.tangibleList[index])
+        del self.tangibleList[index]
 
 ###########################################################
 #################### SERIALIZATION ########################
@@ -342,3 +352,27 @@ class Assets:
                 data = json.load(f)
                 effect = Effect.from_json(data)
                 self.effectList.append(effect)
+
+########################################################### TANGIBLES
+
+    ### create or update save file for desired tangible
+    def update_tangible_save(self, tangible):
+        filename = self.tangibleDir + "/" + tangible.name.replace(" ", "_") + ".json"
+        if tangible not in self.tangibleList:
+            self.add_NPC(tangible)
+        if os.path.exists(filename):
+            print("overwriting tangible save!")
+        with open(filename, 'w') as f:
+            json.dump(tangible.to_json(), f)
+
+    def delete_tangible_save(self, tangible):
+        filename = self.tangibleDir + "/" + tangible.name.replace(" ", "_") + ".json"
+        os.remove(filename)
+
+    def update_tangible_list(self):
+        self.tangibleList = []
+        for filename in glob.glob(self.tangibleDir + "/*.json"):
+            with open(filename, 'r') as f:
+                data = json.load(f)
+                tangible = Tangible.from_json(data)
+                self.tangibleList.append(tangible)
