@@ -20,10 +20,10 @@ def run_flask_app(host, port, processQueue): #This function is what will be run 
 def main():
     processQueue = multiprocessing.Queue()
 
-    # # Create and start the Tkinter thread using the factory function
-    # tkinter_thread_function = create_tkinter_thread(processQueue)
-    # tkinter_thread_handle = threading.Thread(target=tkinter_thread_function, daemon=True)
-    # tkinter_thread_handle.start()
+    # Create and start the Tkinter thread using the factory function
+    tkinter_thread_function = create_tkinter_thread(processQueue)
+    tkinter_thread_handle = threading.Thread(target=tkinter_thread_function, daemon=True)
+    tkinter_thread_handle.start()
 
     # Start Flask in a separate process
     # host_name = "127.0.0.1"

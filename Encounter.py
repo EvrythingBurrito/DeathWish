@@ -40,14 +40,14 @@ class Encounter:
     #     [entityid, mapObject JSON, mapObjectid]
     #     [entityid, mapObject JSON, mapObjectid]
     # ]
-    def create_map_object_list(self, allMapObjects):
+    def create_map_object_list(self):
         self.mapObjectList = []
         for row in json.loads(self.mapGridJSON):
             for cellDict in row:
                 for cellObject in cellDict['objects']:
                     if cellObject:
                         if cellObject.split("-")[0] == "npc" or cellObject.split("-")[0] == "tangible":
-                            mapObjectToAdd = allMapObjects[int(cellObject.split("-")[1])]
+                            mapObjectToAdd = Game.assets.allMapObjects[int(cellObject.split("-")[1])]
                             # make a unique encounter-specific identifier for the mapObject (different than the token id, should be easy to remember for players)
                             nextIDNum = 0
                             entityName = mapObjectToAdd.name + "_" + str(nextIDNum)

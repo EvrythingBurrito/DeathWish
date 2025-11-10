@@ -311,7 +311,7 @@ def create_flask_app(processQueue):
         else:
             encounter = Encounter("New Encounter", dummyMatrix, "blank", None)
         footingJSONs = [ft.to_json() for ft in Game.assets.footingList]
-        mapObjectJSONs = [mo.to_json() for mo in Game.assets.NPCList + Game.assets.tangibleList]
+        mapObjectJSONs = [mo.to_json() for mo in Game.assets.allMapObjects]
         if request.method == 'POST':
             action = request.form.get('action')
             if action == 'update_footing_form':
@@ -361,9 +361,11 @@ def create_flask_app(processQueue):
     def RunEncounter(index, startNew):
         if (startNew == 1):
             Game.assets.curEncounter = Game.assets.encounterList[index]
-            Game.assets.curEncounter.create_map_object_list(Game.assets.NPCList + Game.assets.tangibleList)
+            Game.assets.curEncounter.create_map_object_list()
         encounter = Game.assets.curEncounter
-        mapObjectJSONs = [mo.to_json() for mo in Game.assets.NPCList + Game.assets.tangibleList]
+        processQueue.put(("refreshEncounter", encounter))
+        processQueue.put(("gameState", 'encounter'))
+        mapObjectJSONs = [mo.to_json() for mo in Game.assets.allMapObjects]
         footingJSONs = [ft.to_json() for ft in Game.assets.footingList]
         actionJSONS = [action.to_json() for action in Game.assets.actionList]
         return render_template('RunEncounter.html', encounter=encounter.to_json(), mapObjects=mapObjectJSONs, actions=actionJSONS, footings=footingJSONs, mapObjectList=encounter.mapObjectList)
@@ -376,7 +378,7 @@ def create_flask_app(processQueue):
         footingJSONs = [ft.to_json() for ft in Game.assets.footingList]
         encounter = Game.assets.curEncounter
         npc = encounter.get_object_from_object_id(mapObjectID)
-        mapObjectJSONs = [mo.to_json() for mo in Game.assets.NPCList + Game.assets.tangibleList]
+        mapObjectJSONs = [mo.to_json() for mo in Game.assets.allMapObjects]
         if request.method == 'POST':
             action = request.form.get('action')
             if action == 'submit_action_form':

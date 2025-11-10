@@ -48,14 +48,28 @@ def encounter_screen(encounter, canvas):
     mapIconImgFile = None
     for row in range(numRows):
         for col in range(numCols):
-            canvas.create_rectangle(col * cellWidth, row * cellHeight, (col + 1) * cellWidth, (row + 1) * cellHeight, outline="gray")
+            x1 = col * cellWidth
+            y1 = row * cellHeight
+            x2 = (col + 1) * cellWidth
+            y2 = (row + 1) * cellHeight
+            image = Image.open(Game.assets.footingList[int(encounter.footingMapIndexes[row][col])].mapIconFile[1:])
+            # Resize the image to fit the cell
+            image = image.resize((int(cellWidth), int(cellHeight)), Image.LANCZOS)
+            photo = ImageTk.PhotoImage(image)
+            
+            # Create the image on the canvas
+            image_id = canvas.create_image(x1, y1, anchor=tk.NW, image=photo)
+            canvas.image_refs.append(photo)
+
+            # Optionally create the rectangle outline on top of the image
+            canvas.create_rectangle(x1, y1, x2, y2, outline="gray", width=1) #Width added to make outlines thinner
+
             for object in mapGridJSON[row][col]["objects"]:
                 mapObjectID = object.split("-")
                 print(mapObjectID)
                 if mapObjectID[1]: # object found on cell location
                     assetIndex = int(mapObjectID[1])
-                    if mapObjectID[0] == "npc":
-                        mapIconImgFile = Game.assets.NPCList[assetIndex].mapIconImgFile
+                    mapIconImgFile = Game.assets.allMapObjects[assetIndex].mapIconImgFile
                     # get rid of starting "/"
                     mapIconImgFile = mapIconImgFile[1:]
                     img = Image.open(mapIconImgFile)

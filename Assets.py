@@ -50,6 +50,8 @@ class Assets:
         self.effectList = []
         self.update_effect_list()
 
+        self.allMapObjects = self.NPCList + self.tangibleList
+
 ### operate specific elements
     def add_campaign(self, campaign):
         self.campaignList.append(campaign)
