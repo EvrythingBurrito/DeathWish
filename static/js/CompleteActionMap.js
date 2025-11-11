@@ -164,8 +164,8 @@ function createSelectableObject(objectType, objectIndex, objectIDNum, x, y) {
 
 function updateGridData() {
     const grid = [];
-    const curGridRows = encounter.footingMapIndexes.length;
-    const curGridCols = encounter.footingMapIndexes[0].length;
+    const curGridRows = encounter.footingMap.length;
+    const curGridCols = encounter.footingMap[0].length;
     for (let row = 0; row < curGridRows; row++) {
         grid.push([]);
         for (let col = 0; col < curGridCols; col++) {

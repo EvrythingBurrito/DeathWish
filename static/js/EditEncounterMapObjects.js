@@ -34,8 +34,8 @@ function createDraggableObject(objectType, objectIndex, x, y) {
 function updateGridData() {
     // (This function remains the same)
     const grid = [];
-    const curGridRows = encounter.footingMapIndexes.length;
-    const curGridCols = encounter.footingMapIndexes[0].length;
+    const curGridRows = encounter.footingMap.length;
+    const curGridCols = encounter.footingMap[0].length;
     for (let row = 0; row < curGridRows; row++) {
         grid.push([]);
         for (let col = 0; col < curGridCols; col++) {

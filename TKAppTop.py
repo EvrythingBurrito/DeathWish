@@ -52,7 +52,7 @@ def encounter_screen(encounter, canvas):
             y1 = row * cellHeight
             x2 = (col + 1) * cellWidth
             y2 = (row + 1) * cellHeight
-            image = Image.open(Game.assets.footingList[int(encounter.footingMapIndexes[row][col])].mapIconFile[1:])
+            image = Image.open(Game.assets.footingDict[encounter.footingMap[row][col]].mapIconFile[1:])
             # Resize the image to fit the cell
             image = image.resize((int(cellWidth), int(cellHeight)), Image.LANCZOS)
             photo = ImageTk.PhotoImage(image)

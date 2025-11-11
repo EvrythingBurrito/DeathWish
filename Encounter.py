@@ -8,11 +8,11 @@ import Game
 
 class Encounter:
 
-    def __init__(self, name, footingMapIndexes, mapGridJSON, description):
+    def __init__(self, name, footingMap, mapGridJSON, description):
         ### required
         self.name = name
         # 2D array of footings - in object format
-        self.footingMapIndexes = footingMapIndexes
+        self.footingMap = footingMap
         # 2D array of lists of mapObjects, the rules of which should be enforced in the browser side
         self.mapGridJSON = mapGridJSON
         ### optional

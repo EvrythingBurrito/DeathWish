@@ -101,10 +101,10 @@ def create_flask_app(processQueue):
         return render_template('EditRegion.html', region=region.to_json(), encounters=encounterJSONS)
 
     ### display chosen objects attributes in editable forms
-    @app.route('/GameMaster/Assets/Footing_<int:index><int:isNew>', methods=['GET', 'POST'])
-    def EditFooting(index, isNew):
+    @app.route('/GameMaster/Assets/Footing_<name><int:isNew>', methods=['GET', 'POST'])
+    def EditFooting(name, isNew):
         if isNew < 1:
-            footing = Game.assets.footingList[index]
+            footing = Game.assets.footingDict[name]
         else:
             footing = Footing("blank", "path_to_image", 0, 0, 0)
         if request.method == 'POST':
@@ -122,7 +122,7 @@ def create_flask_app(processQueue):
                     return redirect(url_for('AssetsTop'))
             elif request.form.get("action") == "delete_footing_form":
                 if isNew == 0:
-                    Game.assets.delete_footing(index)
+                    Game.assets.delete_footing(name)
                 return redirect(url_for('AssetsTop'))
         return render_template('EditFooting.html', footing=footing.to_json())
     
@@ -305,19 +305,19 @@ def create_flask_app(processQueue):
     ### display chosen objects attributes in editable forms
     @app.route('/GameMaster/Assets/Encounter_<int:index><int:isNew>', methods=['GET', 'POST'])
     def EditEncounter(index, isNew):
-        dummyMatrix = [[0 for _ in range(8)] for _ in range(8)]
+        dummyMatrix = [["Cobblestone" for _ in range(8)] for _ in range(8)]
         if isNew == 0:
             encounter = Game.assets.encounterList[index]
         else:
             encounter = Encounter("New Encounter", dummyMatrix, "blank", None)
-        footingJSONs = [ft.to_json() for ft in Game.assets.footingList]
+        footingJSONs = {fn: ft.to_json() for fn, ft in Game.assets.footingDict.items()}
         mapObjectJSONs = [mo.to_json() for mo in Game.assets.allMapObjects]
         if request.method == 'POST':
             action = request.form.get('action')
             if action == 'update_footing_form':
                 encounter.name = request.form.get('encounterName')
                 # transfer to object format
-                encounter.footingMapIndexes = json.loads(request.form.get('footingData'))
+                encounter.footingMap = json.loads(request.form.get('footingData'))
                 if isNew == 1:
                     Game.assets.add_encounter(encounter)
                 else:
@@ -366,7 +366,7 @@ def create_flask_app(processQueue):
         processQueue.put(("refreshEncounter", encounter))
         processQueue.put(("gameState", 'encounter'))
         mapObjectJSONs = [mo.to_json() for mo in Game.assets.allMapObjects]
-        footingJSONs = [ft.to_json() for ft in Game.assets.footingList]
+        footingJSONs = {fn: ft.to_json() for fn,ft in Game.assets.footingDict.items()}
         actionJSONS = [action.to_json() for action in Game.assets.actionList]
         return render_template('RunEncounter.html', encounter=encounter.to_json(), mapObjects=mapObjectJSONs, actions=actionJSONS, footings=footingJSONs, mapObjectList=encounter.mapObjectList)
 
@@ -375,7 +375,7 @@ def create_flask_app(processQueue):
     def CompleteAction(mapObjectID, actionListIndex):
         activityJSONS = [ac.to_json() for ac in Game.assets.activityList]
         turnAction = Game.assets.actionList[actionListIndex]
-        footingJSONs = [ft.to_json() for ft in Game.assets.footingList]
+        footingJSONs = {fn: ft.to_json() for fn,ft in Game.assets.footingDict.items()}
         encounter = Game.assets.curEncounter
         npc = encounter.get_object_from_object_id(mapObjectID)
         mapObjectJSONs = [mo.to_json() for mo in Game.assets.allMapObjects]

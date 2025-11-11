@@ -14,23 +14,23 @@ import glob
 
 class Assets:
     def __init__(self):
-        self.campaignDir = "Assets/Campaigns"
-        self.regionDir = "Assets/Regions"
-        self.footingDir = "Assets/Footings"
-        self.landmarkDir = "Assets/Landmarks"
-        self.encounterDir = "Assets/Encounters"
-        self.NPCDir = "Assets/NPCs"
-        self.actionDir = "Assets/Actions"
-        self.activityDir = "Assets/Activities"
-        self.tangibleDir = "Assets/Tangibles"
-        self.effectDir = "Assets/Effects"
+        self.campaignDir = "./Assets/Campaigns"
+        self.regionDir = "./Assets/Regions"
+        self.footingDir = "./Assets/Footings"
+        self.landmarkDir = "./Assets/Landmarks"
+        self.encounterDir = "./Assets/Encounters"
+        self.NPCDir = "./Assets/NPCs"
+        self.actionDir = "./Assets/Actions"
+        self.activityDir = "./Assets/Activities"
+        self.tangibleDir = "./Assets/Tangibles"
+        self.effectDir = "./Assets/Effects"
         ### initialize lists
         self.campaignList = []
         self.update_campaign_list()
         self.regionList = []
         self.update_region_list()
-        self.footingList = []
-        self.update_footing_list()
+        self.footingDict = {}
+        self.update_footing_dict()
         self.landmarkList = []
         self.update_landmark_list()
         self.tangibleList = []
@@ -68,11 +68,11 @@ class Assets:
         del self.regionList[index]
 
     def add_footing(self, footing):
-        self.footingList.append(footing)
+        self.footingDict[footing.name] = footing
         self.update_footing_save(footing)
-    def delete_footing(self, index):
-        self.delete_footing_save(self.footingList[index])
-        del self.footingList[index]
+    def delete_footing(self, footingName):
+        self.delete_footing_save(self.footingDict[footingName])
+        del self.footingDict[footingName]
 
     def add_landmark(self, landmark):
         self.landmarkList.append(landmark)
@@ -178,8 +178,8 @@ class Assets:
     ### create or update save file for desired footing
     def update_footing_save(self, footing):
         filename = self.footingDir + "/" + footing.name.replace(" ", "_") + ".json"
-        if footing not in self.footingList:
-            self.add_footing(footing)
+        if footing not in self.footingDict.items():
+            self.footingDict[footing.name] = footing
         if os.path.exists(filename):
             print("overwriting footing save!")
         with open(filename, 'w') as f:
@@ -189,13 +189,13 @@ class Assets:
         filename = self.footingDir + "/" + footing.name.replace(" ", "_") + ".json"
         os.remove(filename)
 
-    def update_footing_list(self):
-        self.footingList = []
+    def update_footing_dict(self):
+        self.footingDict = {}
         for filename in glob.glob(self.footingDir + "/*.json"):
             with open(filename, 'r') as f:
                 data = json.load(f)
                 aFooting = Footing.from_json(data)
-                self.footingList.append(aFooting)
+                self.footingDict[aFooting.name] = aFooting
 
 
 ########################################################### LANDMARKS

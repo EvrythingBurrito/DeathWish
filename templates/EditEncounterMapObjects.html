@@ -20,14 +20,14 @@
         const gridDataOriginString = {{ encounter.mapGridJSON|tojson }};
     </script>
     <div id="grid-container">
-    {% for row in range(0, encounter.footingMapIndexes|length) %}
+    {% for row in range(0, encounter.footingMap|length) %}
         <div class="grid-row">
-            {% for col in range(0, encounter.footingMapIndexes[0]|length) %}
+            {% for col in range(0, encounter.footingMap[0]|length) %}
                 <div class="grid-cell"
                     data-row="{{ row }}"
                     data-col="{{ col }}"
                     id="gridCell-{{ row }}-{{ col }}"
-                    style="background-image: url('{{ footings[encounter.footingMapIndexes[row][col]|int].mapIconFile }}');">
+                    style="background-image: url('{{ footings[encounter.footingMap[row][col]].mapIconFile }}');">
                 </div>
             {% endfor %}
         </div>

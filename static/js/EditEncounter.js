@@ -1,8 +1,8 @@
-let selectedFootingIndex = 0; // Default footing
+let selectedFootingName = "Cobblestone"
 
 function updateSelectedFootingIndex() {
-    selectedFootingIndex = document.getElementById('footingSelect').value;
-    console.log(selectedFootingIndex);
+    selectedFootingName = document.getElementById('footingSelect').value;
+    console.log(selectedFootingName);
 }
 
 function createMap() {
@@ -11,19 +11,19 @@ function createMap() {
     const mapContainer = document.getElementById('map');
     mapContainer.innerHTML = '';
 
-    // console.log(encounter.footingMapIndexes);
+    // console.log(encounter.footingMap);
     let mapData = [];
     // save form into browser JSON
-    prevRows = encounter.footingMapIndexes.length;
+    prevRows = encounter.footingMap.length;
 
     for (let i = 0; i < rows; i++) {
         const row = document.createElement('div');
         row.classList.add('map-row');
         if (i < prevRows) {
-            prevCols = encounter.footingMapIndexes[i].length;
+            prevCols = encounter.footingMap[i].length;
         } else {
             // doesn't matter since row is new anyway
-            prevCols = encounter.footingMapIndexes[0].length;
+            prevCols = encounter.footingMap[0].length;
         }
         // console.log(prevCols);
         mapData[i] = [];
@@ -35,15 +35,15 @@ function createMap() {
             
             // fill new cells with selected footing if none existed before
             if (i >= prevRows || j >= prevCols) {
-                mapData[i].push(selectedFootingIndex);
+                mapData[i].push(selectedFootingName);
             } else {
-                // console.log(encounter.footingMapIndexes[i][j]);
-                mapData[i].push(encounter.footingMapIndexes[i][j]);
+                // console.log(encounter.footingMap[i][j]);
+                mapData[i].push(encounter.footingMap[i][j]);
             }
             cell.style.backgroundImage = `url(${footings[mapData[i][j]].mapIconFile})`;
 
             cell.addEventListener('click', () => {
-                mapData[i][j] = selectedFootingIndex;
+                mapData[i][j] = selectedFootingName;
                 cell.style.backgroundImage = `url(${footings[mapData[i][j]].mapIconFile})`;
                 document.getElementById("footingData").value = JSON.stringify(mapData);
             });
