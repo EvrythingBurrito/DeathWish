@@ -21,9 +21,9 @@
         <div class="column">
             <h3>Region Select</h3>
             <label for="rows">Rows:</label>
-            <input type="number" id="rows" name="rows" min="1" value={{ campaign.regionMapIndexes|length }} required><br>
+            <input type="number" id="rows" name="rows" min="1" value={{ campaign.regionMapNames|length }} required><br>
             <label for="cols">Columns:</label>
-            <input type="number" id="cols" name="cols" min="1" value={{ campaign.regionMapIndexes[0]|length }} required><br>
+            <input type="number" id="cols" name="cols" min="1" value={{ campaign.regionMapNames[0]|length }} required><br>
             <button type="button" onclick="createMap()">Reset Map</button>
             <form method="POST" id="update_region_form">
                 <input type="hidden" name="action" value="update_region_form">

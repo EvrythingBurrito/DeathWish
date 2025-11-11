@@ -10,15 +10,15 @@
 <body>
     <div id="campaigns">
         <h2>Campaigns</h2>
-        {% for i in range(0, campaigns|length) %}
-            <h3>{{ campaigns[i].name }}</h3>
+        {% for campaignName, campaign in campaigns.items() %}
+            <h3>{{ campaignName }}</h3>
             <p>
-                <a href="{{ url_for('RunCampaign', index=i, startNew=1) }}">Run</a>
-                <a href="{{ url_for('EditCampaign', index=i, isNew=0) }}">Edit</a>
+                <a href="{{ url_for('RunCampaign', name=campaignName, startNew=1) }}">Run</a>
+                <a href="{{ url_for('EditCampaign', name=campaignName, isNew=0) }}">Edit</a>
             </p>
         {% endfor %}
         <br>
-        <p><a href="{{ url_for('EditCampaign', index=0, isNew=1) }}">New Campaign</a></p>
+        <p><a href="{{ url_for('EditCampaign', name='blank', isNew=1) }}">New Campaign</a></p>
     </div>
     
     <h2>Game Assets</h2>

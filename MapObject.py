@@ -20,7 +20,6 @@ class MapObject:
         return cls(**json_data)
     
     def apply_effects(self, effectJSONList):
-        jsonIndexesToRemove = []
         # add serialized effects to list of effects to resolve
         for effectJSON in effectJSONList:
             self.currentEffectJSONList.append(effectJSON)
@@ -50,7 +49,5 @@ class MapObject:
                 self.health = max(0, int(self.health) - int(effect.effectQuantity))
             # decrement duration counter
             effect.durationTurns = max(0, int(effect.durationTurns) - 1)
-            print(f'{self.name}s effectList is {self.currentEffectJSONList}')
             if effect.durationTurns == 0:
                 removedEffect = self.currentEffectJSONList.pop(self.currentEffectJSONList.index(effectJSON))
-            print(f'{self.name}s effectList is now {self.currentEffectJSONList}')

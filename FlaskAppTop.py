@@ -30,23 +30,23 @@ def create_flask_app(processQueue):
     @app.route('/GameMaster')
     def GameMaster():
         processQueue.put(("gameState", 'title'))
-        return render_template('GameMaster.html', campaigns=Game.assets.campaignList)
+        return render_template('GameMaster.html', campaigns=Game.assets.campaignDict)
 
-    @app.route('/GameMaster/EditCampaign/Campaign_<int:index><int:isNew>', methods=['GET', 'POST'])
-    def EditCampaign(index, isNew):
+    @app.route('/GameMaster/EditCampaign/Campaign/<name>/<int:isNew>', methods=['GET', 'POST'])
+    def EditCampaign(name, isNew):
         dummyMatrix = [[0 for _ in range(8)] for _ in range(8)]
         if isNew == 0:
-            campaign = Game.assets.campaignList[index]
+            campaign = Game.assets.campaignDict[name]
         else:
             campaign = Campaign("New Campaign", dummyMatrix, "blank", None)
-        regionJSONs = [rg.to_json() for rg in Game.assets.regionList]
-        landmarkJSONs = [lm.to_json() for lm in Game.assets.landmarkList]
+        regionJSONs = {rn: rg.to_json() for rn, rg in Game.assets.regionDict.items()}
+        landmarkJSONs = {ln: lm.to_json() for ln, lm in Game.assets.landmarkDict.items()}
         if request.method == 'POST':
             action = request.form.get('action')
             if action == 'update_region_form':
                 campaign.name = request.form.get('campaignName')
                 # transfer to object format
-                campaign.regionMapIndexes = json.loads(request.form.get('regionData'))
+                campaign.regionMapNames = json.loads(request.form.get('regionData'))
                 if isNew == 1:
                     Game.assets.add_campaign(campaign)
                 else:
@@ -55,11 +55,11 @@ def create_flask_app(processQueue):
                 # keep in json format
                 campaign.mapGridJSON = request.form.get('mapObjects')
                 print(campaign.mapGridJSON)
-                campaign.update_party_landmark(Game.assets.landmarkList, Game.assets.regionList)
+                campaign.update_party_landmark()
                 Game.assets.update_campaign_save(campaign)
                 return redirect(url_for('GameMaster'))
             elif action == 'delete_campaign_form':
-                Game.assets.delete_campaign(index)
+                Game.assets.delete_campaign(name)
                 return redirect(url_for('GameMaster'))
         return render_template('EditCampaign.html', campaign=campaign.to_json(), regions=regionJSONs, landmarks=landmarkJSONs)
 
@@ -69,25 +69,24 @@ def create_flask_app(processQueue):
         return render_template('AssetsTop.html', assets=Game.assets)
 
     ### display chosen objects attributes in editable forms
-    @app.route('/GameMaster/Assets/Region_<int:index><int:isNew>', methods=['GET', 'POST'])
-    def EditRegion(index, isNew):
+    @app.route('/GameMaster/Assets/Region/<name>/<int:isNew>', methods=['GET', 'POST'])
+    def EditRegion(name, isNew):
         if isNew < 1:
-            region = Game.assets.regionList[index]
+            region = Game.assets.regionList[name]
         else:
             region = Region("blank", "path_to_image", [])
-        print(region.encounterListIndexes)
-        encounterJSONS = [en.to_json() for en in Game.assets.encounterList]
+        encounterJSONS = {en: ec.to_json() for en, ec in Game.assets.encounterDict.items()}
         if request.method == 'POST':
             if request.form.get("action") == "save_region_form":
                 if 'delete_encounter' in request.form:
-                    del region.encounterListIndexes[int(request.form['delete_encounter'])]
+                    del region.encounterListNames[request.form['delete_encounter']]
                 elif 'add_encounter' in request.form:
-                    region.encounterListIndexes.append(int(request.form['add_encounter']))
+                    region.encounterListNames.append(request.form['add_encounter'])
                 else:
                     regionName = request.form.get('regionName')
                     ### only expect the user to type in the filename, not the relative path
                     mapIconImgFile = request.form.get('mapIconImgFile')
-                    region = Region(regionName, mapIconImgFile, region.encounterListIndexes)
+                    region = Region(regionName, mapIconImgFile, region.encounterListNames)
                 if isNew == 1:
                     Game.assets.add_region(region)
                 else:
@@ -96,13 +95,14 @@ def create_flask_app(processQueue):
                     return redirect(url_for('AssetsTop'))
             elif request.form.get("action") == "delete_region_form":
                 if isNew == 0:
-                    Game.assets.delete_region(index)
+                    Game.assets.delete_region(name)
                 return redirect(url_for('AssetsTop'))
         return render_template('EditRegion.html', region=region.to_json(), encounters=encounterJSONS)
 
     ### display chosen objects attributes in editable forms
-    @app.route('/GameMaster/Assets/Footing_<name><int:isNew>', methods=['GET', 'POST'])
+    @app.route('/GameMaster/Assets/Footing/<name>/<int:isNew>', methods=['GET', 'POST'])
     def EditFooting(name, isNew):
+        print("rendering template")
         if isNew < 1:
             footing = Game.assets.footingDict[name]
         else:
@@ -124,13 +124,14 @@ def create_flask_app(processQueue):
                 if isNew == 0:
                     Game.assets.delete_footing(name)
                 return redirect(url_for('AssetsTop'))
+        print("rendering template")
         return render_template('EditFooting.html', footing=footing.to_json())
     
     ### display chosen objects attributes in editable forms
-    @app.route('/GameMaster/Assets/Tangible_<int:index><int:isNew>', methods=['GET', 'POST'])
-    def EditTangible(index, isNew):
+    @app.route('/GameMaster/Assets/Tangible/<name>/<int:isNew>', methods=['GET', 'POST'])
+    def EditTangible(name, isNew):
         if isNew == 0:
-            tangible = Game.assets.tangibleList[index]
+            tangible = Game.assets.tangibleDict[name]
         else:
             tangible = Tangible(name="blank", health=0, weight=0, description="blank", mapIconImgFile="path_to_image", currentEffectJSONList=[])
         if request.method == 'POST':
@@ -148,15 +149,15 @@ def create_flask_app(processQueue):
                     return redirect(url_for('AssetsTop'))
             elif request.form.get("action") == "delete_tangible_form":
                 if isNew == 0:
-                    Game.assets.delete_tangible(index)
+                    Game.assets.delete_tangible(name)
                 return redirect(url_for('AssetsTop'))
         return render_template('EditTangible.html', tangible=tangible.to_json())
 
     ### display chosen objects attributes in editable forms
-    @app.route('/GameMaster/Assets/Effect_<int:index><int:isNew>', methods=['GET', 'POST'])
-    def EditEffect(index, isNew):
+    @app.route('/GameMaster/Assets/Effect/<name>/<int:isNew>', methods=['GET', 'POST'])
+    def EditEffect(name, isNew):
         if isNew < 1:
-            effect = Game.assets.effectList[index]
+            effect = Game.assets.effectDict[name]
         else:
             effect = Effect("blank", 0, 0, 0)
         if request.method == 'POST':
@@ -172,24 +173,24 @@ def create_flask_app(processQueue):
                 return redirect(url_for('AssetsTop'))
             elif request.form.get("effect") == "delete_effect_form":
                 if isNew == 0:
-                    Game.assets.delete_effect(index)
+                    Game.assets.delete_effect(name)
                 return redirect(url_for('AssetsTop'))
         return render_template('EditEffect.html', effect=effect.to_json())
 
     ### display chosen objects attributes in editable forms
-    @app.route('/GameMaster/Assets/Action_<int:index><int:isNew>', methods=['GET', 'POST'])
-    def EditAction(index, isNew):
+    @app.route('/GameMaster/Assets/Action/<name>/<int:isNew>', methods=['GET', 'POST'])
+    def EditAction(name, isNew):
         if isNew < 1:
-            action = Game.assets.actionList[index]
+            action = Game.assets.actionDict[name]
         else:
-            action = Action("blank", 0, 0, 0, 0, 0, 0, 0, [])
-        activityJSONS = [activity.to_json() for activity in Game.assets.activityList]
+            action = Action(name="blank", staminaCost=0, manaCost=0, activityListNames=[])
+        activityJSONS = {an: ac.to_json() for an, ac in Game.assets.activityDict.items()}
         if request.method == 'POST':
             if request.form.get("action") == "save_action_form":
                 if 'delete_activity' in request.form:
-                    del action.activityListIndexes[int(request.form['delete_activity'])]
+                    del action.activityListNames[request.form['delete_activity']]
                 elif 'add_activity' in request.form:
-                    action.activityListIndexes.append(int(request.form['add_activity']))
+                    action.activityListNames.append(request.form['add_activity'])
                 else:
                     action.name = request.form.get('actionName')
                     action.staminaCost = request.form.get('staminaCost')
@@ -202,29 +203,31 @@ def create_flask_app(processQueue):
                     return redirect(url_for('AssetsTop'))
             elif request.form.get("action") == "delete_action_form":
                 if isNew == 0:
-                    Game.assets.delete_action(index)
+                    Game.assets.delete_action(name)
                 return redirect(url_for('AssetsTop'))
         return render_template('EditAction.html', action=action.to_json(), activities=activityJSONS)
 
     ### display chosen objects attributes in editable forms
-    @app.route('/GameMaster/Assets/Activity_<int:index><int:isNew>', methods=['GET', 'POST'])
-    def EditActivity(index, isNew):
+    @app.route('/GameMaster/Assets/Activity/<name>/<int:isNew>', methods=['GET', 'POST'])
+    def EditActivity(name, isNew):
         dummyMatrix = [[0 for _ in range(9)] for _ in range(9)]
         if isNew < 1:
-            activity = Game.assets.activityList[index]
+            activity = Game.assets.activityDict[name]
         else:
-            activity = Activity("blank", dummyMatrix, False, [])
-        effectJSONS = [effect.to_json() for effect in Game.assets.effectList]
+            activity = Activity(name="blank", shape=dummyMatrix, type=None,
+                                effectNameList=[], setupTime=0, cooldownTime=0,
+                                negationAmount=0, interruptStrength=0)
+        effectJSONS = {en: ef.to_json() for en, ef in Game.assets.effectDict.items()}
         if request.method == 'POST':
             if request.form.get("activity") == "save_activity_form":
                 if 'delete_effect' in request.form:
-                    del activity.effectListIndexes[int(request.form['delete_effect'])]
+                    del activity.effectNameList[request.form['delete_effect']]
                 elif 'add_effect' in request.form:
-                    activity.effectListIndexes.append(int(request.form['add_effect']))
+                    activity.effectNameList.append(request.form['add_effect'])
                 else:
-                    activity.name = request.form.get('activityName')
+                    activity.name = request.form.get('name')
                     activity.shape = json.loads(request.form.get('shapeData'))
-                    activity.activityType = request.form.get('activityType')
+                    activity.type = request.form.get('type')
                 if isNew == 1:
                     Game.assets.add_activity(activity)
                 else:
@@ -233,24 +236,24 @@ def create_flask_app(processQueue):
                     return redirect(url_for('AssetsTop'))
             elif request.form.get("activity") == "delete_activity_form":
                 if isNew == 0:
-                    Game.assets.delete_activity(index)
+                    Game.assets.delete_activity(name)
                 return redirect(url_for('AssetsTop'))
         return render_template('EditActivity.html', activity=activity.to_json(), effects=effectJSONS)
 
     ### display chosen objects attributes in editable forms
-    @app.route('/GameMaster/Assets/Landmark_<int:index><int:isNew>', methods=['GET', 'POST'])
-    def EditLandmark(index, isNew):
+    @app.route('/GameMaster/Assets/Landmark/<name>/<int:isNew>', methods=['GET', 'POST'])
+    def EditLandmark(name, isNew):
         if isNew < 1:
-            landmark = Game.assets.landmarkList[index]
+            landmark = Game.assets.landmarkDict[name]
         else:
             landmark = Landmark("blank", "path_to_image", False, [])
-        encounterJSONS = [en.to_json() for en in Game.assets.encounterList]
+        encounterJSONS = {en: ec.to_json() for en, ec in Game.assets.encounterDict.items()}
         if request.method == 'POST':
             if request.form.get("action") == "save_landmark_form":
                 if 'delete_encounter' in request.form:
-                    del landmark.encounterListIndexes[int(request.form['delete_encounter'])]
+                    del landmark.encounterListNames[request.form['delete_encounter']]
                 elif 'add_encounter' in request.form:
-                    landmark.encounterListIndexes.append(int(request.form['add_encounter']))
+                    landmark.encounterListNames.append(request.form['add_encounter'])
                 else:
                     if 'isParty' in request.form:
                         landmark.type = "party"
@@ -267,24 +270,25 @@ def create_flask_app(processQueue):
                     return redirect(url_for('AssetsTop'))
             elif request.form.get("action") == "delete_landmark_form":
                 if isNew == 0:
-                    Game.assets.delete_landmark(index)
+                    Game.assets.delete_landmark(name)
                 return redirect(url_for('AssetsTop'))
         return render_template('EditLandmark.html', landmark=landmark.to_json(), encounters=encounterJSONS)
 
     ### display chosen objects attributes in editable forms
-    @app.route('/GameMaster/Assets/NPC_<int:index><int:isNew>', methods=['GET', 'POST'])
-    def EditNPC(index, isNew):
+    @app.route('/GameMaster/Assets/NPC/<name>/<int:isNew>', methods=['GET', 'POST'])
+    def EditNPC(name, isNew):
         if isNew < 1:
-            npc = Game.assets.NPCList[index]
+            npc = Game.assets.NPCDict[name]
         else:
-            npc = NPC("blank", 0, 0, "path_to_image", "npc", [], [])
-        actionJSONS = [action.to_json() for action in Game.assets.actionList]
+            npc = NPC(name="blank", health=0, stamina=0, mana=0, actionCount=2,
+                      weight=0, mapIconImgFile="path_to_image", type="npc", actionListNames=[], currentEffectJSONList=[])
+        actionJSONS = {an: ac.to_json() for an, ac in Game.assets.actionDict.items()}
         if request.method == 'POST':
             if request.form.get("action") == "save_NPC_form":
                 if 'delete_action' in request.form:
-                    del npc.actionListIndexes[int(request.form['delete_action'])]
+                    del npc.actionListNames[request.form['delete_action']]
                 elif 'add_action' in request.form:
-                    npc.actionListIndexes.append(int(request.form['add_action']))
+                    npc.actionListNames.append(request.form['add_action'])
                 else:
                     npc.name = request.form.get('npcName')
                     npc.health = request.form.get('npcHealth')
@@ -298,20 +302,20 @@ def create_flask_app(processQueue):
                     return redirect(url_for('AssetsTop'))
             elif request.form.get("action") == "delete_NPC_form":
                 if isNew == 0:
-                    Game.assets.delete_NPC(index)
+                    Game.assets.delete_NPC(name)
                 return redirect(url_for('AssetsTop'))
         return render_template('EditNPC.html', npc=npc.to_json(), actions=actionJSONS)
 
     ### display chosen objects attributes in editable forms
-    @app.route('/GameMaster/Assets/Encounter_<int:index><int:isNew>', methods=['GET', 'POST'])
-    def EditEncounter(index, isNew):
+    @app.route('/GameMaster/Assets/Encounter/<name>/<int:isNew>', methods=['GET', 'POST'])
+    def EditEncounter(name, isNew):
         dummyMatrix = [["Cobblestone" for _ in range(8)] for _ in range(8)]
         if isNew == 0:
-            encounter = Game.assets.encounterList[index]
+            encounter = Game.assets.encounterDict[name]
         else:
             encounter = Encounter("New Encounter", dummyMatrix, "blank", None)
         footingJSONs = {fn: ft.to_json() for fn, ft in Game.assets.footingDict.items()}
-        mapObjectJSONs = [mo.to_json() for mo in Game.assets.allMapObjects]
+        mapObjectJSONs = {mon: mo.to_json() for mon, mo in Game.assets.allMapObjectsDict.items()}
         if request.method == 'POST':
             action = request.form.get('action')
             if action == 'update_footing_form':
@@ -328,68 +332,66 @@ def create_flask_app(processQueue):
                 Game.assets.update_encounter_save(encounter)
                 return redirect(url_for('AssetsTop'))
             elif action == 'delete_encounter_form':
-                Game.assets.delete_encounter(index)
+                Game.assets.delete_encounter(name)
                 return redirect(url_for('AssetsTop'))
         return render_template('EditEncounter.html', encounter=encounter.to_json(), footings=footingJSONs, mapObjects=mapObjectJSONs)
 
     ### display chosen campaign world map, premise, recent party events, etc.
-    @app.route('/GameMaster/RunCampaign/Campaign_<int:index><int:startNew>', methods=['GET', 'POST'])
-    def RunCampaign(index, startNew):
+    @app.route('/GameMaster/RunCampaign/Campaign/<name>/<int:startNew>', methods=['GET', 'POST'])
+    def RunCampaign(name, startNew):
         if (startNew == 1):
-            Game.assets.curCampaign = Game.assets.campaignList[index]
+            Game.assets.curCampaign = Game.assets.campaignDict[name]
         campaign = Game.assets.curCampaign
-        print(campaign.availableEncounterIndexes)
+        print(campaign.availableEncounterNames)
         processQueue.put(("refreshCampaign", campaign))
         processQueue.put(("gameState", 'campaign'))
-        regionJSONs = [rg.to_json() for rg in Game.assets.regionList]
-        landmarkJSONs = [lm.to_json() for lm in Game.assets.landmarkList]
-        encounterJSONs = [en.to_json() for en in Game.assets.encounterList]
+        regionJSONs = {rn: rg.to_json() for rn, rg in Game.assets.regionDict.items()}
+        landmarkJSONs = {ln: lm.to_json() for ln, lm in Game.assets.landmarkDict.items()}
+        encounterJSONs = {en: ec.to_json() for en, ec in Game.assets.encounterDict.items()}
         # update assets if landmarks change
         if request.method == 'POST':
             action = request.form.get('action')
             if action == 'update_landmarks_form':
                 campaign.mapGridJSON = request.form.get('mapObjects')
-                campaign.update_party_landmark(Game.assets.landmarkList, Game.assets.regionList)
-                # print(campaign.partyLocation)
-                # print(campaign.availableEncounterIndexes)
+                campaign.update_party_landmark()
                 Game.assets.update_campaign_save(campaign)
                 processQueue.put(("refreshCampaign", campaign))
         return render_template('RunCampaign.html', campaign=campaign.to_json(), regions=regionJSONs, landmarks=landmarkJSONs, encounters=encounterJSONs)
 
     ### display encounter map, party/enemy stats, party member/NPC headshot 
-    @app.route('/GameMaster/RunEncounter/Encounter_<int:index><int:startNew>', methods=['GET', 'POST'])
-    def RunEncounter(index, startNew):
+    @app.route('/GameMaster/RunEncounter/Encounter/<name>/<int:startNew>', methods=['GET', 'POST'])
+    def RunEncounter(name, startNew):
         if (startNew == 1):
-            Game.assets.curEncounter = Game.assets.encounterList[index]
+            Game.assets.curEncounter = Game.assets.encounterDict[name]
             Game.assets.curEncounter.create_map_object_list()
         encounter = Game.assets.curEncounter
         processQueue.put(("refreshEncounter", encounter))
         processQueue.put(("gameState", 'encounter'))
-        mapObjectJSONs = [mo.to_json() for mo in Game.assets.allMapObjects]
-        footingJSONs = {fn: ft.to_json() for fn,ft in Game.assets.footingDict.items()}
-        actionJSONS = [action.to_json() for action in Game.assets.actionList]
+        mapObjectJSONs = {mon: mo.to_json() for mon, mo in Game.assets.allMapObjectsDict.items()}
+        footingJSONs = {fn: ft.to_json() for fn, ft in Game.assets.footingDict.items()}
+        actionJSONS = {an: ac.to_json() for an, ac in Game.assets.actionDict.items()}
         return render_template('RunEncounter.html', encounter=encounter.to_json(), mapObjects=mapObjectJSONs, actions=actionJSONS, footings=footingJSONs, mapObjectList=encounter.mapObjectList)
 
     ### Action contains modified info 
-    @app.route('/GameMaster/CompleteAction/Action_<string:mapObjectID>_<int:actionListIndex>', methods=['GET', 'POST'])
-    def CompleteAction(mapObjectID, actionListIndex):
-        activityJSONS = [ac.to_json() for ac in Game.assets.activityList]
-        turnAction = Game.assets.actionList[actionListIndex]
+    @app.route('/GameMaster/CompleteAction/Action_<string:mapObjectID>_<actionListName>', methods=['GET', 'POST'])
+    def CompleteAction(mapObjectID, actionListName):
+        activityJSONS = {an: ac.to_json() for an, ac in Game.assets.activityDict.items()}
+        turnAction = Game.assets.actionDict[actionListName]
         footingJSONs = {fn: ft.to_json() for fn,ft in Game.assets.footingDict.items()}
         encounter = Game.assets.curEncounter
         npc = encounter.get_object_from_object_id(mapObjectID)
-        mapObjectJSONs = [mo.to_json() for mo in Game.assets.allMapObjects]
+        mapObjectJSONs = {mon: mo.to_json() for mon, mo in Game.assets.allMapObjectsDict.items()}
         if request.method == 'POST':
             action = request.form.get('action')
             if action == 'submit_action_form':
-                activityIndexEntryNames = {key: request.form[key] for key in request.form if key.endswith('_index')}
+                activityEntryNames = {key: request.form[key] for key in request.form if key.endswith('_name')}
                 # for each activity in action, resolve pre/post reactions, then resolve effects
-                for indexEntryName in activityIndexEntryNames:
-                    match = re.match(r'activity_(\d.*)_index', indexEntryName)
+                for entryName in activityEntryNames:
+                    match = re.match(r'activity_(\d.*)_name', entryName)
                     submissionNum = match.group(1)
                     dataEntry = request.form.get(f'activity_{submissionNum}_data')
-                    indexEntry = request.form.get(indexEntryName)
-                    activity = Game.assets.activityList[int(indexEntry)]
+                    nameEntry = request.form.get(entryName)
+                    activity = Game.assets.activityDict[nameEntry]
                     # reactionDict = encounter.get_pre_activity_counters(activity, Game.assets)
                     # pre reactions
                     # if (len(reactionDict.keys()) > 0):
@@ -408,7 +410,7 @@ def create_flask_app(processQueue):
                         # else:
                             # return to the current encounter
                 encounter.end_NPC_action(mapObjectID)
-                return redirect(url_for('RunEncounter', index=0, startNew=0))
+                return redirect(url_for('RunEncounter', name="current", startNew=0))
         return render_template('CompleteAction.html', encounter=encounter.to_json(), mapObjects=mapObjectJSONs,
                                                 footings=footingJSONs, action=turnAction.to_json(), npc=npc.to_json(),
                                                 activities=activityJSONS, executorID=mapObjectID, reactionDict=None)

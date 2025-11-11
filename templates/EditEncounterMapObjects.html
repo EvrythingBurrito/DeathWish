@@ -8,8 +8,8 @@
     </form>
 
     <div id="object-palette">
-        {% for i in range(0, mapObjects|length) %}
-            <div class="palette-object" data-index="{{ i }}" data-type="mapObject" draggable="true">{{ mapObjects[i].name }}</div>
+        {% for objectName, object mapObjects.items() %}
+            <div class="palette-object" data-name="{{ objectName }}" data-type="mapObject" draggable="true">{{ objectName }}</div>
         {% endfor %}
     </div>
     <div id="trash-area">

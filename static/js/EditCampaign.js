@@ -11,19 +11,19 @@ function createMap() {
     const mapContainer = document.getElementById('map');
     mapContainer.innerHTML = '';
 
-    // console.log(campaign.regionMapIndexes);
+    // console.log(campaign.regionMapNames);
     let mapData = [];
     // save form into browser JSON
-    prevRows = campaign.regionMapIndexes.length;
+    prevRows = campaign.regionMapNames.length;
 
     for (let i = 0; i < rows; i++) {
         const row = document.createElement('div');
         row.classList.add('map-row');
         if (i < prevRows) {
-            prevCols = campaign.regionMapIndexes[i].length;
+            prevCols = campaign.regionMapNames[i].length;
         } else {
             // doesn't matter since row is new anyway
-            prevCols = campaign.regionMapIndexes[0].length;
+            prevCols = campaign.regionMapNames[0].length;
         }
         // console.log(prevCols);
         mapData[i] = [];
@@ -38,8 +38,8 @@ function createMap() {
             if (i >= prevRows || j >= prevCols) {
                 mapData[i].push(selectedRegionIndex);
             } else {
-                // console.log(campaign.regionMapIndexes[i][j]);
-                mapData[i].push(campaign.regionMapIndexes[i][j]);
+                // console.log(campaign.regionMapNames[i][j]);
+                mapData[i].push(campaign.regionMapNames[i][j]);
             }
             cell.style.backgroundImage = `url(${regions[mapData[i][j]].worldMapIconFile})`;
 

@@ -1,13 +1,13 @@
 import json
 
 class Region:
-    def __init__(self, name, worldMapIconFile, encounterListIndexes):
+    def __init__(self, name, worldMapIconFile, encounterListNames):
         ### required
         self.name = name
         self.worldMapIconFile = worldMapIconFile
         # # list of encounters that this region could support (should be large and spread out)
         # # perhaps allow DM to choose an encounter when an encounter is started, perhaps randomize
-        self.encounterListIndexes = encounterListIndexes
+        self.encounterListNames = encounterListNames
         # ### optional
         # # flavor text
         # self.description = ""

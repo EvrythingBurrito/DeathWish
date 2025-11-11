@@ -33,12 +33,6 @@
             <label for="manaCost">Mana Cost:</label>
             <input type="text" name="manaCost" placeholder="1">
             <br>
-            <label for="negationAmount">Negation Amount:</label>
-            <input type="text" name="negationAmount" placeholder="1">
-            <br>
-            <label for="interruptStrength">Interrupt Strength:</label>
-            <input type="text" name="interruptStrength" placeholder="1">
-            <br>
         {% else %}
             <label for="actionName">Action Name:</label>
             <input type="text" name="actionName" value="{{ action.name }}" placeholder="action name">
@@ -58,22 +52,16 @@
             <label for="manaCost">Mana Cost:</label>
             <input type="text" name="manaCost" value="{{ action.manaCost }}" placeholder="1">
             <br>
-            <label for="negationAmount">Negation Amount:</label>
-            <input type="text" name="negationAmount" value="{{ action.negationAmount }}" placeholder="1">
-            <br>
-            <label for="interruptStrength">Interrupt Strength:</label>
-            <input type="text" name="interruptStrength" value="{{ action.interruptStrength }}" placeholder="1">
-            <br>
             <h3>Activities</h3>
-            {% for i in range(0, action.activityListIndexes|length) %}
-                    <i>{{ activities[action.activityListIndexes[i]].name }}</i>
-                    <button type="submit" name="delete_effect" value="{{ action.activityListIndexes[i] }}" form="save_action_form">delete</button>
+            {% for i in range(0, action.activityListNames|length) %}
+                    <i>{{ action.activityListNames[i] }}</i>
+                    <button type="submit" name="delete_effect" value="{{ action.activityListNames[i] }}" form="save_action_form">delete</button>
                     <br>
             {% endfor %}
             <h4>Available Activities</h4>
-            {% for i in range(0, activities|length) %}
-                    <i>{{ activities[i].name }}</i>
-                    <button type="submit" name="add_activity" value="{{ i }}" form="save_action_form">Add</button>
+            {% for activityName, activity in activities.items() %}
+                    <i>{{ activityName }}</i>
+                    <button type="submit" name="add_activity" value="{{ activityName }}" form="save_action_form">Add</button>
                     <br>
             {% endfor %}
         {% endif %}

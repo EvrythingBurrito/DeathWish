@@ -84,8 +84,8 @@ def encounter_screen(encounter, canvas):
 def campaign_screen(campaign, canvas):
     # mapGridJSON is stored as a json string
     mapGridJSON = json.loads(campaign.mapGridJSON)
-    # regionMapIndexes is a 2D list
-    regionMapIndexes = campaign.regionMapIndexes
+    # regionMapNames is a 2D list
+    regionMapNames = campaign.regionMapNames
     numRows = len(mapGridJSON)
     numCols = len(mapGridJSON[0])
     canvas_width = canvas.winfo_width()
@@ -103,7 +103,7 @@ def campaign_screen(campaign, canvas):
             y1 = row * cellHeight
             x2 = (col + 1) * cellWidth
             y2 = (row + 1) * cellHeight
-            image = Image.open(Game.assets.regionList[int(campaign.regionMapIndexes[row][col])].worldMapIconFile[1:])
+            image = Image.open(Game.assets.regionDict[campaign.regionMapNames[row][col]].worldMapIconFile[1:])
             # Resize the image to fit the cell
             image = image.resize((int(cellWidth), int(cellHeight)), Image.LANCZOS)
             photo = ImageTk.PhotoImage(image)
@@ -118,9 +118,8 @@ def campaign_screen(campaign, canvas):
                 mapObjectID = object.split("-")
                 # print(mapObjectID)
                 if mapObjectID[1]: # object found on cell location
-                    assetIndex = int(mapObjectID[1])
                     if mapObjectID[0] == "stationary" or mapObjectID[0] == "party":
-                        mapIconImgFile = Game.assets.landmarkList[assetIndex].mapIconImgFile
+                        mapIconImgFile = Game.assets.landmarkDict[mapObjectID[1]].mapIconImgFile
                     # get rid of starting "/"
                     mapIconImgFile = mapIconImgFile[1:]
                     img = Image.open(mapIconImgFile)
@@ -145,8 +144,8 @@ def create_tkinter_thread(processQueue):
         gameState = "title"
         curState = "encounter"
         # initialize game screens
-        curEncounter = Game.assets.encounterList[0]
-        curCampaign = Game.assets.campaignList[0]
+        curEncounter = None
+        curCampaign = None
         refresh = 0
 
         def update_tkinter():

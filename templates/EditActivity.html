@@ -19,37 +19,43 @@
         <input type="hidden" name="activity" value="save_activity_form">
         <!-- autopopulate if activity already exists -->
         {% if activity.name == "blank" %}
-            <label for="activityName">Activity Name:</label>
-            <input type="text" name="activityName" placeholder="activity name">
+            <label for="name">Activity Name:</label>
+            <input type="text" name="name" placeholder="activity name">
             <br>
-            <select name="activityType" id="activityType">
+            <select name="type" id="type">
                 <option value="rush">rush</option>
                 <option value="jump">jump</option>
                 <option value="singleTarget">singleTarget</option>
                 <option value="AOE">AOE</option>
             </select>
             <br>
-        {% else %}
-            <label for="activityName">Activity Name:</label>
-            <input type="text" name="activityName" value="{{ activity.name }}" placeholder="activity name">
+            <label for="negationAmount">Negation Amount:</label>
+            <input type="text" name="name" placeholder="vs interrupt strength to successfully block attack">
             <br>
-            <script>console.log(activity.activityType);</script>
-            <select name="activityType" id="activityType">
-                <option value="rush" {% if activity.activityType == 'rush' %} selected {% endif %}>Rush</option>
-                <option value="jump" {% if activity.activityType == 'jump' %} selected {% endif %}>Jump</option>
-                <option value="singleTarget" {% if activity.activityType == 'singleTarget' %} selected {% endif %}>Single Target</option>
-                <option value="AOE" {% if activity.activityType == 'AOE' %} selected {% endif %}>AOE</option>
+            <label for="interruptStrength">Interrupt Strength:</label>
+            <input type="text" name="name" placeholder="vs negation amount to successfully execute attack">
+            <br>
+        {% else %}
+            <label for="name">Activity Name:</label>
+            <input type="text" name="name" value="{{ activity.name }}" placeholder="activity name">
+            <br>
+            <script>console.log(activity.type);</script>
+            <select name="type" id="type">
+                <option value="rush" {% if activity.type == 'rush' %} selected {% endif %}>Rush</option>
+                <option value="jump" {% if activity.type == 'jump' %} selected {% endif %}>Jump</option>
+                <option value="singleTarget" {% if activity.type == 'singleTarget' %} selected {% endif %}>Single Target</option>
+                <option value="AOE" {% if activity.type == 'AOE' %} selected {% endif %}>AOE</option>
             </select>
             <h3>Effects (not applicable with movement types) </h3>
-            {% for i in range(0, activity.effectListIndexes|length) %}
-                    <i>{{ effects[activity.effectListIndexes[i]].name }}</i>
-                    <button type="submit" name="delete_effect" value="{{ activity.effectListIndexes[i] }}" form="save_activity_form">delete</button>
+            {% for i in range(0, activity.effectNameList|length) %}
+                    <i>{{ activity.effectNameList[i] }}</i>
+                    <button type="submit" name="delete_effect" value="{{ activity.effectNameList[i] }}" form="save_activity_form">delete</button>
                     <br>
             {% endfor %}
             <h4>Available Effects</h4>
-            {% for i in range(0, effects|length) %}
-                    <i>{{ effects[i].name }}</i>
-                    <button type="submit" name="add_effect" value="{{ i }}" form="save_activity_form">Add</button>
+            {% for effectName, effect in effects.items() %}
+                    <i>{{ effectName }}</i>
+                    <button type="submit" name="add_effect" value="{{ effectName }}" form="save_activity_form">Add</button>
                     <br>
             {% endfor %}
         {% endif %}

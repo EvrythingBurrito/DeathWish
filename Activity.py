@@ -18,7 +18,7 @@ import os
 #   AOE - shape represents entire area to receive effect
 
 class Activity:
-    def __init__(self, name, shape, type, effectListIndexes, setupTime, cooldownTime, negationAmount, interruptStrength):
+    def __init__(self, name, shape, type, effectNameList, setupTime, cooldownTime, negationAmount, interruptStrength):
         self.name = name
         # 2D grid describing shape: each value is a number describing multiplier for base effects it deals
         # this allows you to weight certain areas' damage (irrelevant for movement)
@@ -26,7 +26,7 @@ class Activity:
         # activity type
         self.type = type
         # apply these effects to targets if activity is successful
-        self.effectListIndexes = effectListIndexes
+        self.effectNameList = effectNameList
         # durations, by 100 milliseconds
         # setup time is the time before the action takes place: includes flight time for projectiles
         # cooldown time is the time after the action takes place

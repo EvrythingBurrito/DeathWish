@@ -33,15 +33,15 @@
             <label for="mapIconImgFile">Path to map icon image:</label>
             <input type="text" name="mapIconImgFile" value="{{ npc.mapIconImgFile }}" placeholder="mapIcon.jpg">
             <h3>Actions</h3>
-            {% for i in range(0, npc.actionListIndexes|length) %}
-                    <i>{{ actions[npc.actionListIndexes[i]].name }}</i>
-                    <button type="submit" name="delete_action" value="{{ npc.actionListIndexes[i] }}" form="save_NPC_form">delete</button>
+            {% for i in range(0, npc.actionListNames|length) %}
+                    <i>{{ npc.actionListNames[i] }}</i>
+                    <button type="submit" name="delete_action" value="{{ npc.actionListNames[i] }}" form="save_NPC_form">delete</button>
                     <br>
             {% endfor %}
             <h4>Available Actions</h4>
-            {% for i in range(0, actions|length) %}
-                    <i>{{ actions[i].name }}</i>
-                    <button type="submit" name="add_action" value="{{ i }}" form="save_NPC_form">Add</button>
+            {% for actionName, action in actions.items() %}
+                    <i>{{ actionName }}</i>
+                    <button type="submit" name="add_action" value="{{ actionName }}" form="save_NPC_form">Add</button>
                     <br>
             {% endfor %}
         {% endif %}

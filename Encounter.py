@@ -74,7 +74,7 @@ class Encounter:
         npc.actionCount = max(0, int(npc.actionCount) - 1)
         if npc.actionCount == 0:
             # reset action count to default action count for npc
-            npc.actionCount = Game.assets.NPCList[int(mapObjectID.split("-")[1])].actionCount
+            npc.actionCount = Game.assets.NPCDict[mapObjectID.split("-")[1]].actionCount
             self.advance_turn_order()
         self.update_mapObject_from_id(mapObjectID, npc)
 
@@ -82,8 +82,8 @@ class Encounter:
         activityData = json.loads(activityDataJSON)
         mapGrid = json.loads(self.mapGridJSON)
         effectJSONsToApply = []
-        for effectIndex in activity.effectListIndexes:
-                effectJSONsToApply.append(Effect.to_json(Game.assets.effectList[effectIndex]))
+        for effectName in activity.effectNameList:
+                effectJSONsToApply.append(Effect.to_json(Game.assets.effectDict[effectName]))
         if activity.type == 'singleTarget':
             for object in activityData['selectedObjects']:
                 mapObject = self.get_object_from_object_id(object['id'])
@@ -157,31 +157,32 @@ class Encounter:
         self.mapGridJSON = json.dumps(mapGrid)
         
 
-    def get_pre_activity_counters(self, activity, assets):
-        preActivityCounters = {}
-        for mapObject in self.mapObjectList:
-            entityName = mapObject[0]
-            character = NPC.from_json(mapObject[1])
-            charActionsIndexes = character.actionListIndexes
-            for actionIndex in charActionsIndexes:
-                action = assets.actionList[actionIndex]
-                # check whether the user can afford the action
-                if (((action.manaCost) * 2) <= character.mana) and ((action.staminaCost * 2) <= character.stamina):
-                    for reactActivity in action.activityListIndexes:
-                        # ENTIRE action can fit within the setup time
-                        if ((reactActivity.setupTime + reactActivity.cooldownTime) < activity.setupTime):
-                            preActivityCounters[entityName] = action.to_json()
-        return preActivityCounters
-    
-    def get_post_activity_counters(self, activity, assets):
-        postActivityCounters = []
-        for mapObject in self.mapObjectList:
-            for actionIndex in mapObject.actionListIndexes:
-                action = assets.actionList[actionIndex]
-                # check whether the user can afford the action (FIXME costs will have an extra reaction cost)
-                if ((action.manaCost * 1.0) <= mapObject.mana) and ((action.staminaCost * 1.0) <= mapObject.stamina):
-                    for reactActivity in action.activityListIndexes:
-                        # ENTIRE action can fit within the cooldown time
-                        if ((reactActivity.setupTime + reactActivity.cooldownTime) < activity.cooldownTime):
-                            postActivityCounters.append((mapObject, action))
-        return postActivityCounters
+    # def get_pre_activity_counters(self, activity, assets):
+    #     preActivityCounters = {}
+    #     for mapObject in self.mapObjectList:
+    #         entityName = mapObject[0]
+    #         character = NPC.from_json(mapObject[1])
+    #         for actionName in character.actionListNames:
+    #             action = assets.actionList[actionName]
+    #             # check whether the user can afford the action
+    #             if (((action.manaCost) * 2) <= character.mana) and ((action.staminaCost * 2) <= character.stamina):
+    #                 for reactActivityName in action.activityListNames:
+    #                     reactActivity = Game.assets.activityDict[reactActivityName]
+    #                     # ENTIRE action can fit within the setup time
+    #                     if ((reactActivity.setupTime + reactActivity.cooldownTime) < activity.setupTime):
+    #                         preActivityCounters[entityName] = action.to_json()
+    #     return preActivityCounters
+    # 
+    # def get_post_activity_counters(self, activity, assets):
+    #     postActivityCounters = []
+    #     for mapObject in self.mapObjectList:
+    #         for actionIndex in mapObject.actionListNames:
+    #             action = assets.actionList[actionIndex]
+    #             # check whether the user can afford the action (FIXME costs will have an extra reaction cost)
+    #             if ((action.manaCost * 1.0) <= mapObject.mana) and ((action.staminaCost * 1.0) <= mapObject.stamina):
+    #                 for reactActivityName in action.activityListNames:
+    #                     reactActivity = Game.assets.activityDict[reactActivityName]
+    #                     # ENTIRE action can fit within the cooldown time
+    #                     if ((reactActivity.setupTime + reactActivity.cooldownTime) < activity.cooldownTime):
+    #                         postActivityCounters.append((mapObject, action))
+    #     return postActivityCounters

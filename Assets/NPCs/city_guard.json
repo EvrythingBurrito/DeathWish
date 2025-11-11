@@ -1,1 +1,1 @@
-{"name": "city guard", "weight": 0, "mapIconImgFile": "/static/Assets/NPCs/Images/cityGuardToken.png", "health": "10", "stamina": "10", "mana": "5", "actionCount": "2", "type": "npc", "actionListIndexes": [2, 0, 1], "currentEffectJSONList": []}
+{"name": "city guard", "health": "10", "weight": 0, "mapIconImgFile": "/static/Assets/NPCs/Images/cityGuardToken.png", "currentEffectJSONList": [], "stamina": 0, "mana": 0, "actionCount": 2, "type": "npc", "actionListNames": ["slash_i", "stab_i"]}

@@ -33,9 +33,9 @@
             <label for="mapIconImgFile">Path to map icon image:</label>
             <input type="text" name="mapIconImgFile" value="{{ character.mapIconImgFile }}" placeholder="mapIcon.jpg">
             <h3>Actions</h3>
-            {% for i in range(0, character.actionListIndexes|length) %}
-                    <i>{{ actions[character.actionListIndexes[i]].name }}</i>
-                    <button type="submit" name="delete_action" value="{{ character.actionListIndexes[i] }}" form="save_Character_form">delete</button>
+            {% for i in range(0, character.actionListNames|length) %}
+                    <i>{{ actions[character.actionListNames[i]].name }}</i>
+                    <button type="submit" name="delete_action" value="{{ character.actionListNames[i] }}" form="save_Character_form">delete</button>
                     <br>
             {% endfor %}
             <h4>Available Actions</h4>

@@ -1,7 +1,7 @@
 import json
 
 class Action:
-    def __init__(self, name, staminaCost, manaCost, activityListIndexes):
+    def __init__(self, name, staminaCost, manaCost, activityListNames):
         ### Order of operations for every action:
         # 1. Action is decided and locked in by executer
         # 3. Trigger reactions: 
@@ -22,7 +22,7 @@ class Action:
         ###### COMPONENTS
         # activities contain ranges, effects and target information for the action components
         # activities are done in the order of the list (i.e. detonate trap, then dodge. or jump, then sword spin)
-        self.activityListIndexes = activityListIndexes
+        self.activityListNames = activityListNames
 
     def to_json(self):
         return self.__dict__

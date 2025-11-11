@@ -8,8 +8,8 @@
     </form>
 
     <div id="object-palette">
-        {% for i in range(0, landmarks|length) %}
-            <div class="palette-object" data-index="{{ i }}" data-type="landmark" draggable="true">{{ landmarks[i].name }}</div>
+        {% for landmarkName, landmark in landmarks.items() %}
+            <div class="palette-object" data-name="{{ landmarkName }}" data-type="landmark" draggable="true">{{ landmarkName }}</div>
         {% endfor %}
     </div>
     <div id="trash-area">
@@ -20,14 +20,14 @@
         const gridDataOriginString = {{ campaign.mapGridJSON|tojson }};
     </script>
     <div id="grid-container">
-    {% for row in range(0, campaign.regionMapIndexes|length) %}
+    {% for row in range(0, campaign.regionMapNames|length) %}
         <div class="grid-row">
-            {% for col in range(0, campaign.regionMapIndexes[0]|length) %}
+            {% for col in range(0, campaign.regionMapNames[0]|length) %}
                 <div class="grid-cell"
                     data-row="{{ row }}"
                     data-col="{{ col }}"
                     id="gridCell-{{ row }}-{{ col }}"
-                    style="background-image: url('{{ regions[campaign.regionMapIndexes[row][col]|int].worldMapIconFile }}');">
+                    style="background-image: url('{{ regions[campaign.regionMapNames[row][col]].worldMapIconFile }}');">
                 </div>
             {% endfor %}
         </div>

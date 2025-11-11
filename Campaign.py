@@ -1,15 +1,16 @@
 import json
+import Game
 
 class Campaign:
 
-    def __init__(self, name, regionMapIndexes, mapGridJSON, availableEncounterIndexes):
+    def __init__(self, name, regionMapNames, mapGridJSON, availableEncounterNames):
         self.name = name
         # 2D array of regions - in object format
-        self.regionMapIndexes = regionMapIndexes
+        self.regionMapNames = regionMapNames
         # 2D list of dictionaries of map landmark string ids - in json format
         self.mapGridJSON = mapGridJSON
-        # list of encounter indexes currently available
-        self.availableEncounterIndexes = availableEncounterIndexes
+        # list of encounters currently available
+        self.availableEncounterNames = availableEncounterNames
 
     def to_json(self):
         return self.__dict__
@@ -22,7 +23,7 @@ class Campaign:
         return f"{self.name}"
     
     # utility
-    def update_party_landmark(self, landmarkList, regionList):
+    def update_party_landmark(self):
         ycoord = 0
         for row in json.loads(self.mapGridJSON):
             xcoord = 0
@@ -31,18 +32,17 @@ class Campaign:
                     if cellObject:
                         mapObjectID = cellObject.split("-")
                         # Fixme - only one party is allowed for now, just stops when it finds the first landmark that is a party
-                        if landmarkList[int(mapObjectID[1])].type == "party":
+                        if Game.assets.landmarkDict[mapObjectID[1]].type == "party":
                             partyLocation = [xcoord, ycoord]
-                            partyLandmarkIndex = int(mapObjectID[1])
-                            self.update_available_encounters(partyLocation, partyLandmarkIndex, landmarkList, regionList)
+                            self.update_available_encounters(partyLocation, mapObjectID[1])
                             return 1
                 xcoord = xcoord + 1
             ycoord = ycoord + 1
         return 0
     
-    def update_available_encounters(self, partyLocation, partyLandmarkIndex, landmarkList, regionList):
+    def update_available_encounters(self, partyLocation, partyLandmarkName):
         # first, add party encounters
-        self.availableEncounterIndexes = landmarkList[partyLandmarkIndex].encounterListIndexes
+        self.availableEncounterNames = Game.assets.landmarkDict[partyLandmarkName].encounterListNames
         # second, add encounters from current party region
         # third, add encounters from current party landmark
         cellDict = json.loads(self.mapGridJSON)[partyLocation[1]][partyLocation[0]]
@@ -50,8 +50,8 @@ class Campaign:
             mapObjectID = object.split("-")
             print(mapObjectID)
             # if another non party landmark is at location of party, add its encounters to list
-            if not landmarkList[int(mapObjectID[1])].type == "party":
-                self.availableEncounterIndexes = self.availableEncounterIndexes + landmarkList[mapObjectID[1]].encounterListIndexes
+            if not Game.assets.landmarkDict[mapObjectID[1]].type == "party":
+                self.availableEncounterNames = self.availableEncounterNames + Game.assets.landmarkDict[mapObjectID[1]].encounterListNames
 
         # from regions
-        # self.availableEncounterIndexes = self.availableEncounterIndexes + regionList[self.regionMapIndexes[self.partyLocation[0]][self.partyLocation[1]]].encounterListIndexes
+        # self.availableEncounterNames = self.availableEncounterNames + regionList[self.regionMapNames[self.partyLocation[0]][self.partyLocation[1]]].encounterListNames

@@ -1,12 +1,12 @@
 import json
 
 class Landmark:
-    def __init__(self, name, mapIconImgFile, type, encounterListIndexes):
+    def __init__(self, name, mapIconImgFile, type, encounterListNames):
         ### required
         self.name = name
         self.mapIconImgFile = mapIconImgFile
         self.type = type
-        self.encounterListIndexes = encounterListIndexes
+        self.encounterListNames = encounterListNames
         # ### optional
         # # flavor text
         # self.description = ""

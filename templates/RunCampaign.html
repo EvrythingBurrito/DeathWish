@@ -23,8 +23,8 @@
         </div>
         <div class="column">
             <h3>Available Encounters</h3>
-            {% for i in range(0, campaign.availableEncounterIndexes|length) %}
-                <a href="{{ url_for('RunEncounter', index=campaign.availableEncounterIndexes[i], startNew=1) }}"> {{ encounters[campaign.availableEncounterIndexes[i]].name }}</a>
+            {% for i in range(0, campaign.availableEncounterNames|length) %}
+                <a href="{{ url_for('RunEncounter', name=campaign.availableEncounterNames[i], startNew=1) }}"> {{ campaign.availableEncounterNames[i] }}</a>
                 <br>
             {% endfor %}
         </div>

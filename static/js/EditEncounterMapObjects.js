@@ -1,6 +1,6 @@
 const gridDataInput = document.getElementById('mapObjects');
 
-function createDraggableObject(objectType, objectIndex, x, y) {
+function createDraggableObject(objectType, objectName, x, y) {
     const gridRect = gridContainer.getBoundingClientRect();
     let gridX = x - gridRect.left;
     let gridY = y - gridRect.top;
@@ -12,9 +12,9 @@ function createDraggableObject(objectType, objectIndex, x, y) {
     row = Math.max(0, Math.min(9, row));
 
     const obj = document.createElement('div');
-    obj.id = `${objectType}-${objectIndex}-${nextObjectId++}`; // each object is the type, type asset index, then an arbitrary id value to differentiate
+    obj.id = `${objectType}-${objectName}-${nextObjectId++}`; // each object is the type, type asset name, then an arbitrary id value to differentiate
     obj.classList.add('draggable-object', objectType);
-    obj.style.backgroundImage = `url(${mapObjects[objectIndex].mapIconImgFile})`
+    obj.style.backgroundImage = `url(${mapObjects[objectName].mapIconImgFile})`
     obj.style.backgroundRepeat = 'no-repeat'; // Ensure image doesn't repeat
     obj.style.backgroundSize = 'cover'; // Resize image to fit object size
     obj.draggable = true;
@@ -83,13 +83,13 @@ function updateGridFromData(gridData) {
             const cellData = gridData[row][col];
             if (cellData.objects && cellData.objects.length > 0) {
                 cellData.objects.forEach(obj => {
-                    // Find the index of the object type. The data transferred and the data contained within the grid expects an index, not the name of the object.
+                    // Find the name of the object type. The data transferred and the data contained within the grid expects an object name
                     const objectNameArray = obj.split("-");
                     const objectType = objectNameArray[0];
-                    const objectIndex = objectNameArray[1];
+                    const objectName = objectNameArray[1];
                     const x = col * cellSize + gridRect.left;
                     const y = row * cellSize + gridRect.top;
-                    createDraggableObject(objectType, objectIndex, x, y);
+                    createDraggableObject(objectType, objectName, x, y);
                 });
             }
         }

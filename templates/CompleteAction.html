@@ -11,8 +11,8 @@
     const executorID = {{ executorID|tojson }};
     // define activities which make up the action
     let actionActivities = [];
-    for (let i = 0; i < action.activityListIndexes.length; i++) {
-        actionActivities.push(activities[action.activityListIndexes[i]]);
+    for (let i = 0; i < action.activityListNames.length; i++) {
+        actionActivities.push(activities[action.activityListNames[i]]);
     }
 </script>
 {% if reactionDict %}
@@ -35,15 +35,15 @@
 {% else %}
     <form method="POST" id="submit_action_form">
         <input type="hidden" name="action" value="submit_action_form">
-        {% for i in range(0, action.activityListIndexes|length) %}
+        {% for i in range(0, action.activityListNames|length) %}
             <input type="hidden" 
                 id="activity_{{ i }}_data" 
                 name="activity_{{ i }}_data" 
                 value="">
             <input type="hidden"
-                id="activity_{{ i }}_index"
-                name="activity_{{ i }}_index"
-                value="{{ action.activityListIndexes[i] }}">
+                id="activity_{{ i }}_name"
+                name="activity_{{ i }}_name"
+                value="{{ action.activityListNames[i] }}">
         {% endfor %}
     </form>
     <div class="container">
@@ -52,8 +52,8 @@
         </div>
         <div class="column" style="width: 600px;">
             <h3> action: {{ action.name }} </h3>
-            {% for i in range(0, action.activityListIndexes|length) %}
-                <h3> activity {{ i }} : {{ activities[action.activityListIndexes[i]].name }} </h3>
+            {% for i in range(0, action.activityListNames|length) %}
+                <h3> activity {{ i }} : {{ activities[action.activityListNames[i]] }} </h3>
             {% endfor %}
             <h3> health: {{ npc.health }} </h3>
             <h3> stamina: {{ npc.stamina }} </h3>

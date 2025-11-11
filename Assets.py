@@ -25,47 +25,47 @@ class Assets:
         self.tangibleDir = "./Assets/Tangibles"
         self.effectDir = "./Assets/Effects"
         ### initialize lists
-        self.campaignList = []
-        self.update_campaign_list()
-        self.regionList = []
-        self.update_region_list()
+        self.campaignDict = {}
+        self.update_campaign_dict()
+        self.regionDict = {}
+        self.update_region_dict()
         self.footingDict = {}
         self.update_footing_dict()
-        self.landmarkList = []
-        self.update_landmark_list()
-        self.tangibleList = []
-        self.update_tangible_list()
-        self.encounterList = []
-        self.update_encounter_list()
+        self.landmarkDict = {}
+        self.update_landmark_dict()
+        self.tangibleDict = {}
+        self.update_tangible_dict()
+        self.encounterDict = {}
+        self.update_encounter_dict()
         # create a blank "current" encounter
         curEncounter = Encounter("Current", None, None, None)
         # create a blank "current" campaign
         curCampaign = Campaign("Current", None, None, None)
-        self.NPCList = []
-        self.update_NPC_list()
-        self.actionList = []
-        self.update_action_list()
-        self.activityList = []
-        self.update_activity_list()
-        self.effectList = []
-        self.update_effect_list()
+        self.NPCDict = {}
+        self.update_NPC_dict()
+        self.actionDict = {}
+        self.update_action_dict()
+        self.activityDict = {}
+        self.update_activity_dict()
+        self.effectDict = {}
+        self.update_effect_dict()
 
-        self.allMapObjects = self.NPCList + self.tangibleList
+        self.allMapObjectsDict = self.NPCDict | self.tangibleDict
 
 ### operate specific elements
     def add_campaign(self, campaign):
-        self.campaignList.append(campaign)
+        self.campaignDict[campaign.name] = campaign
         self.update_campaign_save(campaign)
-    def delete_campaign(self, index):
-        self.delete_campaign_save(self.campaignList[index])
-        del self.campaignList[index]
+    def delete_campaign(self, campaignName):
+        self.delete_campaign_save(self.campaignDict[campaignName])
+        del self.campaignDict[campaignName]
 
     def add_region(self, region):
-        self.regionList.append(region)
+        self.regionDict[region.name] = region
         self.update_region_save(region)
-    def delete_region(self, index):
-        self.delete_region_save(self.regionList[index])
-        del self.regionList[index]
+    def delete_region(self, regionName):
+        self.delete_region_save(self.regionDict[regionName])
+        del self.regionDict[regionName]
 
     def add_footing(self, footing):
         self.footingDict[footing.name] = footing
@@ -75,53 +75,53 @@ class Assets:
         del self.footingDict[footingName]
 
     def add_landmark(self, landmark):
-        self.landmarkList.append(landmark)
+        self.landmarkDict[landmark.name] = landmark
         self.update_landmark_save(landmark)
-    def delete_landmark(self, index):
-        self.delete_landmark_save(self.landmarkList[index])
-        del self.landmarkList[index]
+    def delete_landmark(self, landmarkName):
+        self.delete_landmark_save(self.landmarkDict[landmarkName])
+        del self.landmarkDict[landmarkName]
 
     def add_encounter(self, encounter):
-        self.encounterList.append(encounter)
+        self.encounterDict[encounter.name] = encounter
         self.update_encounter_save(encounter)
-    def delete_encounter(self, index):
-        self.delete_encounter_save(self.encounterList[index])
-        del self.encounterList[index]
+    def delete_encounter(self, encounterName):
+        self.delete_encounter_save(self.encounterDict[encounterName])
+        del self.encounterDict[encounterName]
 
     def add_NPC(self, NPC):
-        self.NPCList.append(NPC)
+        self.NPCDict[NPC.name] = NPC
         self.update_NPC_save(NPC)
-    def delete_NPC(self, index):
-        self.delete_NPC_save(self.NPCList[index])
-        del self.NPCList[index]
+    def delete_NPC(self, NPCName):
+        self.delete_NPC_save(self.NPCDict[NPCName])
+        del self.NPCDict[NPCName]
 
     def add_action(self, action):
-        self.actionList.append(action)
+        self.actionDict[action.name] = action
         self.update_action_save(action)
-    def delete_action(self, index):
-        self.delete_action_save(self.actionList[index])
-        del self.actionList[index]
+    def delete_action(self, actionName):
+        self.delete_action_save(self.actionDict[actionName])
+        del self.actionDict[actionName]
 
     def add_activity(self, activity):
-        self.activityList.append(activity)
+        self.activityDict[activity.name] = activity
         self.update_activity_save(activity)
-    def delete_activity(self, index):
-        self.delete_activity_save(self.activityList[index])
-        del self.activityList[index]
+    def delete_activity(self, activityName):
+        self.delete_activity_save(self.activityDict[activityName])
+        del self.activityDict[activityName]
 
     def add_effect(self, effect):
-        self.effectList.append(effect)
+        self.effectDict[effect.name] = effect
         self.update_effect_save(effect)
-    def delete_effect(self, index):
-        self.delete_effect_save(self.effectList[index])
-        del self.effectList[index]
+    def delete_effect(self, effectName):
+        self.delete_effect_save(self.effectDict[effectName])
+        del self.effectDict[effectName]
 
     def add_tangible(self, tangible):
-        self.tangibleList.append(tangible)
+        self.tangibleDict[tangible.name] = tangible
         self.update_tangible_save(tangible)
-    def delete_tangible(self, index):
-        self.delete_tangible_save(self.tangibleList[index])
-        del self.tangibleList[index]
+    def delete_tangible(self, tangibleName):
+        self.delete_tangible_save(self.tangibleDict[tangibleName])
+        del self.tangibleDict[tangibleName]
 
 ###########################################################
 #################### SERIALIZATION ########################
@@ -131,31 +131,32 @@ class Assets:
     ### create or update save file for desired campaign
     def update_campaign_save(self, campaign):
         filename = self.campaignDir + "/" + campaign.name.replace(" ", "_") + ".json"
+        if campaign not in self.campaignDict.items():
+            self.campaignDict[campaign.name] = campaign
         if os.path.exists(filename):
             print("overwriting campaign save!")
         with open(filename, 'w') as f:
             json.dump(campaign.to_json(), f)
-        self.update_campaign_list()
 
     def delete_campaign_save(self, campaign):
         filename = self.campaignDir + "/" + campaign.name.replace(" ", "_") + ".json"
         os.remove(filename)
 
-    def update_campaign_list(self):
-        self.campaignList = []
+    def update_campaign_dict(self):
+        self.campaignDict = {}
         for filename in glob.glob(self.campaignDir + "/*.json"):
             with open(filename, 'r') as f:
                 data = json.load(f)
                 aCampaign = Campaign.from_json(data)
-                self.campaignList.append(aCampaign)
+                self.campaignDict[aCampaign.name] = aCampaign
 
 ########################################################### REGIONS
 
     ### create or update save file for desired region
     def update_region_save(self, region):
         filename = self.regionDir + "/" + region.name.replace(" ", "_") + ".json"
-        if region not in self.regionList:
-            self.add_region(region)
+        if region not in self.regionDict.items():
+            self.regionDict[region.name] = region
         if os.path.exists(filename):
             print("overwriting region save!")
         with open(filename, 'w') as f:
@@ -165,13 +166,13 @@ class Assets:
         filename = self.regionDir + "/" + region.name.replace(" ", "_") + ".json"
         os.remove(filename)
 
-    def update_region_list(self):
-        self.regionList = []
+    def update_region_dict(self):
+        self.regionDict = {}
         for filename in glob.glob(self.regionDir + "/*.json"):
             with open(filename, 'r') as f:
                 data = json.load(f)
                 aRegion = Region.from_json(data)
-                self.regionList.append(aRegion)
+                self.regionDict[aRegion.name] = aRegion
 
 ########################################################### FOOTINGS
 
@@ -203,8 +204,8 @@ class Assets:
     ### create or update save file for desired landmark
     def update_landmark_save(self, landmark):
         filename = self.landmarkDir + "/" + landmark.name.replace(" ", "_") + ".json"
-        if landmark not in self.landmarkList:
-            self.add_landmark(landmark)
+        if landmark not in self.landmarkDict.items():
+            self.landmarkDict[landmark.name] = landmark
         if os.path.exists(filename):
             print("overwriting landmark save!")
         with open(filename, 'w') as f:
@@ -214,21 +215,21 @@ class Assets:
         filename = self.landmarkDir + "/" + landmark.name.replace(" ", "_") + ".json"
         os.remove(filename)
 
-    def update_landmark_list(self):
-        self.landmarkList = []
+    def update_landmark_dict(self):
+        self.landmarkDict = {}
         for filename in glob.glob(self.landmarkDir + "/*.json"):
             with open(filename, 'r') as f:
                 data = json.load(f)
                 aLandmark = Landmark.from_json(data)
-                self.landmarkList.append(aLandmark)
+                self.landmarkDict[aLandmark.name] = aLandmark
 
 ########################################################### ENCOUNTERS
 
     ### create or update save file for desired encounter
     def update_encounter_save(self, encounter):
         filename = self.encounterDir + "/" + encounter.name.replace(" ", "_") + ".json"
-        if encounter not in self.encounterList:
-            self.add_encounter(encounter)
+        if encounter not in self.encounterDict.items():
+            self.encounterDict[encounter.name] = encounter
         if os.path.exists(filename):
             print("overwriting encounter save!")
         with open(filename, 'w') as f:
@@ -238,58 +239,45 @@ class Assets:
         filename = self.encounterDir + "/" + encounter.name.replace(" ", "_") + ".json"
         os.remove(filename)
 
-    def update_encounter_list(self):
-        self.encounterList = []
+    def update_encounter_dict(self):
+        self.encounterDict = {}
         for filename in glob.glob(self.encounterDir + "/*.json"):
             with open(filename, 'r') as f:
                 data = json.load(f)
                 aEncounter = Encounter.from_json(data)
-                self.encounterList.append(aEncounter)
-    
-    # def get_current_encounter(self):
-    #     for i in range(0, len(self.encounterList) - 1):
-    #         if self.encounterList[i].name == "Current":
-    #             return self.encounterList[i]
-
-    # def update_current_encounter(self, encounter):
-    #     for i in range(0, len(self.encounterList) - 1):
-    #         if self.encounterList[i].name == "Current":
-    #             self.encounterList[i] = encounter
-    #             self.encounterList[i].name = "Current"
-    #             self.update_encounter_save(self.encounterList[i])
-    #     print("error! current encounter not found!")
+                self.encounterDict[aEncounter.name] = aEncounter
 
 ########################################################### NPCS
 
     ### create or update save file for desired NPC
-    def update_NPC_save(self, npc):
-        filename = self.NPCDir + "/" + npc.name.replace(" ", "_") + ".json"
-        if npc not in self.NPCList:
-            self.add_NPC(npc)
+    def update_NPC_save(self, NPC):
+        filename = self.NPCDir + "/" + NPC.name.replace(" ", "_") + ".json"
+        if NPC not in self.NPCDict.items():
+            self.NPCDict[NPC.name] = NPC
         if os.path.exists(filename):
             print("overwriting NPC save!")
         with open(filename, 'w') as f:
-            json.dump(npc.to_json(), f)
+            json.dump(NPC.to_json(), f)
 
-    def delete_NPC_save(self, npc):
-        filename = self.NPCDir + "/" + npc.name.replace(" ", "_") + ".json"
+    def delete_NPC_save(self, NPC):
+        filename = self.NPCDir + "/" + NPC.name.replace(" ", "_") + ".json"
         os.remove(filename)
 
-    def update_NPC_list(self):
-        self.NPCList = []
+    def update_NPC_dict(self):
+        self.NPCDict = {}
         for filename in glob.glob(self.NPCDir + "/*.json"):
             with open(filename, 'r') as f:
                 data = json.load(f)
-                npc = NPC.from_json(data)
-                self.NPCList.append(npc)
+                aNPC = NPC.from_json(data)
+                self.NPCDict[aNPC.name] = aNPC
 
 ########################################################### ACTIONS
 
     ### create or update save file for desired action
     def update_action_save(self, action):
         filename = self.actionDir + "/" + action.name.replace(" ", "_") + ".json"
-        if action not in self.actionList:
-            self.add_NPC(action)
+        if action not in self.actionDict.items():
+            self.actionDict[action.name] = action
         if os.path.exists(filename):
             print("overwriting action save!")
         with open(filename, 'w') as f:
@@ -299,21 +287,21 @@ class Assets:
         filename = self.actionDir + "/" + action.name.replace(" ", "_") + ".json"
         os.remove(filename)
 
-    def update_action_list(self):
-        self.actionList = []
+    def update_action_dict(self):
+        self.actionDict = {}
         for filename in glob.glob(self.actionDir + "/*.json"):
             with open(filename, 'r') as f:
                 data = json.load(f)
-                action = Action.from_json(data)
-                self.actionList.append(action)
+                aAction = Action.from_json(data)
+                self.actionDict[aAction.name] = aAction
 
 ########################################################### ACTIVITIES
 
     ### create or update save file for desired activity
     def update_activity_save(self, activity):
         filename = self.activityDir + "/" + activity.name.replace(" ", "_") + ".json"
-        if activity not in self.activityList:
-            self.add_NPC(activity)
+        if activity not in self.activityDict.items():
+            self.activityDict[activity.name] = activity
         if os.path.exists(filename):
             print("overwriting activity save!")
         with open(filename, 'w') as f:
@@ -323,21 +311,21 @@ class Assets:
         filename = self.activityDir + "/" + activity.name.replace(" ", "_") + ".json"
         os.remove(filename)
 
-    def update_activity_list(self):
-        self.activityList = []
+    def update_activity_dict(self):
+        self.activityDict = {}
         for filename in glob.glob(self.activityDir + "/*.json"):
             with open(filename, 'r') as f:
                 data = json.load(f)
-                activity = Activity.from_json(data)
-                self.activityList.append(activity)
+                aActivity = Activity.from_json(data)
+                self.activityDict[aActivity.name] = aActivity
 
 ########################################################### EFFECTS
 
     ### create or update save file for desired effect
     def update_effect_save(self, effect):
         filename = self.effectDir + "/" + effect.name.replace(" ", "_") + ".json"
-        if effect not in self.effectList:
-            self.add_NPC(effect)
+        if effect not in self.effectDict.items():
+            self.effectDict[effect.name] = effect
         if os.path.exists(filename):
             print("overwriting effect save!")
         with open(filename, 'w') as f:
@@ -347,21 +335,21 @@ class Assets:
         filename = self.effectDir + "/" + effect.name.replace(" ", "_") + ".json"
         os.remove(filename)
 
-    def update_effect_list(self):
-        self.effectList = []
+    def update_effect_dict(self):
+        self.effectDict = {}
         for filename in glob.glob(self.effectDir + "/*.json"):
             with open(filename, 'r') as f:
                 data = json.load(f)
-                effect = Effect.from_json(data)
-                self.effectList.append(effect)
+                aEffect = Effect.from_json(data)
+                self.effectDict[aEffect.name] = aEffect
 
 ########################################################### TANGIBLES
 
     ### create or update save file for desired tangible
     def update_tangible_save(self, tangible):
         filename = self.tangibleDir + "/" + tangible.name.replace(" ", "_") + ".json"
-        if tangible not in self.tangibleList:
-            self.add_NPC(tangible)
+        if tangible not in self.tangibleDict.items():
+            self.tangibleDict[tangible.name] = tangible
         if os.path.exists(filename):
             print("overwriting tangible save!")
         with open(filename, 'w') as f:
@@ -371,10 +359,10 @@ class Assets:
         filename = self.tangibleDir + "/" + tangible.name.replace(" ", "_") + ".json"
         os.remove(filename)
 
-    def update_tangible_list(self):
-        self.tangibleList = []
+    def update_tangible_dict(self):
+        self.tangibleDict = {}
         for filename in glob.glob(self.tangibleDir + "/*.json"):
             with open(filename, 'r') as f:
                 data = json.load(f)
-                tangible = Tangible.from_json(data)
-                self.tangibleList.append(tangible)
+                aTangible = Tangible.from_json(data)
+                self.tangibleDict[aTangible.name] = aTangible

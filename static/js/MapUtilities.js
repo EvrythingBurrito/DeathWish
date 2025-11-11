@@ -45,8 +45,8 @@ function handlePaletteEnd(e) {
         window.removeEventListener('touchmove', handlePaletteMove);
         const rect = currentPaletteObject.getBoundingClientRect();
         const data = {
-            type: mapObjects[currentPaletteObject.dataset.index].type,
-            index: currentPaletteObject.dataset.index
+            type: mapObjects[currentPaletteObject.dataset.name].type,
+            name: currentPaletteObject.dataset.name
         };
         const gridRect = gridContainer.getBoundingClientRect();
         let x, y;
@@ -62,8 +62,8 @@ function handlePaletteEnd(e) {
             }
         }
         if (x > gridRect.left && x < gridRect.right && y > gridRect.top && y < gridRect.bottom) {
-            console.log(data.type);
-            createDraggableObject(data.type, data.index, x, y);
+            console.log(data.name);
+            createDraggableObject(data.type, data.name, x, y);
             updateGridData();
         }
         currentPaletteObject = null;
