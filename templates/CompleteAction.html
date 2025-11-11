@@ -53,7 +53,7 @@
         <div class="column" style="width: 600px;">
             <h3> action: {{ action.name }} </h3>
             {% for i in range(0, action.activityListNames|length) %}
-                <h3> activity {{ i }} : {{ activities[action.activityListNames[i]] }} </h3>
+                <h3> activity {{ i + 1 }} : {{ action.activityListNames[i] }} : {{ action.activityListNames[i].effectNameList }}</h3>
             {% endfor %}
             <h3> health: {{ npc.health }} </h3>
             <h3> stamina: {{ npc.stamina }} </h3>

@@ -34,7 +34,8 @@ def create_flask_app(processQueue):
 
     @app.route('/GameMaster/EditCampaign/Campaign/<name>/<int:isNew>', methods=['GET', 'POST'])
     def EditCampaign(name, isNew):
-        dummyMatrix = [[0 for _ in range(8)] for _ in range(8)]
+        defaultRegion = next(iter(Game.assets.regionDict))
+        dummyMatrix = [[defaultRegion for _ in range(8)] for _ in range(8)]
         if isNew == 0:
             campaign = Game.assets.campaignDict[name]
         else:
@@ -309,7 +310,8 @@ def create_flask_app(processQueue):
     ### display chosen objects attributes in editable forms
     @app.route('/GameMaster/Assets/Encounter/<name>/<int:isNew>', methods=['GET', 'POST'])
     def EditEncounter(name, isNew):
-        dummyMatrix = [["Cobblestone" for _ in range(8)] for _ in range(8)]
+        defaultFooting = next(iter(Game.assets.footingDict))
+        dummyMatrix = [[defaultFooting for _ in range(8)] for _ in range(8)]
         if isNew == 0:
             encounter = Game.assets.encounterDict[name]
         else:
@@ -373,7 +375,7 @@ def create_flask_app(processQueue):
         return render_template('RunEncounter.html', encounter=encounter.to_json(), mapObjects=mapObjectJSONs, actions=actionJSONS, footings=footingJSONs, mapObjectList=encounter.mapObjectList)
 
     ### Action contains modified info 
-    @app.route('/GameMaster/CompleteAction/Action_<string:mapObjectID>_<actionListName>', methods=['GET', 'POST'])
+    @app.route('/GameMaster/CompleteAction/Action/<string:mapObjectID>/<actionListName>', methods=['GET', 'POST'])
     def CompleteAction(mapObjectID, actionListName):
         activityJSONS = {an: ac.to_json() for an, ac in Game.assets.activityDict.items()}
         turnAction = Game.assets.actionDict[actionListName]

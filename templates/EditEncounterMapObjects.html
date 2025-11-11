@@ -8,7 +8,7 @@
     </form>
 
     <div id="object-palette">
-        {% for objectName, object mapObjects.items() %}
+        {% for objectName, object in mapObjects.items() %}
             <div class="palette-object" data-name="{{ objectName }}" data-type="mapObject" draggable="true">{{ objectName }}</div>
         {% endfor %}
     </div>

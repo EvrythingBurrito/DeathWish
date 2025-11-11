@@ -29,8 +29,8 @@
                 <input type="hidden" name="action" value="update_region_form">
                 <label for="regionSelect">Select Region:</label>
                 <select id="regionSelect" onchange="updateSelectedRegionIndex()">
-                    {% for i in range(0, regions|length) %}
-                        <option value="{{ i }}">{{ regions[i].name }}</option>
+                    {% for regionName, region in regions.items() %}
+                        <option value="{{ regionName }}">{{ regionName }}</option>
                     {% endfor %}
                 </select>
                 <br>

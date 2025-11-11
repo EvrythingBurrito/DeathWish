@@ -23,10 +23,9 @@
             <input type="text" name="name" placeholder="activity name">
             <br>
             <select name="type" id="type">
-                <option value="rush">rush</option>
-                <option value="jump">jump</option>
-                <option value="singleTarget">singleTarget</option>
+                <option value="singleTarget">single target</option>
                 <option value="AOE">AOE</option>
+                <option value="move">move</option>
             </select>
             <br>
             <label for="negationAmount">Negation Amount:</label>
@@ -41,10 +40,24 @@
             <br>
             <script>console.log(activity.type);</script>
             <select name="type" id="type">
-                <option value="rush" {% if activity.type == 'rush' %} selected {% endif %}>Rush</option>
-                <option value="jump" {% if activity.type == 'jump' %} selected {% endif %}>Jump</option>
-                <option value="singleTarget" {% if activity.type == 'singleTarget' %} selected {% endif %}>Single Target</option>
-                <option value="AOE" {% if activity.type == 'AOE' %} selected {% endif %}>AOE</option>
+                <option value="singleTarget" 
+                    {% if activity.type == 'singleTarget' %} 
+                    selected 
+                    {% endif %}>
+                    single target
+                </option>
+                <option value="AOE" 
+                    {% if activity.type == 'AOE' %} 
+                    selected 
+                    {% endif %}>
+                    AOE
+                </option>
+                <option value="move" 
+                    {% if activity.type == 'move' %} 
+                    selected 
+                    {% endif %}>
+                    move
+                </option>
             </select>
             <h3>Effects (not applicable with movement types) </h3>
             {% for i in range(0, activity.effectNameList|length) %}
