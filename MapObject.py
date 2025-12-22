@@ -5,9 +5,12 @@ from Effect import Effect
 
 # children classes MUST include a "type" field for javascript to create appropriate map tokens
 class MapObject:
-    def __init__(self, name, health, weight, mapIconImgFile, currentEffectJSONList):
+    # reload init
+    def __init__(self, name, health, maxHealth, weight, mapIconImgFile, currentEffectJSONList):
         self.name = name
+        # loading these from JSON strings
         self.health = health
+        self.maxHealth = maxHealth
         self.weight = weight
         self.mapIconImgFile = mapIconImgFile
         self.currentEffectJSONList = currentEffectJSONList

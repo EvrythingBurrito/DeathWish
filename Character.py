@@ -1,19 +1,15 @@
 from MapObject import MapObject
 
 class Character(MapObject):
-    def __init__(self, name, health, stamina, mana, actionCount, weight, mapIconImgFile, type, actionListNames):
-        super().__init__(name, health, weight, mapIconImgFile, [])
+    def __init__(self, name, health, maxHealth, stamina, maxStamina, mana, maxMana,
+                 actionCount, maxActionCount, weight, mapIconImgFile, type, actionListNames,
+                 currentEffectJSONList):
+        super().__init__(name, health, maxHealth, weight, mapIconImgFile, currentEffectJSONList)
         self.stamina = stamina
+        self.maxStamina = maxStamina
         self.mana = mana
+        self.maxMana = maxMana
         self.actionCount = actionCount
-        self.type = "character"
-        self.actionListNames = actionListNames
-
-    def __init__(self, name, health, stamina, mana, actionCount, weight, mapIconImgFile, type, actionListNames, currentEffectJSONList):
-        super().__init__(name, health, weight, mapIconImgFile, currentEffectJSONList)
-        self.health = health
-        self.stamina = stamina
-        self.mana = mana
-        self.actionCount = actionCount
+        self.maxActionCount = maxActionCount
         self.type = "character"
         self.actionListNames = actionListNames

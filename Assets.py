@@ -6,6 +6,7 @@ from Landmark import Landmark
 from Encounter import Encounter
 from Campaign import Campaign
 from Character import Character
+from PlayerCharacter import PlayerCharacter
 from Action import Action
 from Activity import Activity
 from Tangible import Tangible
@@ -268,7 +269,10 @@ class Assets:
         for filename in glob.glob(self.CharacterDir + "/*.json"):
             with open(filename, 'r') as f:
                 data = json.load(f)
-                aCharacter = Character.from_json(data)
+                if data["type"] == "player_character":
+                    aCharacter = PlayerCharacter.from_json(data)
+                else:
+                    aCharacter = Character.from_json(data)
                 self.CharacterDict[aCharacter.name] = aCharacter
 
 ########################################################### ACTIONS

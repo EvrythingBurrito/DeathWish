@@ -24,9 +24,9 @@
         {% include 'CompleteActionMap.html' with context %}
     </div>
     <div class="column" style="width: 600px;">
-        <h3> {{ mapObjectList[0][0] }}'s turn </h3>
-        <p> Actions Remaining: {{ mapObjectList[0][1].actionCount }}</p>
-        {% for i in range(0, mapObjectList[0][1].actionListNames|length) %}
+        {% include 'ViewCharacterStats.html' with context %}
+        <p> Actions Remaining: {{ character.actionCount }}</p>
+        {% for i in range(0, character.actionListNames|length) %}
             <a href="{{ url_for('CompleteAction', mapObjectID=mapObjectList[0][2], actionListName=mapObjectList[0][1].actionListNames[i]) }}"> {{ mapObjectList[0][1].actionListNames[i] }}</a>
             <br>
         {% endfor %}

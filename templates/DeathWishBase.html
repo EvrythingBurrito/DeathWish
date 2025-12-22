@@ -4,6 +4,33 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/parchment.css') }}">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
+
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<script>
+    // Connect to the Flask server
+    const socket = io();
+    // Listen for the 'game_event' we defined in Python
+    socket.on('game_event', function(msg) {
+        console.log("Received update:", msg.data);
+        // Example action: Show an alert or update a div
+        // alert("GM Update: " + msg.data);
+        // You could also trigger a page reload if needed:
+        window.location.reload();
+    });
+
+    // update page stat bars
+    socket.on('stat_update', function(msg) {
+    // msg should look like: { "stat": "hp", "current": 45, "max": 100 }
+    const barId = msg.stat + "-bar";   // e.g., hp-bar
+    const textId = msg.stat + "-text"; // e.g., hp-text
+    const percentage = (msg.current / msg.max) * 100;
+    // Update the bar width (CSS transition handles the animation)
+    document.getElementById(barId).style.width = percentage + "%";
+    // Update the text label
+    document.getElementById(textId).innerText = msg.current + " / " + msg.max;
+});
+</script>
+
 <body>
     <main>
         {% block content %}{% endblock %}

@@ -7,9 +7,12 @@
     <h1>Death Wish</h1>
     <nav>
         <a href="{{ url_for('GameMaster') }}">Game Master</a>
+        <br>
         {% for characterName in player_characters.keys() %}
             <a href="{{ url_for('RunPlayerCharacter', name=characterName) }}">{{ characterName }}</a>
+            <br>
         {% endfor %}
+        <a href="{{ url_for('EditPlayerCharacter', name='NewCharacter', isNew=1) }}">New Player Character</a>
     </nav>
 </header>
 {% endblock %}

@@ -2,6 +2,7 @@ import json
 import random
 from MapObject import MapObject
 from Character import Character
+from PlayerCharacter import PlayerCharacter
 from Tangible import Tangible
 from Effect import Effect
 import Game
@@ -122,12 +123,19 @@ class Encounter:
                     else:
                         self.update_mapObject_from_id(objectID, mapObject)
 
+    def get_current_character(self):
+        return self.get_object_from_object_id(self.mapObjectList[0][2])
+
+    ############ Helpers
+
     # deserialize object
     def get_object_from_object_id(self, mapObjectID):
         for encounterObject in self.mapObjectList:
             if mapObjectID == encounterObject[2]:
                 if mapObjectID.split("-")[0] == "character":
                     return Character.from_json(encounterObject[1])
+                elif mapObjectID.split("-")[0] == "player_character":
+                    return PlayerCharacter.from_json(encounterObject[1])
                 elif mapObjectID.split("-")[0] == "tangible":
                     return Tangible.from_json(encounterObject[1])
                 else:

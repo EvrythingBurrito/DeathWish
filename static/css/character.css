@@ -1,0 +1,51 @@
+.character-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;    /* Horizontal centering */
+    justify-content: center; /* Vertical centering if the container has height */
+    width: 100%;
+    margin-top: 50px;       /* Adds some space from the top of the page */
+    text-align: center;
+}
+
+/* Styling for the Bar Containers */
+.stat-wrapper { margin-bottom: 15px; width: 300px; }
+.bar-label { font-weight: bold; margin-bottom: 5px; display: block; }
+
+.bar-bg {
+    background-color: #333;
+    border: 2px solid #000;
+    height: 25px;
+    width: 100%;
+    border-radius: 5px;
+    overflow: hidden;
+    position: relative;
+}
+
+/* The actual colored parts */
+.bar-fill {
+    height: 100%;
+    width: 0%; /* Initialized by Jinja below */
+    transition: width 0.5s ease-in-out; /* Smooth sliding effect */
+}
+
+/* Colors */
+.hp-color { background-color: #ff4d4d; }
+.stamina-color { background-color: #4CAF50; }
+.mana-color { background-color: #2196F3; }
+
+.bar-text {
+    position: absolute;
+    top: 0;      /* <--- ADD THIS */
+    left: 0;     /* <--- ADD THIS */
+    width: 100%;
+    height: 100%; /* Ensure it spans the full height */
+    z-index: 10;  /* <--- ADD THIS to stay on top of the fill */
+    
+    text-align: center;
+    color: white;
+    font-size: 0.9em;
+    line-height: 25px; /* Matches the bar height for vertical centering */
+    text-shadow: 1px 1px 2px black;
+    pointer-events: none; /* Allows clicks to pass through to elements below if needed */
+}

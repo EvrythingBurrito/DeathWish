@@ -1,0 +1,31 @@
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/character.css') }}">
+</head>
+
+<div class="character-container">
+    <h3>{{ character.name }}</h3>
+
+    <div class="stat-wrapper">
+        <span class="bar-label">Health</span>
+        <div class="bar-bg">
+            <div id="hp-bar" class="bar-fill hp-color" style="width: {{ (character.health / character.maxHealth) * 100 }}%;"></div>
+            <div id="hp-text" class="bar-text">{{ character.health }} / {{ character.maxHealth }}</div>
+        </div>
+    </div>
+
+    <div class="stat-wrapper">
+        <span class="bar-label">Stamina</span>
+        <div class="bar-bg">
+            <div id="stamina-bar" class="bar-fill stamina-color" style="width: {{ (character.stamina / character.maxStamina) * 100 }}%;"></div>
+            <div id="stamina-text" class="bar-text">{{ character.stamina }} / {{ character.maxStamina }}</div>
+        </div>
+    </div>
+
+    <div class="stat-wrapper">
+        <span class="bar-label">Mana</span>
+        <div class="bar-bg">
+            <div id="mana-bar" class="bar-fill mana-color" style="width: {{ (character.mana / character.maxMana) * 100 }}%;"></div>
+            <div id="mana-text" class="bar-text">{{ character.mana }} / {{ character.maxMana }}</div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,9 @@
+{% extends "DeathWishBase.html" %}
+
+{% block title %}{{ character.name }}{% endblock %}
+
+{% block content %}
+
+{% include 'ViewCharacterStats.html' with context %}
+
+{% endblock %}
