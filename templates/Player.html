@@ -1,0 +1,27 @@
+{% extends "DeathWishBase.html" %}
+
+{% block title %}DeathWish{% endblock %}
+
+{% block content %}
+<header>
+    <h1>Welcome, {{ playerName }}</h1>
+</header>
+
+<body>
+    <div id="campaigns">
+        <h2>Campaigns</h2>
+        {% for campaignName, campaign in campaigns.items() %}
+            <h3>{{ campaignName }}</h3>
+            <p>
+                <a href="{{ url_for('RunCampaign', name=campaignName, startNew=1) }}">Run</a>
+                <a href="{{ url_for('EditCampaign', name=campaignName, isNew=0) }}">Edit</a>
+            </p>
+        {% endfor %}
+        <br>
+        <p><a href="{{ url_for('EditCampaign', name='blank', isNew=1) }}">New Campaign</a></p>
+    </div>
+    
+    <h2>Game Assets</h2>
+    <a href="{{ url_for('AssetsTop') }}">Edit Assets</a>
+</body>
+{% endblock %}

@@ -10,7 +10,7 @@ class Landmark:
         # ### optional
         # # flavor text
         # self.description = ""
-        # # passives that effect players and NPCs constantly in this Landmark
+        # # passives that effect players and Characters constantly in this Landmark
         # self.effectsList = []
 
     def to_json(self):

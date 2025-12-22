@@ -10,9 +10,9 @@
 
 {% block content %}
 <body>
-    <form method="POST" id="save_Character_form">
+    <form method="POST" id="save_character_form">
         <h3>Character Name</h3>
-        <input type="hidden" name="action" value="save_Character_form">
+        <input type="hidden" name="action" value="save_character_form">
         <!-- autopopulate if Character already exists -->
         {% if character.name == "blank" %}
             <label for="characterName">Character Name:</label>
@@ -35,23 +35,23 @@
             <h3>Actions</h3>
             {% for i in range(0, character.actionListNames|length) %}
                     <i>{{ actions[character.actionListNames[i]].name }}</i>
-                    <button type="submit" name="delete_action" value="{{ character.actionListNames[i] }}" form="save_Character_form">delete</button>
+                    <button type="submit" name="delete_action" value="{{ character.actionListNames[i] }}" form="save_character_form">delete</button>
                     <br>
             {% endfor %}
             <h4>Available Actions</h4>
-            {% for i in range(0, actions|length) %}
-                    <i>{{ actions[i].name }}</i>
-                    <button type="submit" name="add_action" value="{{ i }}" form="save_Character_form">Add</button>
+            {% for actionName in actions.keys() %}
+                    <i>{{ actionName }}</i>
+                    <button type="submit" name="add_action" value="{{ actionName }}" form="save_character_form">Add</button>
                     <br>
             {% endfor %}
         {% endif %}
     </form>
-    <button type="submit" name="update_Character" form="save_Character_form">Save Character</button>
+    <button type="submit" name="update_character" form="save_character_form">Save Character</button>
     <br>
     <br>
-    <form method="POST" id="delete_Character_form">
-        <input type="hidden" name="action" value="delete_Character_form">
-        <button type="submit" name="delete_Character">Delete Character</button>
+    <form method="POST" id="delete_character_form">
+        <input type="hidden" name="action" value="delete_character_form">
+        <button type="submit" name="delete_character">Delete Character</button>
     </form>
 </body>
 {% endblock %}

@@ -11,7 +11,7 @@ class Region:
         # ### optional
         # # flavor text
         # self.description = ""
-        # # passives that effect players and NPCs constantly in this region
+        # # passives that effect players and Characters constantly in this region
         # self.effectsList = []
 
     def to_json(self):

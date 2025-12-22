@@ -15,7 +15,7 @@ class Footing:
         # climbability
         # # flavor text
         # self.description = ""
-        # # passives that effect players and NPCs in this footing at the start of their turn
+        # # passives that effect players and Characters in this footing at the start of their turn
         # self.effectsList = []
 
     def to_json(self):

@@ -1,6 +1,7 @@
 # Flask
 # from flask import Flask, render_template, url_for, request, redirect
 from flask import *
+import uuid
 # DeathWish Custom
 import Game
 import Assets
@@ -11,7 +12,8 @@ from Landmark import *
 from Effect import *
 from Action import *
 from Activity import *
-from NPC import *
+from Character import *
+from PlayerCharacter import *
 from Tangible import *
 from Encounter import *
 # re
@@ -21,16 +23,46 @@ import DeathWish
 
 def create_flask_app(processQueue):
     app = Flask(__name__)
+    app.config['SECRET_KEY'] = 'my_secret_key'
 
-    @app.route('/')
+    @app.before_request
+    def load_user_data():
+        """Load user role into the global 'g' object before each request."""
+        # 'g' is an object for storing data during a single request
+        g.user_role = session.get('user_role', 'Guest') 
+
+    @app.context_processor
+    def inject_user_role():
+        """Inject the user_role into ALL templates."""
+        return dict(current_user_role=g.user_role)
+
+    @app.route('/', methods=['GET'])
     def Title():
-        return render_template('Title.html')
+        if 'session_client_id' not in session:
+            new_id = str(uuid.uuid4())
+            session['session_client_id'] = new_id
+            print(f"New client connected with ID: {new_id}")
+            player_characters = {}
+            for charName, character in Game.assets.CharacterDict.items():
+                if character.type == "player_character":
+                    player_characters[charName] = character
+        return render_template('Title.html', player_characters=player_characters)
 
-    ############################################################################################# Game Master Pages
     @app.route('/GameMaster')
     def GameMaster():
+        session['user_role'] = "GM"
         processQueue.put(("gameState", 'title'))
         return render_template('GameMaster.html', campaigns=Game.assets.campaignDict)
+    
+    @app.route('/PlayerCharacter/<name>')
+    def RunPlayerCharacter(name, isNew):
+        if isNew < 1:
+            player_character = Game.assets.CharacterDict[name]
+        else:
+            player_character = PlayerCharacter(name="blank", health=0, stamina=0, mana=0, actionCount=2,
+                      weight=0, mapIconImgFile="path_to_image", type="character", actionListNames=[], currentEffectJSONList=[])
+        session['user_role'] = "Player"
+        return render_template('RunPlayerCharacter.html', campaigns=Game.assets.campaignDict)
 
     @app.route('/GameMaster/EditCampaign/Campaign/<name>/<int:isNew>', methods=['GET', 'POST'])
     def EditCampaign(name, isNew):
@@ -64,7 +96,7 @@ def create_flask_app(processQueue):
                 return redirect(url_for('GameMaster'))
         return render_template('EditCampaign.html', campaign=campaign.to_json(), regions=regionJSONs, landmarks=landmarkJSONs)
 
-    ### display all global objects as URLs in a big list (tangibles (equipment, weapons, items), encounters, regions, and NPCs (monsters, humanoids))
+    ### display all global objects as URLs in a big list (tangibles (equipment, weapons, items), encounters, regions, and Characters (monsters, humanoids))
     @app.route('/GameMaster/Assets', methods=['GET', 'POST'])
     def AssetsTop():
         return render_template('AssetsTop.html', assets=Game.assets)
@@ -73,7 +105,7 @@ def create_flask_app(processQueue):
     @app.route('/GameMaster/Assets/Region/<name>/<int:isNew>', methods=['GET', 'POST'])
     def EditRegion(name, isNew):
         if isNew < 1:
-            region = Game.assets.regionList[name]
+            region = Game.assets.regionDict[name]
         else:
             region = Region("blank", "path_to_image", [])
         encounterJSONS = {en: ec.to_json() for en, ec in Game.assets.encounterDict.items()}
@@ -276,36 +308,36 @@ def create_flask_app(processQueue):
         return render_template('EditLandmark.html', landmark=landmark.to_json(), encounters=encounterJSONS)
 
     ### display chosen objects attributes in editable forms
-    @app.route('/GameMaster/Assets/NPC/<name>/<int:isNew>', methods=['GET', 'POST'])
-    def EditNPC(name, isNew):
+    @app.route('/GameMaster/Assets/Character/<name>/<int:isNew>', methods=['GET', 'POST'])
+    def EditCharacter(name, isNew):
         if isNew < 1:
-            npc = Game.assets.NPCDict[name]
+            character = Game.assets.CharacterDict[name]
         else:
-            npc = NPC(name="blank", health=0, stamina=0, mana=0, actionCount=2,
-                      weight=0, mapIconImgFile="path_to_image", type="npc", actionListNames=[], currentEffectJSONList=[])
+            character = Character(name="blank", health=0, stamina=0, mana=0, actionCount=2,
+                      weight=0, mapIconImgFile="path_to_image", type="character", actionListNames=[], currentEffectJSONList=[])
         actionJSONS = {an: ac.to_json() for an, ac in Game.assets.actionDict.items()}
         if request.method == 'POST':
-            if request.form.get("action") == "save_NPC_form":
+            if request.form.get("action") == "save_character_form":
                 if 'delete_action' in request.form:
-                    del npc.actionListNames[request.form['delete_action']]
+                    del character.actionListNames[request.form['delete_action']]
                 elif 'add_action' in request.form:
-                    npc.actionListNames.append(request.form['add_action'])
+                    character.actionListNames.append(request.form['add_action'])
                 else:
-                    npc.name = request.form.get('npcName')
-                    npc.health = request.form.get('npcHealth')
+                    character.name = request.form.get('characterName')
+                    character.health = request.form.get('characterHealth')
                     ### only expect the user to type in the filename, not the relative path
-                    npc.mapIconImgFile = request.form.get('mapIconImgFile')
+                    character.mapIconImgFile = request.form.get('mapIconImgFile')
                     if isNew == 1:
-                        Game.assets.add_NPC(npc)
+                        Game.assets.add_character(character)
                     else:
-                        Game.assets.update_NPC_save(npc)
-                if 'update_NPC' in request.form:
+                        Game.assets.update_character_save(character)
+                if 'update_character' in request.form:
                     return redirect(url_for('AssetsTop'))
-            elif request.form.get("action") == "delete_NPC_form":
+            elif request.form.get("action") == "delete_character_form":
                 if isNew == 0:
-                    Game.assets.delete_NPC(name)
+                    Game.assets.delete_character(name)
                 return redirect(url_for('AssetsTop'))
-        return render_template('EditNPC.html', npc=npc.to_json(), actions=actionJSONS)
+        return render_template('EditCharacter.html', character=character.to_json(), actions=actionJSONS)
 
     ### display chosen objects attributes in editable forms
     @app.route('/GameMaster/Assets/Encounter/<name>/<int:isNew>', methods=['GET', 'POST'])
@@ -360,7 +392,7 @@ def create_flask_app(processQueue):
                 processQueue.put(("refreshCampaign", campaign))
         return render_template('RunCampaign.html', campaign=campaign.to_json(), regions=regionJSONs, landmarks=landmarkJSONs, encounters=encounterJSONs)
 
-    ### display encounter map, party/enemy stats, party member/NPC headshot 
+    ### display encounter map, party/enemy stats, party member/Character headshot 
     @app.route('/GameMaster/RunEncounter/Encounter/<name>/<int:startNew>', methods=['GET', 'POST'])
     def RunEncounter(name, startNew):
         if (startNew == 1):
@@ -381,7 +413,7 @@ def create_flask_app(processQueue):
         turnAction = Game.assets.actionDict[actionListName]
         footingJSONs = {fn: ft.to_json() for fn,ft in Game.assets.footingDict.items()}
         encounter = Game.assets.curEncounter
-        npc = encounter.get_object_from_object_id(mapObjectID)
+        character = encounter.get_object_from_object_id(mapObjectID)
         mapObjectJSONs = {mon: mo.to_json() for mon, mo in Game.assets.allMapObjectsDict.items()}
         if request.method == 'POST':
             action = request.form.get('action')
@@ -398,7 +430,7 @@ def create_flask_app(processQueue):
                     # pre reactions
                     # if (len(reactionDict.keys()) > 0):
                     #     return render_template('CompleteAction.html', encounter=encounter.to_json(), mapObjects=mapObjectJSONs,
-                    #                             footings=footingJSONs, action=turnAction.to_json(), npc=npc.to_json(),
+                    #                             footings=footingJSONs, action=turnAction.to_json(), character=character.to_json(),
                     #                             activities=activityJSONS, executorID=mapObjectID, reactionDict=reactionDict)
                     # else:
                         # resolve activity effects
@@ -407,13 +439,13 @@ def create_flask_app(processQueue):
                         # reactionDict = encounter.get_post_activity_counters(activity, Game.assets)
                         # if (len(reactionDict.keys()) > 0):
                         #     return render_template('CompleteAction.html', encounter=encounter.to_json(), mapObjects=mapObjectJSONs,
-                        #                             footings=footingJSONs, action=turnAction.to_json(), npc=npc.to_json(),
+                        #                             footings=footingJSONs, action=turnAction.to_json(), character=character.to_json(),
                         #                             activities=activityJSONS, executorID=mapObjectID, reactionDict=reactionDict)
                         # else:
                             # return to the current encounter
-                encounter.end_NPC_action(mapObjectID)
+                encounter.end_character_action(mapObjectID)
                 return redirect(url_for('RunEncounter', name="current", startNew=0))
         return render_template('CompleteAction.html', encounter=encounter.to_json(), mapObjects=mapObjectJSONs,
-                                                footings=footingJSONs, action=turnAction.to_json(), npc=npc.to_json(),
+                                                footings=footingJSONs, action=turnAction.to_json(), character=character.to_json(),
                                                 activities=activityJSONS, executorID=mapObjectID, reactionDict=None)
     return app

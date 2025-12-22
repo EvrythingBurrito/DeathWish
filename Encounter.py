@@ -1,7 +1,7 @@
 import json
 import random
 from MapObject import MapObject
-from NPC import NPC
+from Character import Character
 from Tangible import Tangible
 from Effect import Effect
 import Game
@@ -46,7 +46,7 @@ class Encounter:
             for cellDict in row:
                 for cellObject in cellDict['objects']:
                     if cellObject:
-                        if cellObject.split("-")[0] == "npc" or cellObject.split("-")[0] == "tangible":
+                        if cellObject.split("-")[0] == "character" or cellObject.split("-")[0] == "tangible":
                             mapObjectToAdd = Game.assets.allMapObjectsDict[cellObject.split("-")[1]]
                             # make a unique encounter-specific identifier for the mapObject (different than the token id, should be easy to remember for players)
                             nextIDNum = 0
@@ -58,25 +58,25 @@ class Encounter:
                             # index 0 is entity id, index 1 is JSON for mapObject, index 2 is the string that the map list cell contains
                             self.mapObjectList.append([entityName, mapObjectToAdd.to_json(), cellObject])
         # return the list of lists
-        if self.mapObjectList[0][2].split("-")[0] != "npc":
+        if self.mapObjectList[0][2].split("-")[0] != "character":
             self.advance_turn_order()
         return (self.mapObjectList)
 
     def advance_turn_order(self):
         # rotate list by 1
         self.mapObjectList = self.mapObjectList[1:] + self.mapObjectList[:1]
-        # keep rotating until next up is a npc
-        while self.mapObjectList[0][2].split("-")[0] != "npc":
+        # keep rotating until next up is a character
+        while self.mapObjectList[0][2].split("-")[0] != "character":
             self.mapObjectList = self.mapObjectList[1:] + self.mapObjectList[:1]
 
-    def end_NPC_action(self, mapObjectID):
-        npc = self.get_object_from_object_id(mapObjectID)
-        npc.actionCount = max(0, int(npc.actionCount) - 1)
-        if npc.actionCount == 0:
-            # reset action count to default action count for npc
-            npc.actionCount = Game.assets.NPCDict[mapObjectID.split("-")[1]].actionCount
+    def end_character_action(self, mapObjectID):
+        character = self.get_object_from_object_id(mapObjectID)
+        character.actionCount = max(0, int(character.actionCount) - 1)
+        if character.actionCount == 0:
+            # reset action count to default action count for character
+            character.actionCount = Game.assets.CharacterDict[mapObjectID.split("-")[1]].actionCount
             self.advance_turn_order()
-        self.update_mapObject_from_id(mapObjectID, npc)
+        self.update_mapObject_from_id(mapObjectID, character)
 
     def resolve_activity_effects(self, activity, mapObjectID, activityDataJSON):
         activityData = json.loads(activityDataJSON)
@@ -126,8 +126,8 @@ class Encounter:
     def get_object_from_object_id(self, mapObjectID):
         for encounterObject in self.mapObjectList:
             if mapObjectID == encounterObject[2]:
-                if mapObjectID.split("-")[0] == "npc":
-                    return NPC.from_json(encounterObject[1])
+                if mapObjectID.split("-")[0] == "character":
+                    return Character.from_json(encounterObject[1])
                 elif mapObjectID.split("-")[0] == "tangible":
                     return Tangible.from_json(encounterObject[1])
                 else:
@@ -161,7 +161,7 @@ class Encounter:
     #     preActivityCounters = {}
     #     for mapObject in self.mapObjectList:
     #         entityName = mapObject[0]
-    #         character = NPC.from_json(mapObject[1])
+    #         character = Character.from_json(mapObject[1])
     #         for actionName in character.actionListNames:
     #             action = assets.actionList[actionName]
     #             # check whether the user can afford the action

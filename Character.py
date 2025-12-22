@@ -1,12 +1,12 @@
 from MapObject import MapObject
 
-class NPC(MapObject):
+class Character(MapObject):
     def __init__(self, name, health, stamina, mana, actionCount, weight, mapIconImgFile, type, actionListNames):
         super().__init__(name, health, weight, mapIconImgFile, [])
         self.stamina = stamina
         self.mana = mana
         self.actionCount = actionCount
-        self.type = "npc"
+        self.type = "character"
         self.actionListNames = actionListNames
 
     def __init__(self, name, health, stamina, mana, actionCount, weight, mapIconImgFile, type, actionListNames, currentEffectJSONList):
@@ -15,5 +15,5 @@ class NPC(MapObject):
         self.stamina = stamina
         self.mana = mana
         self.actionCount = actionCount
-        self.type = "npc"
+        self.type = "character"
         self.actionListNames = actionListNames

@@ -10,35 +10,35 @@
             <div class="column">
                 <h3>Actions</h3>
                 <a href="{{ url_for('EditAction', name='blank', isNew=1) }}">New Action</a>
-                {% for actionName, action in assets.actionDict.items() %}
+                {% for actionName in assets.actionDict.keys() %}
                     <p><a href="{{ url_for('EditAction', name=actionName, isNew=0) }}">{{ actionName }}</a></p>
                 {% endfor %}
             </div>
             <div class="column">
                 <h3>Regions</h3>
                 <a href="{{ url_for('EditRegion', name='blank', isNew=1) }}">New Region</a>
-                {% for regionName, region in assets.regionDict.items() %}
+                {% for regionName in assets.regionDict.keys() %}
                     <p><a href="{{ url_for('EditRegion', name=regionName, isNew=0) }}">{{ regionName }}</a></p>
                 {% endfor %}
             </div>
             <div class="column">
                 <h3>Landmarks</h3>
                 <a href="{{ url_for('EditLandmark', name='blank', isNew=1) }}">New Landmark</a>
-                {% for landmarkName, landmark in assets.landmarkDict.items() %}
+                {% for landmarkName in assets.landmarkDict.keys() %}
                     <p><a href="{{ url_for('EditLandmark', name=landmarkName, isNew=0) }}">{{ landmarkName }}</a></p>
                 {% endfor %}
             </div>
             <div class="column">
-                <h3>NPCs</h3>
-                <a href="{{ url_for('EditNPC', name='blank', isNew=1) }}">New NPC</a>
-                {% for NPCName, NPC in assets.NPCDict.items() %}
-                    <p><a href="{{ url_for('EditNPC', name=NPCName, isNew=0) }}">{{ NPCName }}</a></p>
+                <h3>Characters</h3>
+                <a href="{{ url_for('EditCharacter', name='blank', isNew=1) }}">New Character</a>
+                {% for CharacterName in assets.CharacterDict.keys() %}
+                    <p><a href="{{ url_for('EditCharacter', name=CharacterName, isNew=0) }}">{{ CharacterName }}</a></p>
                 {% endfor %}
             </div>
             <div class="column">
                 <h3>Encounters</h3>
                 <a href="{{ url_for('EditEncounter', name='blank', isNew=1) }}">New Encounter</a>
-                {% for encounterName, encounter in assets.encounterDict.items() %}
+                {% for encounterName in assets.encounterDict.keys() %}
                     <p><a href="{{ url_for('EditEncounter', name=encounterName, isNew=0) }}">{{ encounterName }}</a></p>
                 {% endfor %}
             </div>
@@ -47,28 +47,28 @@
             <div class="column">
                 <h3>Activities</h3>
                 <a href="{{ url_for('EditActivity', name='blank', isNew=1) }}">New Activity</a>
-                {% for activityName, activity in assets.activityDict.items() %}
+                {% for activityName in assets.activityDict.keys() %}
                     <p><a href="{{ url_for('EditActivity', name=activityName, isNew=0) }}">{{ activityName }}</a></p>
                 {% endfor %}
             </div>
             <div class="column">
                 <h3>Effects</h3>
                 <a href="{{ url_for('EditEffect', name='blank', isNew=1) }}">New Effect</a>
-                {% for effectName, effect in assets.effectDict.items() %}
+                {% for effectName in assets.effectDict.keys() %}
                     <p><a href="{{ url_for('EditEffect', name=effectName, isNew=0) }}">{{ effectName }}</a></p>
                 {% endfor %}
             </div>
             <div class="column">
                 <h3>Footings</h3>
                 <a href="{{ url_for('EditFooting', name='blank', isNew=1) }}">New Footing</a>
-                {% for footingName, footing in assets.footingDict.items() %}
+                {% for footingName in assets.footingDict.keys() %}
                     <p><a href="{{ url_for('EditFooting', name=footingName, isNew=0) }}">{{ footingName }}</a></p>
                 {% endfor %}
             </div>
             <div class="column">
                 <h3>Tangibles</h3>
                 <a href="{{ url_for('EditTangible', name='blank', isNew=1) }}">New Tangible</a>
-                {% for tangibleName, tangible in assets.tangibleDict.items() %}
+                {% for tangibleName in assets.tangibleDict.keys() %}
                     <p><a href="{{ url_for('EditTangible', name=tangibleName, isNew=0) }}">{{ tangibleName }}</a></p>
                 {% endfor %}
             </div>

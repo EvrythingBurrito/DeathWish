@@ -5,7 +5,7 @@ from Footing import Footing
 from Landmark import Landmark
 from Encounter import Encounter
 from Campaign import Campaign
-from NPC import NPC
+from Character import Character
 from Action import Action
 from Activity import Activity
 from Tangible import Tangible
@@ -19,7 +19,7 @@ class Assets:
         self.footingDir = "./Assets/Footings"
         self.landmarkDir = "./Assets/Landmarks"
         self.encounterDir = "./Assets/Encounters"
-        self.NPCDir = "./Assets/NPCs"
+        self.CharacterDir = "./Assets/Characters"
         self.actionDir = "./Assets/Actions"
         self.activityDir = "./Assets/Activities"
         self.tangibleDir = "./Assets/Tangibles"
@@ -41,8 +41,8 @@ class Assets:
         curEncounter = Encounter("Current", None, None, None)
         # create a blank "current" campaign
         curCampaign = Campaign("Current", None, None, None)
-        self.NPCDict = {}
-        self.update_NPC_dict()
+        self.CharacterDict = {}
+        self.update_character_dict()
         self.actionDict = {}
         self.update_action_dict()
         self.activityDict = {}
@@ -50,7 +50,7 @@ class Assets:
         self.effectDict = {}
         self.update_effect_dict()
 
-        self.allMapObjectsDict = self.NPCDict | self.tangibleDict
+        self.allMapObjectsDict = self.CharacterDict | self.tangibleDict
 
 ### operate specific elements
     def add_campaign(self, campaign):
@@ -88,12 +88,12 @@ class Assets:
         self.delete_encounter_save(self.encounterDict[encounterName])
         del self.encounterDict[encounterName]
 
-    def add_NPC(self, NPC):
-        self.NPCDict[NPC.name] = NPC
-        self.update_NPC_save(NPC)
-    def delete_NPC(self, NPCName):
-        self.delete_NPC_save(self.NPCDict[NPCName])
-        del self.NPCDict[NPCName]
+    def add_character(self, Character):
+        self.CharacterDict[Character.name] = Character
+        self.update_character_save(Character)
+    def delete_character(self, CharacterName):
+        self.delete_character_save(self.CharacterDict[CharacterName])
+        del self.CharacterDict[CharacterName]
 
     def add_action(self, action):
         self.actionDict[action.name] = action
@@ -247,29 +247,29 @@ class Assets:
                 aEncounter = Encounter.from_json(data)
                 self.encounterDict[aEncounter.name] = aEncounter
 
-########################################################### NPCS
+########################################################### Characters
 
-    ### create or update save file for desired NPC
-    def update_NPC_save(self, NPC):
-        filename = self.NPCDir + "/" + NPC.name.replace(" ", "_") + ".json"
-        if NPC not in self.NPCDict.items():
-            self.NPCDict[NPC.name] = NPC
+    ### create or update save file for desired Character
+    def update_character_save(self, Character):
+        filename = self.CharacterDir + "/" + Character.name.replace(" ", "_") + ".json"
+        if Character not in self.CharacterDict.items():
+            self.CharacterDict[Character.name] = Character
         if os.path.exists(filename):
-            print("overwriting NPC save!")
+            print("overwriting Character save!")
         with open(filename, 'w') as f:
-            json.dump(NPC.to_json(), f)
+            json.dump(Character.to_json(), f)
 
-    def delete_NPC_save(self, NPC):
-        filename = self.NPCDir + "/" + NPC.name.replace(" ", "_") + ".json"
+    def delete_character_save(self, Character):
+        filename = self.CharacterDir + "/" + Character.name.replace(" ", "_") + ".json"
         os.remove(filename)
 
-    def update_NPC_dict(self):
-        self.NPCDict = {}
-        for filename in glob.glob(self.NPCDir + "/*.json"):
+    def update_character_dict(self):
+        self.CharacterDict = {}
+        for filename in glob.glob(self.CharacterDir + "/*.json"):
             with open(filename, 'r') as f:
                 data = json.load(f)
-                aNPC = NPC.from_json(data)
-                self.NPCDict[aNPC.name] = aNPC
+                aCharacter = Character.from_json(data)
+                self.CharacterDict[aCharacter.name] = aCharacter
 
 ########################################################### ACTIONS
 

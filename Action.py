@@ -34,6 +34,6 @@ class Action:
     def __str__(self):
         return f"{self.name}"
     
-    # TODO - add method which takes NPC (with equipment) and returns the modified action
+    # TODO - add method which takes Character (with equipment) and returns the modified action
 
     # TODO - add line of sight method

@@ -1,0 +1,1 @@
+{"name": "wolf", "health": "10", "weight": 0, "mapIconImgFile": "/static/Assets/Characters/Images/wolfToken.png", "currentEffectJSONList": [], "stamina": 0, "mana": 0, "actionCount": 2, "type": "character", "actionListNames": ["step", "slash_i"]}

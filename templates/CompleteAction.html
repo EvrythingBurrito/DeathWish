@@ -7,7 +7,7 @@
     const encounter = {{ encounter|tojson }};
     const footings = {{ footings|tojson }};
     const action = {{ action|tojson }};
-    const npc = {{ npc|tojson }};
+    const character = {{ character|tojson }};
     const executorID = {{ executorID|tojson }};
     // define activities which make up the action
     let actionActivities = [];
@@ -55,9 +55,9 @@
             {% for i in range(0, action.activityListNames|length) %}
                 <h3> activity {{ i + 1 }} : {{ action.activityListNames[i] }} : {{ action.activityListNames[i].effectNameList }}</h3>
             {% endfor %}
-            <h3> health: {{ npc.health }} </h3>
-            <h3> stamina: {{ npc.stamina }} </h3>
-            <h3> mana: {{ npc.mana }} </h3>
+            <h3> health: {{ character.health }} </h3>
+            <h3> stamina: {{ character.stamina }} </h3>
+            <h3> mana: {{ character.mana }} </h3>
             <button type="submit" form="submit_action_form">Submit {{ action.name }}</button>
         </div>
     </div>
