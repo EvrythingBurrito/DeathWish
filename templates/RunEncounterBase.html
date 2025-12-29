@@ -17,7 +17,13 @@
         {% if current_user_role == "GM" or current_user_role == character.name %}
             <p> Actions Remaining: {{ character.actionCount }}</p>
             {% for i in range(0, character.actionListNames|length) %}
-                <a href="{{ url_for('CompleteAction', mapObjectID=mapObjectList[0][2], actionListName=mapObjectList[0][1].actionListNames[i]) }}"> {{ mapObjectList[0][1].actionListNames[i] }}</a>
+                <a href="{{ url_for('CompleteAction', mapObjectID=mapObjectList[0][2], actionListName=mapObjectList[0][1].actionListNames[i]) }}"> {{ mapObjectList[0][1].actionListNames[i] }} </a>
+                <p> Stamina Cost: {{ actions[mapObjectList[0][1].actionListNames[i]].staminaCost }} Mana Cost: {{ actions[mapObjectList[0][1].actionListNames[i]].manaCost }} </p>
+                <p> Move Order:
+                    {% for move in actions[mapObjectList[0][1].actionListNames[i]].activityListNames %}
+                        {{ move }}
+                    {% endfor %}
+                </p>
                 <br>
             {% endfor %}
         {% endif %}

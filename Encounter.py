@@ -74,6 +74,11 @@ class Encounter:
             self.advance_turn_order()
         self.update_mapObject_from_id(mapObjectID, character)
 
+    def resolve_action_costs(self, mapObjectID, action):
+        character = self.get_object_from_object_id(mapObjectID)
+        character.apply_action_costs(action)
+        self.update_mapObject_from_id(mapObjectID, character)
+
     def resolve_activity_effects(self, activity, mapObjectID, activityDataJSON):
         activityData = json.loads(activityDataJSON)
         mapGrid = json.loads(self.mapGridJSON)

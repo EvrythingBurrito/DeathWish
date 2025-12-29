@@ -18,3 +18,7 @@ class Character(MapObject):
         self.actionCount = actionCount
         self.maxActionCount = maxActionCount
         self.actionListNames = actionListNames
+
+    def apply_action_costs(self, action):
+        self.stamina -= action.staminaCost
+        self.mana -= action.manaCost

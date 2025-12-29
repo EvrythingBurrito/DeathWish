@@ -78,7 +78,6 @@ def create_flask_app(processQueue):
             print(f"New client connected with ID: {new_id}")
         player_characters = {}
         for charName, character in Game.assets.CharacterDict.items():
-            print(f"{charName} : {character.type}")
             if character.type == "player_character":
                 player_characters[charName] = character
         return render_template('Title.html', player_characters=player_characters)
@@ -139,12 +138,12 @@ def create_flask_app(processQueue):
         session['user_role'] = name
         footingJSONs = {fn: ft.to_json() for fn, ft in Game.assets.footingDict.items()}
         mapObjectJSONs = {mon: mo.to_json() for mon, mo in Game.assets.allMapObjectsDict.items()}
-        actionJSONS = {an: ac.to_json() for an, ac in Game.assets.actionDict.items()}
-        encounter = Game.assets.curEncounter
         if Game.assets.is_current_encounter():
             player_character = Game.assets.curEncounter.get_object_from_object_id(f"player_character-{name}-0")
         else:
             player_character = Game.assets.CharacterDict[name]
+        actionJSONS = {an: ac.modify_from_character(player_character).to_json() for an, ac in Game.assets.actionDict.items()}
+        encounter = Game.assets.curEncounter
         return render_template('RunPlayerCharacter.html', encounter=encounter.to_json(),
                                mapObjects=mapObjectJSONs, actions=actionJSONS, footings=footingJSONs,
                                mapObjectList=encounter.mapObjectList, character=player_character.to_json())
@@ -172,7 +171,6 @@ def create_flask_app(processQueue):
             elif action == 'update_landmarks_form':
                 # keep in json format
                 campaign.mapGridJSON = request.form.get('mapObjects')
-                print(campaign.mapGridJSON)
                 campaign.update_party_landmark()
                 Game.assets.update_campaign_save(campaign)
                 return redirect(url_for('GameMaster'))
@@ -220,7 +218,6 @@ def create_flask_app(processQueue):
     ### display chosen objects attributes in editable forms
     @app.route('/GameMaster/Assets/Footing/<name>/<int:isNew>', methods=['GET', 'POST'])
     def EditFooting(name, isNew):
-        print("rendering template")
         if isNew < 1:
             footing = Game.assets.footingDict[name]
         else:
@@ -242,7 +239,6 @@ def create_flask_app(processQueue):
                 if isNew == 0:
                     Game.assets.delete_footing(name)
                 return redirect(url_for('AssetsTop'))
-        print("rendering template")
         return render_template('EditFooting.html', footing=footing.to_json())
     
     ### display chosen objects attributes in editable forms
@@ -312,8 +308,8 @@ def create_flask_app(processQueue):
                     action.activityListNames.append(request.form['add_activity'])
                 else:
                     action.name = request.form.get('actionName')
-                    action.staminaCost = request.form.get('staminaCost')
-                    action.manaCost = request.form.get('manaCost')
+                    action.staminaCost = int(request.form.get('staminaCost'))
+                    action.manaCost = int(request.form.get('manaCost'))
                 if isNew == 1:
                     Game.assets.add_action(action)
                 else:
@@ -507,51 +503,40 @@ def create_flask_app(processQueue):
         processQueue.put(("gameState", 'encounter'))
         mapObjectJSONs = {mon: mo.to_json() for mon, mo in Game.assets.allMapObjectsDict.items()}
         footingJSONs = {fn: ft.to_json() for fn, ft in Game.assets.footingDict.items()}
-        actionJSONS = {an: ac.to_json() for an, ac in Game.assets.actionDict.items()}
+        currentCharacter = encounter.get_current_character()
+        # get list of modified actions (for the current whose turn it is)
+        actionJSONS = {an: ac.modify_from_character(currentCharacter).to_json() for an, ac in Game.assets.actionDict.items()}
         return render_template('RunEncounterGM.html', encounter=encounter.to_json(),
                                mapObjects=mapObjectJSONs, actions=actionJSONS, footings=footingJSONs,
-                               mapObjectList=encounter.mapObjectList, character=encounter.get_current_character().to_json())
+                               mapObjectList=encounter.mapObjectList, character=currentCharacter.to_json())
 
     ### Action contains modified info 
     @app.route('/GameMaster/CompleteAction/Action/<string:mapObjectID>/<actionListName>', methods=['GET', 'POST'])
     def CompleteAction(mapObjectID, actionListName):
         activityJSONS = {an: ac.to_json() for an, ac in Game.assets.activityDict.items()}
-        turnAction = Game.assets.actionDict[actionListName]
         footingJSONs = {fn: ft.to_json() for fn,ft in Game.assets.footingDict.items()}
         encounter = Game.assets.curEncounter
         character = encounter.get_object_from_object_id(mapObjectID)
+        baseAction = Game.assets.actionDict[actionListName]
+        turnAction = baseAction.modify_from_character(character)
         mapObjectJSONs = {mon: mo.to_json() for mon, mo in Game.assets.allMapObjectsDict.items()}
         if request.method == 'POST':
             action = request.form.get('action')
             if action == 'submit_action_form':
-                activityEntryNames = {key: request.form[key] for key in request.form if key.endswith('_name')}
-                # for each activity in action, resolve pre/post reactions, then resolve effects
-                for entryName in activityEntryNames:
-                    match = re.match(r'activity_(\d.*)_name', entryName)
-                    submissionNum = match.group(1)
-                    dataEntry = request.form.get(f'activity_{submissionNum}_data')
-                    nameEntry = request.form.get(entryName)
-                    activity = Game.assets.activityDict[nameEntry]
-                    # reactionDict = encounter.get_pre_activity_counters(activity, Game.assets)
-                    # pre reactions
-                    # if (len(reactionDict.keys()) > 0):
-                    #     return render_template('CompleteAction.html', encounter=encounter.to_json(), mapObjects=mapObjectJSONs,
-                    #                             footings=footingJSONs, action=turnAction.to_json(), character=character.to_json(),
-                    #                             activities=activityJSONS, executorID=mapObjectID, reactionDict=reactionDict)
-                    # else:
-                        # resolve activity effects
-                    encounter.resolve_activity_effects(activity, mapObjectID, dataEntry)
-                        # post reactions
-                        # reactionDict = encounter.get_post_activity_counters(activity, Game.assets)
-                        # if (len(reactionDict.keys()) > 0):
-                        #     return render_template('CompleteAction.html', encounter=encounter.to_json(), mapObjects=mapObjectJSONs,
-                        #                             footings=footingJSONs, action=turnAction.to_json(), character=character.to_json(),
-                        #                             activities=activityJSONS, executorID=mapObjectID, reactionDict=reactionDict)
-                        # else:
-                            # return to the current encounter
-                encounter.end_character_action(mapObjectID)
-                # refresh all screens to update with new gamestate
-                update_other_rooms({'data': 'Action Complete'})
+                if turnAction.meets_cost_requirements(character):
+                    encounter.resolve_action_costs(mapObjectID, turnAction)
+                    activityEntryNames = {key: request.form[key] for key in request.form if key.endswith('_name')}
+                    # for each activity in action, resolve pre/post reactions, then resolve effects
+                    for entryName in activityEntryNames:
+                        match = re.match(r'activity_(\d.*)_name', entryName)
+                        submissionNum = match.group(1)
+                        dataEntry = request.form.get(f'activity_{submissionNum}_data')
+                        nameEntry = request.form.get(entryName)
+                        activity = Game.assets.activityDict[nameEntry]
+                        encounter.resolve_activity_effects(activity, mapObjectID, dataEntry)
+                    encounter.end_character_action(mapObjectID)
+                    # refresh all screens to update with new gamestate
+                    update_other_rooms({'data': 'Action Complete'})
                 current_user_role = session.get('user_role', 'Guest')
                 if current_user_role == "GM":
                     return redirect(url_for('RunEncounter', name="current", startNew=0))

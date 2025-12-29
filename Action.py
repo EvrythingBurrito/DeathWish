@@ -1,4 +1,5 @@
 import json
+import copy
 
 class Action:
     def __init__(self, name, staminaCost, manaCost, activityListNames):
@@ -33,7 +34,17 @@ class Action:
 
     def __str__(self):
         return f"{self.name}"
-    
-    # TODO - add method which takes Character (with equipment) and returns the modified action
+
+    # FIXME - takes character equipment and modifies costs
+    def modify_from_character(self, character):
+        new_action = copy.deepcopy(self)
+        return new_action
+
+    def meets_cost_requirements(self, character):
+        if character.stamina < self.staminaCost:
+            return False
+        if character.mana < self.manaCost:
+            return False
+        return True
 
     # TODO - add line of sight method
