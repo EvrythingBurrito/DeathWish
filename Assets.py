@@ -39,9 +39,9 @@ class Assets:
         self.encounterDict = {}
         self.update_encounter_dict()
         # create a blank "current" encounter
-        curEncounter = Encounter("Current", None, None, None)
+        self.reset_curEncounter()
         # create a blank "current" campaign
-        curCampaign = Campaign("Current", None, None, None)
+        self.reset_curCampaign()
         self.CharacterDict = {}
         self.update_character_dict()
         self.actionDict = {}
@@ -150,6 +150,9 @@ class Assets:
                 data = json.load(f)
                 aCampaign = Campaign.from_json(data)
                 self.campaignDict[aCampaign.name] = aCampaign
+    
+    def reset_curCampaign(self):
+        self.curCampaign = None
 
 ########################################################### REGIONS
 
@@ -247,6 +250,15 @@ class Assets:
                 data = json.load(f)
                 aEncounter = Encounter.from_json(data)
                 self.encounterDict[aEncounter.name] = aEncounter
+
+    def reset_curEncounter(self):
+        self.curEncounter = Encounter(name="blank", footingMap=None, mapGridJSON=None, description=None)
+
+    def is_current_encounter(self):
+        if self.curEncounter.name == "blank":
+            return False
+        else:
+            return True
 
 ########################################################### Characters
 

@@ -12,7 +12,7 @@ function createDraggableObject(objectType, objectName, x, y) {
     row = Math.max(0, Math.min(9, row));
 
     const obj = document.createElement('div');
-    obj.id = `${objectType}-${objectName}-${nextObjectId++}`; // each object is the type, type asset name, then an arbitrary id value to differentiate
+    obj.id = getNewObjectID(`${objectType}-${objectName}`);
     obj.classList.add('draggable-object', objectType);
     obj.style.backgroundImage = `url(${mapObjects[objectName].mapIconImgFile})`
     obj.style.backgroundRepeat = 'no-repeat'; // Ensure image doesn't repeat
@@ -26,8 +26,8 @@ function createDraggableObject(objectType, objectName, x, y) {
     // need to use translate3d rather than the style.left/top attributes so that it can be moved again with no jumps
     obj.style.transform = `translate3d(${snappedX}px, ${snappedY}px, 0)`;
     objectsOnGrid.push(obj);
-    console.log(obj)
-    console.log(objectsOnGrid)
+    // console.log(obj)
+    // console.log(objectsOnGrid)
     makeDraggable(obj, x, y);
 }
 
@@ -69,6 +69,7 @@ function updateGridData() {
     // console.log(grid);
     // console.log(JSON.stringify(grid));
     gridDataInput.value = JSON.stringify(grid);
+    return grid
 }
 
 function updateGridFromData(gridData) {
@@ -76,7 +77,6 @@ function updateGridFromData(gridData) {
     const gridRect = gridContainer.getBoundingClientRect();
     objectsOnGrid.forEach(obj => gridContainer.removeChild(obj));
     objectsOnGrid = [];
-    nextObjectId = 0;
 
     for (let row = 0; row < gridData.length; row++) {
         for (let col = 0; col < gridData[row].length; col++) {
@@ -95,4 +95,26 @@ function updateGridFromData(gridData) {
         }
     }
     updateGridData();
+}
+
+function getNewObjectID(objectSubID) {
+    const gridData = updateGridData()
+    console.log(gridData)
+    let idNum = 0
+    for (let row = 0; row < gridData.length; row++) {
+        for (let col = 0; col < gridData[row].length; col++) {
+            const cellData = gridData[row][col];
+            if (cellData.objects && cellData.objects.length > 0) {
+                cellData.objects.forEach(obj => {
+                    const objectNameArray = obj.split("-");
+                    const objectType = objectNameArray[0];
+                    const objectName = objectNameArray[1];
+                    if (`${objectSubID}` == `${objectType}-${objectName}`) {
+                        idNum++
+                    }
+                });
+            }
+        }
+    }
+    return `${objectSubID}-${idNum}`
 }

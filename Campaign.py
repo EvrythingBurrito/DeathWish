@@ -48,10 +48,9 @@ class Campaign:
         cellDict = json.loads(self.mapGridJSON)[partyLocation[1]][partyLocation[0]]
         for object in cellDict['objects']:
             mapObjectID = object.split("-")
-            print(mapObjectID)
             # if another non party landmark is at location of party, add its encounters to list
             if not Game.assets.landmarkDict[mapObjectID[1]].type == "party":
-                self.availableEncounterNames = self.availableEncounterNames + Game.assets.landmarkDict[mapObjectID[1]].encounterListNames
+                self.availableEncounterNames.append(Game.assets.landmarkDict[mapObjectID[1]].encounterListNames)
 
         # from regions
         # self.availableEncounterNames = self.availableEncounterNames + regionList[self.regionMapNames[self.partyLocation[0]][self.partyLocation[1]]].encounterListNames

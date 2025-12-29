@@ -57,6 +57,13 @@ body {
     border-radius: 50%;
 }
 
+.draggable-object.player_character {
+    width: 40px;
+    height: 40px;
+    background-color: black;
+    border-radius: 50%;
+}
+
 .draggable-object.party {
     width: 40px;
     height: 40px;
@@ -95,6 +102,11 @@ body {
 
 /* Specific selectable types, mimicking draggable types if desired */
 .selectable-object.character {
+    /* If you want different selectable types to look distinct, define them here */
+    background-color: black; /* Example: slightly different color for selectable Character */
+}
+
+.selectable-object.player_character {
     /* If you want different selectable types to look distinct, define them here */
     background-color: black; /* Example: slightly different color for selectable Character */
 }

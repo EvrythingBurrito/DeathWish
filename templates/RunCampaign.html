@@ -9,7 +9,8 @@
 <script>
     const campaign = {{ campaign|tojson }};
     const regions = {{ regions|tojson }};
-    console.log(regions);
+    const current_user_role = "{{ current_user_role }}";
+    console.log(current_user_role);
 </script>
 
 <header>
@@ -24,7 +25,7 @@
         <div class="column">
             <h3>Available Encounters</h3>
             {% for i in range(0, campaign.availableEncounterNames|length) %}
-                <a href="{{ url_for('RunEncounter', name=campaign.availableEncounterNames[i], startNew=1) }}"> {{ campaign.availableEncounterNames[i] }}</a>
+                <a href="{{ url_for('RunEncounter', name=campaign.availableEncounterNames[i]) }}"> {{ campaign.availableEncounterNames[i] }}</a>
                 <br>
             {% endfor %}
         </div>

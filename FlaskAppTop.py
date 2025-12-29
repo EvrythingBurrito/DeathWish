@@ -8,6 +8,7 @@ import time
 # DeathWish Custom
 import Game
 import Assets
+import copy
 from Campaign import *
 from Region import *
 from Footing import *
@@ -56,6 +57,14 @@ def create_flask_app(processQueue):
             "role": session.get('user_role', 'Player')
         }
 
+    def update_other_rooms(data):
+        my_id = session.get('user_id')
+        for user_id, user_data in ACTIVE_USERS.items():
+            if user_id != my_id:
+                role = user_data["role"]
+                print(f"emiting game event for role {role}")
+                socketio.emit('game_event', data, room=role)
+
     @app.context_processor
     def inject_user_role():
         # Keep this! It makes {% if current_user_role == 'GM' %} work
@@ -78,9 +87,8 @@ def create_flask_app(processQueue):
     def GameMaster():
         session['user_role'] = "GM"
         processQueue.put(("gameState", 'title'))
-        socketio.emit('game_event', {'data': 'Hello, Giddean'}, room='Giddean')
         return render_template('GameMaster.html', campaigns=Game.assets.campaignDict, )
-    
+
     @app.route('/EditPlayerCharacter/<name>/<int:isNew>', methods=['GET', 'POST'])
     def EditPlayerCharacter(name, isNew):
         if isNew < 1:
@@ -89,6 +97,7 @@ def create_flask_app(processQueue):
             character = PlayerCharacter(name="blank", health=0, maxHealth=0,
                                   stamina=0, maxStamina=0, mana=0, maxMana=0,
                                   actionCount=2, maxActionCount=2, weight=0,
+                                  dexterity=0, strength=0, instinct=0, intellect=0,
                                   mapIconImgFile="path_to_image", type="player_character",
                                   actionListNames=[], currentEffectJSONList=[])
         actionJSONS = {an: ac.to_json() for an, ac in Game.assets.actionDict.items()}
@@ -107,6 +116,10 @@ def create_flask_app(processQueue):
                     character.maxStamina = int(request.form.get('characterHealth'))
                     character.mana = int(request.form.get('characterHealth'))
                     character.maxMana = int(request.form.get('characterHealth'))
+                    character.dexterity = 10
+                    character.strength = 10
+                    character.instinct = 10
+                    character.intellect = 10
                     ### only expect the user to type in the filename, not the relative path
                     character.mapIconImgFile = request.form.get('mapIconImgFile')
                     if isNew == 1:
@@ -123,9 +136,18 @@ def create_flask_app(processQueue):
 
     @app.route('/RunPlayerCharacter/<name>', methods=['GET', 'POST'])
     def RunPlayerCharacter(name):
-        player_character = Game.assets.CharacterDict[name]
         session['user_role'] = name
-        return render_template('RunPlayerCharacter.html', character=player_character)
+        footingJSONs = {fn: ft.to_json() for fn, ft in Game.assets.footingDict.items()}
+        mapObjectJSONs = {mon: mo.to_json() for mon, mo in Game.assets.allMapObjectsDict.items()}
+        actionJSONS = {an: ac.to_json() for an, ac in Game.assets.actionDict.items()}
+        encounter = Game.assets.curEncounter
+        if Game.assets.is_current_encounter():
+            player_character = Game.assets.curEncounter.get_object_from_object_id(f"player_character-{name}-0")
+        else:
+            player_character = Game.assets.CharacterDict[name]
+        return render_template('RunPlayerCharacter.html', encounter=encounter.to_json(),
+                               mapObjects=mapObjectJSONs, actions=actionJSONS, footings=footingJSONs,
+                               mapObjectList=encounter.mapObjectList, character=player_character.to_json())
 
     @app.route('/GameMaster/EditCampaign/Campaign/<name>/<int:isNew>', methods=['GET', 'POST'])
     def EditCampaign(name, isNew):
@@ -380,6 +402,7 @@ def create_flask_app(processQueue):
             character = Character(name="blank", health=0, maxHealth=0,
                                   stamina=0, maxStamina=0, mana=0, maxMana=0,
                                   actionCount=2, maxActionCount=2, weight=0,
+                                  dexterity=0, strength=0, instinct=0, intellect=0,
                                   mapIconImgFile="path_to_image", type="character",
                                   actionListNames=[], currentEffectJSONList=[])
         actionJSONS = {an: ac.to_json() for an, ac in Game.assets.actionDict.items()}
@@ -398,6 +421,10 @@ def create_flask_app(processQueue):
                     character.maxStamina = int(request.form.get('characterHealth'))
                     character.mana = int(request.form.get('characterHealth'))
                     character.maxMana = int(request.form.get('characterHealth'))
+                    character.dexterity = 8
+                    character.strength = 8
+                    character.instinct = 8
+                    character.intellect = 8
                     ### only expect the user to type in the filename, not the relative path
                     character.mapIconImgFile = request.form.get('mapIconImgFile')
                     if isNew == 1:
@@ -446,10 +473,11 @@ def create_flask_app(processQueue):
     ### display chosen campaign world map, premise, recent party events, etc.
     @app.route('/GameMaster/RunCampaign/Campaign/<name>/<int:startNew>', methods=['GET', 'POST'])
     def RunCampaign(name, startNew):
+        Game.assets.reset_curEncounter()
         if (startNew == 1):
             Game.assets.curCampaign = Game.assets.campaignDict[name]
         campaign = Game.assets.curCampaign
-        print(campaign.availableEncounterNames)
+        update_other_rooms({'data': 'Entered World Map Screen'})
         processQueue.put(("refreshCampaign", campaign))
         processQueue.put(("gameState", 'campaign'))
         regionJSONs = {rn: rg.to_json() for rn, rg in Game.assets.regionDict.items()}
@@ -466,20 +494,23 @@ def create_flask_app(processQueue):
         return render_template('RunCampaign.html', campaign=campaign.to_json(), regions=regionJSONs, landmarks=landmarkJSONs, encounters=encounterJSONs)
 
     ### display encounter map, party/enemy stats, party member/Character headshot 
-    @app.route('/GameMaster/RunEncounter/Encounter/<name>/<int:startNew>', methods=['GET', 'POST'])
-    def RunEncounter(name, startNew):
-        if (startNew == 1):
-            Game.assets.curEncounter = Game.assets.encounterDict[name]
+    @app.route('/GameMaster/RunEncounter/Encounter/<name>', methods=['GET', 'POST'])
+    def RunEncounter(name):
+        # deepcopy and initialize encounter if starting a new one
+        if not Game.assets.is_current_encounter():
+            Game.assets.curEncounter = copy.deepcopy(Game.assets.encounterDict[name])
             Game.assets.curEncounter.create_map_object_list()
+            # update player screens to show encounter screen
+            update_other_rooms({'data': 'New Encounter Started'})
         encounter = Game.assets.curEncounter
         processQueue.put(("refreshEncounter", encounter))
         processQueue.put(("gameState", 'encounter'))
         mapObjectJSONs = {mon: mo.to_json() for mon, mo in Game.assets.allMapObjectsDict.items()}
         footingJSONs = {fn: ft.to_json() for fn, ft in Game.assets.footingDict.items()}
         actionJSONS = {an: ac.to_json() for an, ac in Game.assets.actionDict.items()}
-        return render_template('RunEncounter.html', encounter=encounter.to_json(),
+        return render_template('RunEncounterGM.html', encounter=encounter.to_json(),
                                mapObjects=mapObjectJSONs, actions=actionJSONS, footings=footingJSONs,
-                               mapObjectList=encounter.mapObjectList, character=encounter.get_current_character())
+                               mapObjectList=encounter.mapObjectList, character=encounter.get_current_character().to_json())
 
     ### Action contains modified info 
     @app.route('/GameMaster/CompleteAction/Action/<string:mapObjectID>/<actionListName>', methods=['GET', 'POST'])
@@ -519,7 +550,13 @@ def create_flask_app(processQueue):
                         # else:
                             # return to the current encounter
                 encounter.end_character_action(mapObjectID)
-                return redirect(url_for('RunEncounter', name="current", startNew=0))
+                # refresh all screens to update with new gamestate
+                update_other_rooms({'data': 'Action Complete'})
+                current_user_role = session.get('user_role', 'Guest')
+                if current_user_role == "GM":
+                    return redirect(url_for('RunEncounter', name="current", startNew=0))
+                else:
+                    return redirect(url_for('RunPlayerCharacter', name=current_user_role))
         return render_template('CompleteAction.html', encounter=encounter.to_json(), mapObjects=mapObjectJSONs,
                                                 footings=footingJSONs, action=turnAction.to_json(), character=character.to_json(),
                                                 activities=activityJSONS, executorID=mapObjectID, reactionDict=None)

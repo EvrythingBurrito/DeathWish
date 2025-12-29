@@ -17,18 +17,6 @@
         // You could also trigger a page reload if needed:
         window.location.reload();
     });
-
-    // update page stat bars
-    socket.on('stat_update', function(msg) {
-    // msg should look like: { "stat": "hp", "current": 45, "max": 100 }
-    const barId = msg.stat + "-bar";   // e.g., hp-bar
-    const textId = msg.stat + "-text"; // e.g., hp-text
-    const percentage = (msg.current / msg.max) * 100;
-    // Update the bar width (CSS transition handles the animation)
-    document.getElementById(barId).style.width = percentage + "%";
-    // Update the text label
-    document.getElementById(textId).innerText = msg.current + " / " + msg.max;
-});
 </script>
 
 <body>

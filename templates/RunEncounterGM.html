@@ -1,25 +1,20 @@
 {% extends "DeathWishBase.html" %}
 
-{% block title %}{{ character.name }}{% endblock %}
-
 {% block content %}
 
 <script>
+    const current_user_role = "{{ current_user_role }}";
+    const character = {{ character|tojson }};
     const encounter = {{ encounter|tojson }};
     const footings = {{ footings|tojson }};
     const actions = {{ actions|tojson }};
     const mapObjectList = {{ mapObjectList|safe }};
     let actionActivities = null;
     let executorID = null;
-    const character = {{ character|tojson }};
-    const current_user_role = "{{ current_user_role }}";
+    console.log(character);
     console.log(current_user_role);
 </script>
 
-{% if encounter.name != 'blank' %}
-    {% include 'RunEncounterBase.html' with context %}
-{% else %}
-    {% include 'ViewCharacterStats.html' with context %}
-{% endif %}
+{% include 'RunEncounterBase.html' with context %}
 
 {% endblock %}
