@@ -1,16 +1,28 @@
 .character-container {
     display: flex;
     flex-direction: column;
-    align-items: center;    /* Horizontal centering */
-    justify-content: center; /* Vertical centering if the container has height */
+    align-items: center;
+    justify-content: center;
     width: 100%;
-    margin-top: 50px;       /* Adds some space from the top of the page */
+    margin-top: 50px;
+    text-align: center;
+}
+
+.stat-wrapper-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin-top: 5px;
     text-align: center;
 }
 
 /* Styling for the Bar Containers */
 .stat-wrapper { margin-bottom: 15px; width: 300px; }
+.stat-wrapper-mini { margin-bottom: 5px; width: 60px; display: inline-block; margin-right: 10px; }
 .bar-label { font-weight: bold; margin-bottom: 5px; display: block; }
+.bar-label-mini { font-weight: bold; margin-bottom: 1px; display: block; }
 
 .bar-bg {
     background-color: #333;
@@ -18,6 +30,16 @@
     height: 25px;
     width: 100%;
     border-radius: 5px;
+    overflow: hidden;
+    position: relative;
+}
+
+.bar-bg-mini {
+    background-color: #333;
+    border: 2px solid #000;
+    height: 20px;
+    width: 100%;
+    border-radius: 2px;
     overflow: hidden;
     position: relative;
 }
@@ -36,16 +58,30 @@
 
 .bar-text {
     position: absolute;
-    top: 0;      /* <--- ADD THIS */
-    left: 0;     /* <--- ADD THIS */
+    top: 0;
+    left: 0;
     width: 100%;
-    height: 100%; /* Ensure it spans the full height */
-    z-index: 10;  /* <--- ADD THIS to stay on top of the fill */
-    
+    height: 100%;
+    z-index: 10;
     text-align: center;
     color: white;
     font-size: 0.9em;
-    line-height: 25px; /* Matches the bar height for vertical centering */
+    line-height: 25px;
     text-shadow: 1px 1px 2px black;
-    pointer-events: none; /* Allows clicks to pass through to elements below if needed */
+    pointer-events: none;
+}
+
+.bar-text-mini {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    text-align: center;
+    color: white;
+    font-size: 0.8em;
+    line-height: 20px;
+    text-shadow: 1px 1px 2px black;
+    pointer-events: none;
 }

@@ -1,14 +1,5 @@
 <div class="container">
-    <div class="column" style="width: 400px;">
-        <h3>Turn Order</h3>
-        {% for i in range(0, mapObjectList|length) %}
-            {% if current_user_role == "GM" %}
-                <p> {{ mapObjectList[i][0] }}: Health: {{ mapObjectList[i][1].health }}, Stamina: {{ mapObjectList[i][1].stamina }}, Mana: {{ mapObjectList[i][1].mana }}</p>
-            {% else %}
-                <p> {{ mapObjectList[i][0] }} </p>
-            {% endif %}
-        {% endfor %}
-    </div>
+    {% include 'ViewTurnOrder.html' with context %}
     <div class="column grid-column">
         {% include 'CompleteActionMap.html' with context %}
     </div>

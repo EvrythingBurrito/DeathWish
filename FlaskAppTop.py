@@ -514,7 +514,8 @@ def create_flask_app(processQueue):
     @app.route('/GameMaster/CompleteAction/Action/<string:mapObjectID>/<actionListName>', methods=['GET', 'POST'])
     def CompleteAction(mapObjectID, actionListName):
         activityJSONS = {an: ac.to_json() for an, ac in Game.assets.activityDict.items()}
-        footingJSONs = {fn: ft.to_json() for fn,ft in Game.assets.footingDict.items()}
+        footingJSONs = {fn: ft.to_json() for fn, ft in Game.assets.footingDict.items()}
+        effectJSONs = {en: ef.to_json() for en, ef in Game.assets.effectDict.items()}
         encounter = Game.assets.curEncounter
         character = encounter.get_object_from_object_id(mapObjectID)
         baseAction = Game.assets.actionDict[actionListName]
@@ -544,5 +545,5 @@ def create_flask_app(processQueue):
                     return redirect(url_for('RunPlayerCharacter', name=current_user_role))
         return render_template('CompleteAction.html', encounter=encounter.to_json(), mapObjects=mapObjectJSONs,
                                                 footings=footingJSONs, action=turnAction.to_json(), character=character.to_json(),
-                                                activities=activityJSONS, executorID=mapObjectID, reactionDict=None)
+                                                activities=activityJSONS, executorID=mapObjectID, reactionDict=None, effects=effectJSONs)
     return app

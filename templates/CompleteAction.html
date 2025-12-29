@@ -6,10 +6,11 @@
     const activities = {{ activities|tojson }};
     const encounter = {{ encounter|tojson }};
     const footings = {{ footings|tojson }};
+    const effects = {{ effects|tojson }};
     const action = {{ action|tojson }};
     const character = {{ character|tojson }};
     const executorID = {{ executorID|tojson }};
-    // define activities which make up the action
+    // define activities which make up the action (used by CompleteActionMap.js)
     let actionActivities = [];
     for (let i = 0; i < action.activityListNames.length; i++) {
         actionActivities.push(activities[action.activityListNames[i]]);
@@ -51,13 +52,15 @@
             {% include 'CompleteActionMap.html' with context %}
         </div>
         <div class="column" style="width: 600px;">
-            <h3> action: {{ action.name }} </h3>
-            {% for i in range(0, action.activityListNames|length) %}
-                <h3> activity {{ i + 1 }} : {{ action.activityListNames[i] }} : {{ action.activityListNames[i].effectNameList }}</h3>
+            {% include 'ViewCharacterStats.html' with context %}
+            <h2> {{ action.name }} </h2>
+            {% for activityName in action.activityListNames %}
+                <p> {{ activityName }} :
+                {% for effectName in activities[activityName].effectNameList %}
+                    {{ effectName }} ({{ effects[effectName].effectQuantity }}, {{ effects[effectName].effectType }}, for {{ effects[effectName].durationTurns }} turns)
+                {% endfor %}
+                </p>
             {% endfor %}
-            <h3> health: {{ character.health }} </h3>
-            <h3> stamina: {{ character.stamina }} </h3>
-            <h3> mana: {{ character.mana }} </h3>
             <button type="submit" form="submit_action_form">Submit {{ action.name }}</button>
         </div>
     </div>
