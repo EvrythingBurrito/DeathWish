@@ -18,7 +18,7 @@ import os
 #   AOE - shape represents entire area to receive effect
 
 class Activity:
-    def __init__(self, name, shape, type, effectNameList, setupTime, cooldownTime, negationAmount, interruptStrength):
+    def __init__(self, name, shape, type, effectNameList, setupTime, cooldownTime, movementsGiven, negationAmount, interruptStrength):
         self.name = name
         # 2D grid describing shape: each value is a number describing multiplier for base effects it deals
         # this allows you to weight certain areas' damage (irrelevant for movement)
@@ -32,6 +32,9 @@ class Activity:
         # cooldown time is the time after the action takes place
         self.setupTime = setupTime # make sure to factor in ALL activities for these numbers! Give archers time to shoot them if they're in the open
         self.cooldownTime = cooldownTime
+        ###### MOVEMENT ONLY
+        # number of jumps you get when performing this move action. Each jump is subject to possible reaction
+        self.movementsGiven = movementsGiven
         ###### DEFENDABILITY
         # if interrupt strength of attack is less than defending actions negation amount, negate the entirety of the effect
         # max is 100: blocks everything (like a master level shield spell)

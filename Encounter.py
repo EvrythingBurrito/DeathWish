@@ -6,6 +6,7 @@ from PlayerCharacter import PlayerCharacter
 from Tangible import Tangible
 from Effect import Effect
 import Game
+import string
 
 class Encounter:
 
@@ -40,22 +41,27 @@ class Encounter:
     #     [entityName, mapObject JSON, mapObjectid]
     #     [entityName, mapObject JSON, mapObjectid]
     # ]
-    # entityName = charName_#
+    # entityName = charName (A)
     # mapObject JSON = {name: charName, ...}
     # mapObjectid = type-charName-#
     def create_map_object_list(self):
+
+        def get_letter_code(num):
+            char = string.ascii_uppercase[num % 26]
+            count = (num // 26) + 1
+            return char * count
+
         self.mapObjectList = []
+        i = 0
         for row in json.loads(self.mapGridJSON):
             for cellDict in row:
                 for mapObjectid in cellDict['objects']:
                     objectName = mapObjectid.split("-")[1]
                     if objectName in Game.assets.allMapObjectsDict:
                         mapObjectToAdd = Game.assets.allMapObjectsDict[objectName]
-                        if mapObjectid.split("-")[0] == "player_character":
-                            entityName = objectName
-                        else:
-                            entityName = objectName + "_" + mapObjectid.split("-")[2]
-                        # index 0 is entity id, index 1 is JSON for mapObject, index 2 is the string that the map list cell contains
+                        entityName = objectName + " (" + get_letter_code(i) + ")"
+                        i += 1
+                        # index 0 is entityName, index 1 is JSON for mapObject, index 2 is the string that the map list cell contains
                         self.mapObjectList.append([entityName, mapObjectToAdd.to_json(), mapObjectid])
         self.set_starting_turn_order()
         return self.mapObjectList

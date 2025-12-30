@@ -331,7 +331,7 @@ def create_flask_app(processQueue):
         else:
             activity = Activity(name="blank", shape=dummyMatrix, type=None,
                                 effectNameList=[], setupTime=0, cooldownTime=0,
-                                negationAmount=0, interruptStrength=0)
+                                movementsGiven=0, negationAmount=0, interruptStrength=0)
         effectJSONS = {en: ef.to_json() for en, ef in Game.assets.effectDict.items()}
         if request.method == 'POST':
             if request.form.get("activity") == "save_activity_form":
@@ -343,6 +343,9 @@ def create_flask_app(processQueue):
                     activity.name = request.form.get('name')
                     activity.shape = json.loads(request.form.get('shapeData'))
                     activity.type = request.form.get('type')
+                    activity.movementsGiven = request.form.get('movementsGiven')
+                    activity.negationAmount = request.form.get('negationAmount')
+                    activity.interruptStrength = request.form.get('interruptStrength')
                 if isNew == 1:
                     Game.assets.add_activity(activity)
                 else:

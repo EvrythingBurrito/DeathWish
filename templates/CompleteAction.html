@@ -57,11 +57,18 @@
             {% for activityName in action.activityListNames %}
                 <p> {{ activityName }} :
                 {% for effectName in activities[activityName].effectNameList %}
-                    {{ effectName }} ({{ effects[effectName].effectQuantity }}, {{ effects[effectName].effectType }}, for {{ effects[effectName].durationTurns }} turns)
+                    {{ effectName }} (applies {{ effects[effectName].effectQuantity }} {{ effects[effectName].effectType }}, for {{ effects[effectName].durationTurns }} turns)
                 {% endfor %}
                 </p>
             {% endfor %}
             <button type="submit" form="submit_action_form">Submit {{ action.name }}</button>
+            <br>
+            <br>
+            {% if current_user_role == character.name %}
+                <a href="{{ url_for('RunPlayerCharacter', name=character.name) }}"> Back </a>
+            {% else %}
+                <a href="{{ url_for('RunEncounter', name=encounter.name) }}"> Back </a>
+            {% endif %}
         </div>
     </div>
 {% endif %}

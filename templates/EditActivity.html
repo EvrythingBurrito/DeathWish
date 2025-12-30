@@ -59,7 +59,16 @@
                     move
                 </option>
             </select>
-            <h3>Effects (not applicable with movement types) </h3>
+            <h3>Movement</h3>
+            <label for="movementsGiven">Movements Given (of the designated shape):</label>
+            <input type="text" name="movementsGiven" value="{{ activity.movementsGiven }}" placeholder="1">
+            <h3>Non-Movement</h3>
+            <label for="negationAmount">Negation Amount:</label>
+            <input type="text" name="name" value="{{ activity.negationAmount }}" placeholder="vs interrupt strength to successfully block attack">
+            <br>
+            <label for="interruptStrength">Interrupt Strength:</label>
+            <input type="text" name="name" value="{{ activity.interruptStrength }}" placeholder="vs negation amount to successfully execute attack">
+            <br>
             {% for i in range(0, activity.effectNameList|length) %}
                     <i>{{ activity.effectNameList[i] }}</i>
                     <button type="submit" name="delete_effect" value="{{ activity.effectNameList[i] }}" form="save_activity_form">delete</button>
