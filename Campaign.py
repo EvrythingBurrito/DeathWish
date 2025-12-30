@@ -1,9 +1,10 @@
 import json
 import Game
+from PlayerCharacter import PlayerCharacter
+from Character import Character
 
 class Campaign:
-
-    def __init__(self, name, regionMapNames, mapGridJSON, availableEncounterNames):
+    def __init__(self, name, regionMapNames, mapGridJSON, availableEncounterNames, activeCharacterDictJSON):
         self.name = name
         # 2D array of regions - in object format
         self.regionMapNames = regionMapNames
@@ -11,6 +12,7 @@ class Campaign:
         self.mapGridJSON = mapGridJSON
         # list of encounters currently available
         self.availableEncounterNames = availableEncounterNames
+        self.activeCharacterDictJSON = activeCharacterDictJSON
 
     def to_json(self):
         return self.__dict__
@@ -54,3 +56,14 @@ class Campaign:
 
         # from regions
         # self.availableEncounterNames = self.availableEncounterNames + regionList[self.regionMapNames[self.partyLocation[0]][self.partyLocation[1]]].encounterListNames
+
+    def update_character_dict(self, character):
+        self.activeCharacterDictJSON[character.name] = character.to_json()
+
+    def get_character_from_dict(self, characterName, type):
+        if self.activeCharacterDictJSON.get(characterName, None):
+            if type == "player_character":
+                return PlayerCharacter.from_json(self.activeCharacterDictJSON[characterName])
+            if type == "character":
+                return Character.from_json(self.activeCharacterDictJSON[characterName])
+        # FIXME add error condition

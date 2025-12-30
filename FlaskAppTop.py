@@ -138,10 +138,17 @@ def create_flask_app(processQueue):
         session['user_role'] = name
         footingJSONs = {fn: ft.to_json() for fn, ft in Game.assets.footingDict.items()}
         mapObjectJSONs = {mon: mo.to_json() for mon, mo in Game.assets.allMapObjectsDict.items()}
-        if Game.assets.is_current_encounter():
-            player_character = Game.assets.curEncounter.get_object_from_object_id(f"player_character-{name}-0")
+        if Game.assets.is_current_campaign():
+            if Game.assets.is_current_encounter():
+                player_character = Game.assets.curEncounter.get_object_from_object_id(f"player_character-{name}-0")
+                # if player character is for some reason not in this encounter, use last saved version of it
+                if not player_character:
+                    player_character = Game.assets.curCampaign.get_character_from_dict(name, "player_character")
+            else:
+                player_character = Game.assets.curCampaign.get_character_from_dict(name, "player_character")
         else:
             player_character = Game.assets.CharacterDict[name]
+
         actionJSONS = {an: ac.modify_from_character(player_character).to_json() for an, ac in Game.assets.actionDict.items()}
         encounter = Game.assets.curEncounter
         return render_template('RunPlayerCharacter.html', encounter=encounter.to_json(),
@@ -155,7 +162,7 @@ def create_flask_app(processQueue):
         if isNew == 0:
             campaign = Game.assets.campaignDict[name]
         else:
-            campaign = Campaign("New Campaign", dummyMatrix, "blank", None)
+            campaign = Campaign("New Campaign", dummyMatrix, "blank", None, {})
         regionJSONs = {rn: rg.to_json() for rn, rg in Game.assets.regionDict.items()}
         landmarkJSONs = {ln: lm.to_json() for ln, lm in Game.assets.landmarkDict.items()}
         if request.method == 'POST':
@@ -476,6 +483,8 @@ def create_flask_app(processQueue):
         if (startNew == 1):
             Game.assets.curCampaign = Game.assets.campaignDict[name]
         campaign = Game.assets.curCampaign
+        # save campaign from previous encounter
+        Game.assets.update_campaign_save(campaign)
         update_other_rooms({'data': 'Entered World Map Screen'})
         processQueue.put(("refreshCampaign", campaign))
         processQueue.put(("gameState", 'campaign'))
@@ -539,6 +548,8 @@ def create_flask_app(processQueue):
                         activity = Game.assets.activityDict[nameEntry]
                         encounter.resolve_activity_effects(activity, mapObjectID, dataEntry)
                     encounter.end_character_action(mapObjectID)
+                    # save campaign data
+                    Game.assets.curCampaign.update_character_dict(character)
                     # refresh all screens to update with new gamestate
                     update_other_rooms({'data': 'Action Complete'})
                 current_user_role = session.get('user_role', 'Guest')
@@ -548,5 +559,6 @@ def create_flask_app(processQueue):
                     return redirect(url_for('RunPlayerCharacter', name=current_user_role))
         return render_template('CompleteAction.html', encounter=encounter.to_json(), mapObjects=mapObjectJSONs,
                                                 footings=footingJSONs, action=turnAction.to_json(), character=character.to_json(),
-                                                activities=activityJSONS, executorID=mapObjectID, reactionDict=None, effects=effectJSONs)
+                                                activities=activityJSONS, executorID=mapObjectID, reactionDict=None, effects=effectJSONs,
+                                                mapObjectList=encounter.mapObjectList)
     return app

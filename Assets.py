@@ -152,7 +152,13 @@ class Assets:
                 self.campaignDict[aCampaign.name] = aCampaign
     
     def reset_curCampaign(self):
-        self.curCampaign = None
+        self.curCampaign = Campaign("blank", None, "blank", None, {})
+
+    def is_current_campaign(self):
+        if self.curCampaign.name == "blank":
+            return False
+        else:
+            return True
 
 ########################################################### REGIONS
 

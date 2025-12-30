@@ -77,13 +77,10 @@ function applyHighlightToGrid(highlightIndexes, type) {
             targetCell.classList.add('move-cell');
         }
         if (targetCell && type == "path") {
-            console.log("adding path highlight to cell:")
-            console.log(targetCell.dataset.row)
-            console.log(targetCell.dataset.col)
             targetCell.classList.add('path-cell');
         }
     });
-    console.log(Array.from(document.querySelectorAll('.AOE-cell')));
+    // console.log(Array.from(document.querySelectorAll('.AOE-cell')));
 }
 
 /**
@@ -99,10 +96,13 @@ function updateMapActivities(activitiesList, selectedMapObject) {
     });
     // remove selectable state from all cells
     disableCellSelectionMode();
+    // remove selectable state from all objects
+    disableObjectSelectionMode();
     // apply highlights, enable cell selection for movement
     for (let i = 0; i < activitiesList.length; i++) {
         if (activitiesList[i].type === 'singleTarget') {
             applyHighlightToGrid(getActionIndexes(executorID, activitiesList[i].shape), "targeting");
+            enableObjectSelectionMode(getActionIndexes(executorID, activitiesList[i].shape));
         } 
         if (activitiesList[i].type === 'AOE' && selectedMapObject) {
             applyHighlightToGrid(getActionIndexes(selectedMapObject.id, activitiesList[i].shape), "AOE");
@@ -229,31 +229,51 @@ function updateGridFromData(gridData) {
 }
 
 /////////////
-/**
- * Makes an individual HTML element selectable.
- * When clicked, it will toggle its selection state.
- * If Ctrl/Cmd key is pressed, it will add/remove from multi-selection.
- * Otherwise, it will clear existing selections and select only itself.
- * @param {HTMLElement} obj - The DOM element to make selectable.
- */
 function makeSelectable(obj) {
-    if (!obj) {
-        console.error("makeSelectable: obj is undefined.");
-        return;
-    }
+    if (!obj) return;
+    // Create the specific function instance and store it on the object
+    obj._selectionHandler = (e) => handleSelectionClick(e, obj);
+    // Use that stored reference to add the listeners
+    obj.addEventListener('click', obj._selectionHandler);
+    obj.addEventListener('touchstart', obj._selectionHandler, { passive: true });
+}
 
-    obj.addEventListener('click', (e) => handleSelectionClick(e, obj));
-    obj.addEventListener('touchstart', (e) => handleSelectionClick(e, obj), { passive: true }); // Use passive for touch events if not preventing default
+function enableObjectSelectionMode(selectableIndexes = []) {
+    selectableIndexes.forEach(([row, col]) => {
+        const cellData = curGrid[row][col];
+        console.log("checking cell");
+        if (cellData.objects && cellData.objects.length > 0) {
+            cellData.objects.forEach(obj => {
+                console.log("adding object:");
+                console.log(obj);
+                obj_div = document.getElementById(obj);
+                console.log(obj_div);
+                makeSelectable(obj_div);
+            });
+        }
+    });
+}
+
+function disableObjectSelectionMode() {
+    for (let row = 0; row < curGrid.length; row++) {
+        for (let col = 0; col < curGrid[row].length; col++) {
+            const cellData = curGrid[row][col];
+            if (cellData.objects && cellData.objects.length > 0) {
+                cellData.objects.forEach(obj => {
+                    obj_div = document.getElementById(obj);
+                    if (!obj_div || !obj_div._selectionHandler) return;
+                    // Use the stored reference to remove them
+                    obj_div.removeEventListener('click', obj_div._selectionHandler);
+                    obj_div.removeEventListener('touchstart', obj_div._selectionHandler);
+                    // Clean up the property
+                    delete obj._selectionHandler;
+                });
+            }
+        }
+    }
 }
 
 function enableCellSelectionMode(selectableIndexes = []) {
-    // Remove previous selectable state from all cells
-    const allCells = gridContainer.querySelectorAll('.grid-cell');
-    allCells.forEach(cell => {
-        cell.classList.remove('cell-selectable');
-        cell.removeEventListener('click', cellSelectionHandler);
-    });
-
     // Add selectable state only to specified cells
     selectableIndexes.forEach(([row, col]) => {
         const cell = gridContainer.querySelector(`#gridCell-${row}-${col}`);
@@ -302,7 +322,6 @@ function cellSelectionHandler(e) {
         obj.dataset.col = col;
         // rerun map utilities
         updateGridData();
-        // console.log(curGrid);
         updateMapActivities(actionActivities, null);
     }
 }

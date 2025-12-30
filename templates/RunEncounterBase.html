@@ -5,7 +5,7 @@
     </div>
     <div class="column" style="width: 600px;">
         {% include 'ViewCharacterStats.html' with context %}
-        {% if current_user_role == "GM" or current_user_role == character.name %}
+        {% if current_user_role == "GM" or (current_user_role == character.name and mapObjectList[0][0].split(" ")[0] == character.name) %}
             <p> Actions Remaining: {{ character.actionCount }}</p>
             {% for i in range(0, character.actionListNames|length) %}
                 <a href="{{ url_for('CompleteAction', mapObjectID=mapObjectList[0][2], actionListName=mapObjectList[0][1].actionListNames[i]) }}"> {{ mapObjectList[0][1].actionListNames[i] }} </a>

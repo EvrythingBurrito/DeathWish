@@ -10,6 +10,7 @@
     const action = {{ action|tojson }};
     const character = {{ character|tojson }};
     const executorID = {{ executorID|tojson }};
+    const mapObjectList = {{ mapObjectList|safe }};
     // define activities which make up the action (used by CompleteActionMap.js)
     let actionActivities = [];
     for (let i = 0; i < action.activityListNames.length; i++) {
@@ -48,6 +49,7 @@
         {% endfor %}
     </form>
     <div class="container">
+        {% include 'ViewTurnOrder.html' with context %}
         <div class="column">
             {% include 'CompleteActionMap.html' with context %}
         </div>
