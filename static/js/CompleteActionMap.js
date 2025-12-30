@@ -2,7 +2,9 @@ const gridContainer = document.getElementById('grid-container');
 const cellSize = 50;
 let objectsOnGrid = [];
 let curGrid = [];
-
+let movementsTaken = 0;
+let movement_path = [[]];
+let prev_movement_coords = [];
 let selectableObjectsOnGrid = [];
 let nextSelectableObjectId = 0;
 // Changed to an array to hold multiple selected objects
@@ -18,6 +20,7 @@ document.getElementById('submit_action_form').addEventListener('submit', functio
             if (obj) {
                 data.row = obj.dataset.row;
                 data.col = obj.dataset.col;
+                data.path = movement_path;
             }
             console.log("submitting move activity");
             console.log(data);
@@ -73,6 +76,12 @@ function applyHighlightToGrid(highlightIndexes, type) {
         if (targetCell && type == "move") {
             targetCell.classList.add('move-cell');
         }
+        if (targetCell && type == "path") {
+            console.log("adding path highlight to cell:")
+            console.log(targetCell.dataset.row)
+            console.log(targetCell.dataset.col)
+            targetCell.classList.add('path-cell');
+        }
     });
     console.log(Array.from(document.querySelectorAll('.AOE-cell')));
 }
@@ -83,7 +92,7 @@ function applyHighlightToGrid(highlightIndexes, type) {
  * @param {HTMLElement|null} selectedMapObject - The currently selected map object (null if none).
  */
 function updateMapActivities(activitiesList, selectedMapObject) {
-    // clear any previous highlights
+    // clear any previous non-path highlights
     const allHighlightedCells = gridContainer.querySelectorAll('.AOE-cell, .targeting-cell, .AOE-and-targeting-cell, .move-cell');
     allHighlightedCells.forEach(cell => {
         cell.classList.remove('AOE-cell', 'targeting-cell', 'AOE-and-targeting-cell', 'move-cell');
@@ -99,8 +108,12 @@ function updateMapActivities(activitiesList, selectedMapObject) {
             applyHighlightToGrid(getActionIndexes(selectedMapObject.id, activitiesList[i].shape), "AOE");
         }
         if (activitiesList[i].type === 'move') {
-            applyHighlightToGrid(getActionIndexes(executorID, activitiesList[i].shape), "move");
-            enableCellSelectionMode(getActionIndexes(executorID, activitiesList[i].shape));
+            if (movementsTaken < actionActivities[i].movementsGiven) {
+                applyHighlightToGrid(getActionIndexes(executorID, activitiesList[i].shape), "move");
+                enableCellSelectionMode(getActionIndexes(executorID, activitiesList[i].shape));
+            } else {
+                enableCellSelectionMode([prev_movement_coords]);
+            }
         }
     }
 }
@@ -264,6 +277,18 @@ function cellSelectionHandler(e) {
     const cell = e.currentTarget;
     // Find the object by executorID
     const obj = objectsOnGrid.find(o => o.id === executorID);
+    // if clicked cell was a path, retrace step taken. Otherwise, continue path highlighting
+    if (cell.classList.contains('path-cell')) {
+        cell.classList.remove('path-cell');
+        movement_path.pop();
+        movementsTaken -= 1;
+    } else {
+        prev_movement_coords = [obj.dataset.row, obj.dataset.col];
+        movement_path.push(prev_movement_coords);
+        applyHighlightToGrid([prev_movement_coords], "path");
+        enableCellSelectionMode([prev_movement_coords]);
+        movementsTaken += 1;
+    }
     if (obj) {
         // Get cell's row and col from data attributes
         const row = parseInt(cell.getAttribute('data-row'));

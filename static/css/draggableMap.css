@@ -156,11 +156,15 @@ body {
 }
 
 .move-cell {
-  box-shadow: inset 0 0 0 1000px rgba(224, 104, 248, 0.5);
+  box-shadow: inset 0 0 0 1000px rgba(224, 104, 248, 0.144);
+}
+
+.path-cell {
+  box-shadow: inset 0 0 0 1000px rgba(72, 188, 255, 0.473);
 }
 
 .AOE-cell {
-  box-shadow: inset 0 0 0 1000px rgba(253, 171, 104, 0.5);
+  box-shadow: inset 0 0 0 1000px rgba(253, 171, 104, 0.24);
 }
 
 .targeting-cell {
