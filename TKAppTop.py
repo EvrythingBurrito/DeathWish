@@ -66,10 +66,8 @@ def encounter_screen(encounter, canvas):
 
             for object in mapGridJSON[row][col]["objects"]:
                 mapObjectID = object.split("-")
-                print(mapObjectID)
-                if mapObjectID[1]: # object found on cell location
-                    assetIndex = int(mapObjectID[1])
-                    mapIconImgFile = Game.assets.allMapObjects[assetIndex].mapIconImgFile
+                if Game.assets.allMapObjectsDict.get(mapObjectID[1], None):
+                    mapIconImgFile = Game.assets.allMapObjectsDict[mapObjectID[1]].mapIconImgFile
                     # get rid of starting "/"
                     mapIconImgFile = mapIconImgFile[1:]
                     img = Image.open(mapIconImgFile)
