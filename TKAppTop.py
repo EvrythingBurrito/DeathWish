@@ -131,12 +131,15 @@ def campaign_screen(campaign, canvas):
 
 def create_tkinter_thread(processQueue):
     def tkinter_thread():
+        if os.environ.get('DISPLAY','') == '':
+            print('no display found. Using :0')
+            os.environ.__setitem__('DISPLAY', ':0')
         root = tk.Tk()
         root.title("Game")
-        # root.attributes('-fullscreen', True)
-        # root.geometry("3840x2160")
+        root.attributes('-fullscreen', True)
+        root.geometry("3840x2160")
         # root.geometry("1280x720")
-        root.geometry("640x480")
+        # root.geometry("640x480")
         canvas = tk.Canvas(root, bg="black")
         canvas.pack(fill=tk.BOTH, expand=True)
         gameState = "title"
