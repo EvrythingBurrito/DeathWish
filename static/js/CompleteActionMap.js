@@ -10,6 +10,12 @@ let nextSelectableObjectId = 0;
 // Changed to an array to hold multiple selected objects
 let currentlySelectedObjects = []; // Keeps track of all currently selected objects
 
+const idButton = document.getElementById('show_token_key_button');
+let showingOverlayLabels = false;
+if (idButton) {
+    idButton.addEventListener('click', toggleOverlayLabelsOnObjects);
+}
+
 document.getElementById('submit_action_form').addEventListener('submit', function(e) {
     // For each activity, fill in the corresponding hidden input
     actionActivities.forEach((activity, i) => {
@@ -141,6 +147,68 @@ function getActionIndexes(startObjectID, shape) {
         }
     }
     return actionIndexes;
+}
+
+/**
+ * Searches the grid for objects and overlays a single-letter label 
+ * on top of each object found.
+ */
+function toggleOverlayLabelsOnObjects() {
+    // 1. Remove any existing labels to prevent duplicates
+    const existingLabels = document.querySelectorAll('.object-label-overlay');
+    existingLabels.forEach(label => label.remove());
+
+    if (showingOverlayLabels) {
+        showingOverlayLabels = false;
+        return
+    }
+    showingOverlayLabels = true;
+    for (let row = 0; row < curGrid.length; row++) {
+        for (let col = 0; col < curGrid[row].length; col++) {
+            const cellData = curGrid[row][col];
+
+            if (cellData.objects && cellData.objects.length > 0) {
+                cellData.objects.forEach(objId => {
+                    const originalObj = document.getElementById(objId);
+                    if (!originalObj) return;
+
+                    const label = document.createElement('div');
+                    label.classList.add('object-label-overlay');
+
+                    let labelText = "NOT FOUND!";
+                    for (const mapObjectEntry of mapObjectList) {
+                        console.log(mapObjectEntry);
+                        if (mapObjectEntry[2] == objId) {
+                            labelText = mapObjectEntry[0].split("(")[1];
+                            labelText = labelText.split(")")[0];
+                            break;
+                        }
+                    }
+                    label.innerText = labelText;
+
+                    label.style.width = `${cellSize}px`;
+                    label.style.height = `${cellSize}px`;
+                    label.style.position = 'absolute';
+                    label.style.left = '0';
+                    label.style.top = '0';
+                    label.style.transform = originalObj.style.transform;
+                    label.style.backgroundColor = 'transparent';
+                    label.style.border = 'none';
+                    label.style.display = 'flex';
+                    label.style.alignItems = 'center';
+                    label.style.justifyContent = 'center';
+                    label.style.fontSize = `${cellSize * 0.3}px`;
+                    label.style.fontWeight = 'bold';
+                    label.style.color = 'white';
+                    label.style.textShadow = '2px 2px 2px black';
+                    label.style.pointerEvents = 'none'; // Ensure clicks pass through to the object below
+                    label.style.zIndex = '1000';
+
+                    gridContainer.appendChild(label);
+                });
+            }
+        }
+    }
 }
 
 function createSelectableObject(objectType, objectIndex, objectIDNum, x, y) {
