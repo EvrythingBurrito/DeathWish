@@ -2,7 +2,7 @@
 # from flask import Flask, render_template, url_for, request, redirect
 from flask import *
 from flask import Flask, session
-from flask_socketio import SocketIO, join_room, emit
+from flask_socketio import SocketIO, join_room, emit, rooms
 import uuid
 import time
 # DeathWish Custom
@@ -138,9 +138,13 @@ def create_flask_app(processQueue):
         session['user_role'] = name
         footingJSONs = {fn: ft.to_json() for fn, ft in Game.assets.footingDict.items()}
         mapObjectJSONs = {mon: mo.to_json() for mon, mo in Game.assets.allMapObjectsDict.items()}
+        reactionDict = {}
+        encounter = Game.assets.curEncounter
         if Game.assets.is_current_campaign():
             if Game.assets.is_current_encounter():
-                player_character = Game.assets.curEncounter.get_object_from_object_id(f"player_character-{name}-0")
+                character_id = f"player_character-{name}-0"
+                player_character = encounter.get_object_from_object_id(character_id)
+                reactionDict[character_id] = encounter.reactionDict.get(character_id, [])
                 # if player character is for some reason not in this encounter, use last saved version of it
                 if not player_character:
                     player_character = Game.assets.curCampaign.get_character_from_dict(name, "player_character")
@@ -150,10 +154,10 @@ def create_flask_app(processQueue):
             player_character = Game.assets.CharacterDict[name]
 
         actionJSONS = {an: ac.modify_from_character(player_character).to_json() for an, ac in Game.assets.actionDict.items()}
-        encounter = Game.assets.curEncounter
         return render_template('RunPlayerCharacter.html', encounter=encounter.to_json(),
                                mapObjects=mapObjectJSONs, actions=actionJSONS, footings=footingJSONs,
-                               mapObjectList=encounter.mapObjectList, character=player_character.to_json())
+                               mapObjectList=encounter.mapObjectList, character=player_character.to_json(),
+                               reactionDict=reactionDict)
 
     @app.route('/GameMaster/EditCampaign/Campaign/<name>/<int:isNew>', methods=['GET', 'POST'])
     def EditCampaign(name, isNew):
@@ -511,6 +515,7 @@ def create_flask_app(processQueue):
             # update player screens to show encounter screen
             update_other_rooms({'data': 'New Encounter Started'})
         encounter = Game.assets.curEncounter
+        # update tkinter map
         processQueue.put(("refreshEncounter", encounter))
         processQueue.put(("gameState", 'encounter'))
         mapObjectJSONs = {mon: mo.to_json() for mon, mo in Game.assets.allMapObjectsDict.items()}
@@ -518,9 +523,11 @@ def create_flask_app(processQueue):
         currentCharacter = encounter.get_current_character()
         # get list of modified actions (for the current whose turn it is)
         actionJSONS = {an: ac.modify_from_character(currentCharacter).to_json() for an, ac in Game.assets.actionDict.items()}
+        print(f"reactions: {encounter.reactionDict}")
         return render_template('RunEncounterGM.html', encounter=encounter.to_json(),
                                mapObjects=mapObjectJSONs, actions=actionJSONS, footings=footingJSONs,
-                               mapObjectList=encounter.mapObjectList, character=currentCharacter.to_json())
+                               mapObjectList=encounter.mapObjectList, character=currentCharacter.to_json(),
+                               reactionDict=encounter.reactionDict)
 
     ### Action contains modified info 
     @app.route('/GameMaster/CompleteAction/Action/<string:mapObjectID>/<actionListName>', methods=['GET', 'POST'])
@@ -545,20 +552,18 @@ def create_flask_app(processQueue):
                         submissionNum = match.group(1)
                         dataEntry = request.form.get(f'activity_{submissionNum}_data')
                         nameEntry = request.form.get(entryName)
-                        activity = Game.assets.activityDict[nameEntry]
-                        encounter.resolve_activity_effects(activity, mapObjectID, dataEntry)
-                    encounter.end_character_action(mapObjectID)
-                    # save campaign data
-                    Game.assets.curCampaign.update_character_dict(character)
-                    # refresh all screens to update with new gamestate
-                    update_other_rooms({'data': 'Action Complete'})
-                current_user_role = session.get('user_role', 'Guest')
-                if current_user_role == "GM":
-                    return redirect(url_for('RunEncounter', name="current", startNew=0))
-                else:
-                    return redirect(url_for('RunPlayerCharacter', name=current_user_role))
+                        baseActivity = Game.assets.activityDict[nameEntry]
+                        turnActivity = baseActivity.modify_from_character(character)
+                        encounter.add_to_activity_chain(turnActivity, mapObjectID, dataEntry)
+                # populate available reaction dict
+                encounter.populate_reaction_dict()
+                # refresh all screens to update with new gamestate
+                update_other_rooms({'data': 'ActivityChainUpdate'})
+                # return chosen reactions from all rooms
+                reactionList = encounter.get_selected_reactions()
+                encounter.resolve_activity_chain()
         return render_template('CompleteAction.html', encounter=encounter.to_json(), mapObjects=mapObjectJSONs,
                                                 footings=footingJSONs, action=turnAction.to_json(), character=character.to_json(),
-                                                activities=activityJSONS, executorID=mapObjectID, reactionDict=None, effects=effectJSONs,
+                                                activities=activityJSONS, executorID=mapObjectID, effects=effectJSONs,
                                                 mapObjectList=encounter.mapObjectList)
     return app

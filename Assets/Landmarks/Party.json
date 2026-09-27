@@ -1,1 +1,1 @@
-{"name": "Party", "mapIconImgFile": "/static/Assets/Landmarks/Images/partyToken1.png", "type": "party", "encounterListNames": ["Flooded Pathway"]}
+{"name": "Party", "mapIconImgFile": "/static/Assets/Landmarks/Images/partyToken1.png", "type": "stationary", "encounterListNames": ["Flooded Pathway", ["Flooded Pathway"]]}

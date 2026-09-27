@@ -7,6 +7,7 @@ from Tangible import Tangible
 from Effect import Effect
 import Game
 import string
+from collections import deque
 
 class Encounter:
 
@@ -23,11 +24,19 @@ class Encounter:
         # list of map objects whose states will change throughout the encounter
         # stays unserialized
         self.mapObjectList = None
+        self.activityChain = deque([])
+        self.currentSetupToBeat = 0
+        self.currentTotalToBeat = 0
+        self.reactionDict = {}
 
     def to_json(self):
-        # Exclude 'mapObjectList' from serialization
+        # Exclude things from serialization
         data = self.__dict__.copy()
         data.pop('mapObjectList', None)
+        data.pop('activityChain', deque([]))
+        data.pop('currentSetupToBeat', 0)
+        data.pop('currentTotalToBeat', 0)
+        data.pop('reactionDict', {})
         return data
 
     @staticmethod
@@ -85,12 +94,55 @@ class Encounter:
         character.apply_action_costs(action)
         self.update_mapObject_from_id(mapObjectID, character)
 
+    def add_to_activity_chain(self, activity, mapObjectID, activityDataJSON):
+        if activity.setupTime < self.currentSetupToBeat:
+            self.activityChain.appendleft([activity, mapObjectID, activityDataJSON])
+            self.currentSetupToBeat = activity.setupTime
+            return
+        if activity.setupTime < self.currentTotalToBeat:
+            self.activityChain.append([activity, mapObjectID, activityDataJSON])
+            self.currentTotalToBeat = activity.setupTime + activity.cooldownTime
+            return
+
+    def is_mapObject_in_activityChain(self, mapObjectID):
+        for entry in self.activityChain:
+            if entry[1] == mapObjectID:
+                return True
+        return False
+
+    def populate_reaction_dict(self):
+        self.reactionDict = {}
+        for mapObject in self.mapObjectList:
+            if mapObject[2].split("-")[0] == "tangible":
+                continue
+            character = self.get_object_from_object_id(mapObject[2])
+            available_reactions = self.get_character_reactions(character)
+            self.reactionDict[mapObject[2]] = available_reactions
+
+    def get_character_reactions(self, character):
+        reactionList = []
+        for actionName in character.actionListNames:
+            baseAction = Game.assets.actionDict[actionName]
+            turnAction = baseAction.modify_from_character(character)
+            # check if the character can afford the action
+            # FIXME increase cost for being a reaction
+            if not turnAction.meets_cost_requirements(character):
+                continue
+            # check if the first activity is quick enough to be considered
+            activities = turnAction.activityListNames
+            print(f"character: {character.name} action: {actionName} activities: {activities}")
+            baseActivity = Game.assets.activityDict[turnAction.activityListNames[0]]
+            turnActivity = baseActivity.modify_from_character(character)
+            if turnActivity.setupTime < self.currentTotalToBeat:
+                reactionList.append(turnAction)
+
     def resolve_activity_effects(self, activity, mapObjectID, activityDataJSON):
         activityData = json.loads(activityDataJSON)
         mapGrid = json.loads(self.mapGridJSON)
         effectJSONsToApply = []
         for effectName in activity.effectNameList:
                 effectJSONsToApply.append(Effect.to_json(Game.assets.effectDict[effectName]))
+        # FIXME add activity negation in the chain here
         if activity.type == 'singleTarget':
             for object in activityData['selectedObjects']:
                 mapObject = self.get_object_from_object_id(object['id'])
@@ -132,8 +184,11 @@ class Encounter:
     def get_current_character(self):
         return self.get_object_from_object_id(self.mapObjectList[0][2])
 
-    ############ Helpers
+    def resolve_activity_chain(self):
+        for entry in self.activityChain:
+            self.resolve_activity_effects()
 
+    ############ Helpers
     # deserialize object
     def get_object_from_object_id(self, mapObjectID):
         for encounterObject in self.mapObjectList:
@@ -193,33 +248,3 @@ class Encounter:
         while current_next_up.actionCount == 0:
             # rotate list by 1
             self.mapObjectList = self.mapObjectList[1:] + self.mapObjectList[:1]
-
-    # def get_pre_activity_counters(self, activity, assets):
-    #     preActivityCounters = {}
-    #     for mapObject in self.mapObjectList:
-    #         entityName = mapObject[0]
-    #         character = Character.from_json(mapObject[1])
-    #         for actionName in character.actionListNames:
-    #             action = assets.actionList[actionName]
-    #             # check whether the user can afford the action
-    #             if (((action.manaCost) * 2) <= character.mana) and ((action.staminaCost * 2) <= character.stamina):
-    #                 for reactActivityName in action.activityListNames:
-    #                     reactActivity = Game.assets.activityDict[reactActivityName]
-    #                     # ENTIRE action can fit within the setup time
-    #                     if ((reactActivity.setupTime + reactActivity.cooldownTime) < activity.setupTime):
-    #                         preActivityCounters[entityName] = action.to_json()
-    #     return preActivityCounters
-    # 
-    # def get_post_activity_counters(self, activity, assets):
-    #     postActivityCounters = []
-    #     for mapObject in self.mapObjectList:
-    #         for actionIndex in mapObject.actionListNames:
-    #             action = assets.actionList[actionIndex]
-    #             # check whether the user can afford the action (FIXME costs will have an extra reaction cost)
-    #             if ((action.manaCost * 1.0) <= mapObject.mana) and ((action.staminaCost * 1.0) <= mapObject.stamina):
-    #                 for reactActivityName in action.activityListNames:
-    #                     reactActivity = Game.assets.activityDict[reactActivityName]
-    #                     # ENTIRE action can fit within the cooldown time
-    #                     if ((reactActivity.setupTime + reactActivity.cooldownTime) < activity.cooldownTime):
-    #                         postActivityCounters.append((mapObject, action))
-    #     return postActivityCounters

@@ -17,62 +17,43 @@
         actionActivities.push(activities[action.activityListNames[i]]);
     }
 </script>
-{% if reactionDict %}
-    <div class="container">
-        <h3>Possible Reactions</h3>
-        <form method="POST">
-            <input type="hidden" name="action" value="submit_reaction_form">
-            {% for entityID in reactionDict %}
-                <div>
-                    <h4>{{ entityID }} can react:</h4>
-                    {% for action in reactionDict[entityID] %}
-                        <input type="radio" name="{{ action.name }}" value="{{ entity_name }}_{{ action.name }}"> {{ action.name }}<br>
-                    {% endfor %}
-                    <input type="radio" name="pass" value="pass"> Pass<br>
-                </div>
-            {% endfor %}
-            <button type="submit" form="submit_reaction_form">Submit All Reactions</button>
-        </form>
+<form method="POST" id="submit_action_form">
+    <input type="hidden" name="action" value="submit_action_form">
+    {% for i in range(0, action.activityListNames|length) %}
+        <input type="hidden" 
+            id="activity_{{ i }}_data" 
+            name="activity_{{ i }}_data" 
+            value="">
+        <input type="hidden"
+            id="activity_{{ i }}_name"
+            name="activity_{{ i }}_name"
+            value="{{ action.activityListNames[i] }}">
+    {% endfor %}
+</form>
+<div class="container">
+    {% include 'ViewTurnOrder.html' with context %}
+    <div class="column">
+        {% include 'CompleteActionMap.html' with context %}
     </div>
-{% else %}
-    <form method="POST" id="submit_action_form">
-        <input type="hidden" name="action" value="submit_action_form">
-        {% for i in range(0, action.activityListNames|length) %}
-            <input type="hidden" 
-                id="activity_{{ i }}_data" 
-                name="activity_{{ i }}_data" 
-                value="">
-            <input type="hidden"
-                id="activity_{{ i }}_name"
-                name="activity_{{ i }}_name"
-                value="{{ action.activityListNames[i] }}">
+    <div class="column" style="width: 600px;">
+        {% include 'ViewCharacterStats.html' with context %}
+        <h2> {{ action.name }} </h2>
+        {% for activityName in action.activityListNames %}
+            <p> {{ activityName }} :
+            {% for effectName in activities[activityName].effectNameList %}
+                {{ effectName }} (applies {{ effects[effectName].effectQuantity }} {{ effects[effectName].effectType }}, for {{ effects[effectName].durationTurns }} turns)
+            {% endfor %}
+            </p>
         {% endfor %}
-    </form>
-    <div class="container">
-        {% include 'ViewTurnOrder.html' with context %}
-        <div class="column">
-            {% include 'CompleteActionMap.html' with context %}
-        </div>
-        <div class="column" style="width: 600px;">
-            {% include 'ViewCharacterStats.html' with context %}
-            <h2> {{ action.name }} </h2>
-            {% for activityName in action.activityListNames %}
-                <p> {{ activityName }} :
-                {% for effectName in activities[activityName].effectNameList %}
-                    {{ effectName }} (applies {{ effects[effectName].effectQuantity }} {{ effects[effectName].effectType }}, for {{ effects[effectName].durationTurns }} turns)
-                {% endfor %}
-                </p>
-            {% endfor %}
-            <button type="submit" form="submit_action_form">Submit {{ action.name }}</button>
-            <br>
-            <br>
-            {% if current_user_role == character.name %}
-                <a href="{{ url_for('RunPlayerCharacter', name=character.name) }}"> Back </a>
-            {% else %}
-                <a href="{{ url_for('RunEncounter', name=encounter.name) }}"> Back </a>
-            {% endif %}
-        </div>
+        <button type="submit" form="submit_action_form">Submit {{ action.name }}</button>
+        <br>
+        <br>
+        {% if current_user_role == character.name %}
+            <a href="{{ url_for('RunPlayerCharacter', name=character.name) }}"> Back </a>
+        {% else %}
+            <a href="{{ url_for('RunEncounter', name=encounter.name) }}"> Back </a>
+        {% endif %}
     </div>
-{% endif %}
+</div>
 
 {% endblock %}

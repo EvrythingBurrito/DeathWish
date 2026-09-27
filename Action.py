@@ -5,6 +5,7 @@ class Action:
     def __init__(self, name, staminaCost, manaCost, activityListNames):
         ### Order of operations for every action:
         # 1. Action is decided and locked in by executer
+        # 2. prerequisites are checked. If met, resolve costs and continue. If not, abort action (return to encounter screen)
         # 3. Trigger reactions: 
         #       ask all possible reaction weilders if they want to take it (based on setup time (for interrupt and dodge) & cooldown time (for free shot))
         #       Setup time is before executor does anything, including movement

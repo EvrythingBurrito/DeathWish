@@ -1,5 +1,20 @@
 <div class="container">
-    {% include 'ViewTurnOrder.html' with context %}
+    <div class="column">
+        {% include 'ViewTurnOrder.html' with context %}
+        {% for entityName, availableReactions in reactionDict.items() %}
+            <h4>{{ entityName }} Reactions:</h4>
+            {% for reactionName in availableReactions %}
+                <a href="{{ url_for('CompleteAction', mapObjectID=entityName, actionListName=reactionName) }}"> {{ reactionName }} </a>
+                <p> Stamina Cost: {{ actions[reactionName].staminaCost }} Mana Cost: {{ actions[reactionName].manaCost }} </p>
+                <p> Move Order:
+                    {% for move in actions[reactionName].activityListNames %}
+                        {{ move }}
+                    {% endfor %}
+                </p>
+                <br>
+            {% endfor %}
+        {% endfor %}
+    </div>
     <div class="column grid-column">
         {% include 'CompleteActionMap.html' with context %}
     </div>

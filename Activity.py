@@ -54,3 +54,5 @@ class Activity:
         return cls(**json_data)
     
     # TODO method which takes in a shape multiplier integer and modifies the shape field with it
+    def modify_from_character(self, character):
+        return self
